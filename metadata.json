@@ -1,0 +1,5 @@
+{
+  "name": "Kazira.io Clinic Intelligence MVP",
+  "description": "An autonomous clinic intelligence system that generates executive narrative reports from raw clinic data using Gemini AI.",
+  "requestFramePermissions": []
+}
