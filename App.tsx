@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   ClipboardCheck, 
   BarChart3, 
@@ -217,8 +217,13 @@ const App: React.FC = () => {
     if (prev) setOnboardingStep(prev);
   };
 
-  const lineCount = clinicData.split('\n').filter(l => l.trim().length > 0).length;
+  const lineCount = useMemo(() => clinicData.split('\n').filter(l => l.trim().length > 0).length, [clinicData]);
   const charCount = clinicData.length;
+
+  // Use explicit variables to help TS narrowing
+  const isInputView = status === AppStatus.IDLE || status === AppStatus.ERROR;
+  const isProcessing = status === AppStatus.GENERATING_NARRATIVE || status === AppStatus.AUDITING;
+  const isSuccess = status === AppStatus.SUCCESS;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -250,7 +255,7 @@ const App: React.FC = () => {
       </header>
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
-        {status === AppStatus.IDLE || status === AppStatus.ERROR ? (
+        {isInputView ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="lg:col-span-2 space-y-6">
               <div 
@@ -394,7 +399,7 @@ const App: React.FC = () => {
           </div>
         ) : (
           <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-            {(status === AppStatus.GENERATING_NARRATIVE || status === AppStatus.AUDITING) ? (
+            {isProcessing ? (
               <div className="flex flex-col items-center justify-center py-20 space-y-6">
                 <div className="relative">
                   <div className="w-24 h-24 border-8 border-slate-100 border-t-blue-600 rounded-full animate-spin"></div>
@@ -414,7 +419,7 @@ const App: React.FC = () => {
                   </p>
                 </div>
               </div>
-            ) : (
+            ) : isSuccess ? (
               <div className="space-y-8">
                 <Dashboard data={null} />
 
@@ -484,7 +489,7 @@ const App: React.FC = () => {
                   </Button>
                 </div>
               </div>
-            )}
+            ) : null}
           </div>
         )}
       </main>
