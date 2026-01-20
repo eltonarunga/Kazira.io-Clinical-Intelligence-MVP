@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   ClipboardCheck, 
@@ -331,7 +330,7 @@ const App: React.FC = () => {
                     variant="primary" 
                     className="w-full sm:w-auto px-10 py-3 text-lg font-bold shadow-lg shadow-blue-200" 
                     onClick={handleGenerate}
-                    isLoading={status === AppStatus.GENERATING_NARRATIVE || status === AppStatus.AUDITING}
+                    isLoading={isProcessing}
                     disabled={!clinicData}
                   >
                     Analyze & Generate
