@@ -2,7 +2,7 @@
 import React from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  PieChart, Pie, Cell, LineChart, Line 
+  PieChart, Pie, Cell 
 } from 'recharts';
 
 interface DashboardProps {
@@ -39,7 +39,10 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
               <YAxis />
               <Tooltip 
                 contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} 
-                formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
+                formatter={(value: any) => {
+                  const num = typeof value === 'number' ? value : 0;
+                  return [`$${num.toLocaleString()}`, 'Revenue'];
+                }}
               />
               <Bar dataKey="revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={60} />
             </BarChart>
@@ -66,7 +69,10 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
                 ))}
               </Pie>
               <Tooltip 
-                formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
+                formatter={(value: any) => {
+                  const num = typeof value === 'number' ? value : 0;
+                  return [`$${num.toLocaleString()}`, 'Revenue'];
+                }}
               />
             </PieChart>
           </ResponsiveContainer>
