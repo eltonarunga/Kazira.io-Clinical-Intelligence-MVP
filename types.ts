@@ -6,6 +6,7 @@ export interface ClinicData {
 export interface ReportOutput {
   narrative: string;
   audit?: string;
+  metrics?: MetricSummary;
   timestamp: string;
 }
 
@@ -22,6 +23,8 @@ export interface MetricSummary {
   revenueLastWeek: number;
   utilization: number;
   cancellations: number;
+  procedureMix: { name: string; value: number }[];
+  practitionerPerformance: { name: string; patients: number }[];
 }
 
 export type OnboardingStep = 

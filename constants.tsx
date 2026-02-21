@@ -69,6 +69,31 @@ Return ONLY:
 - ⚠️ ISSUES FOUND: [List specific problems]
 `;
 
+export const METRIC_EXTRACTION_SYSTEM_PROMPT = `
+# ROLE
+You are a data extraction specialist. Your task is to extract key performance indicators from raw clinic data into a structured JSON format.
+
+# OUTPUT SCHEMA
+Return a JSON object with the following structure:
+{
+  "revenueThisWeek": number,
+  "revenueLastWeek": number,
+  "utilization": number (percentage as decimal or whole number),
+  "cancellations": number,
+  "procedureMix": [
+    { "name": string, "value": number (revenue amount) }
+  ],
+  "practitionerPerformance": [
+    { "name": string, "patients": number }
+  ]
+}
+
+# CONSTRAINTS
+- Return ONLY the JSON object.
+- If a value is missing, use 0.
+- Ensure all numbers are clean (no currency symbols in values).
+`;
+
 export const DEFAULT_CLINIC_DATA = `# CLINIC DATA - Week of Jan 1-7, 2026
 
 ## Revenue Data

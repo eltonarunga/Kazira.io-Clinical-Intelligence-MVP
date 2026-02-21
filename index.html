@@ -6,6 +6,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kazira.io MVP</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style type="text/tailwindcss">
+      @layer base {
+        .markdown-body h2 {
+          @apply text-2xl font-bold text-slate-900 mt-8 mb-4 pb-2 border-b border-slate-100;
+        }
+        .markdown-body h3 {
+          @apply text-xl font-bold text-slate-800 mt-6 mb-3;
+        }
+        .markdown-body p {
+          @apply text-slate-700 leading-relaxed mb-4;
+        }
+        .markdown-body ul {
+          @apply list-disc ml-6 mb-4 space-y-2;
+        }
+        .markdown-body li {
+          @apply text-slate-700;
+        }
+        .markdown-body blockquote {
+          @apply bg-blue-50 border-l-4 border-blue-500 p-4 my-6 italic text-blue-900;
+        }
+        .markdown-body strong {
+          @apply font-bold text-slate-900;
+        }
+      }
+    </style>
 <script type="importmap">
 {
   "imports": {

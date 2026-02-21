@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { 
   ClipboardCheck, 
   BarChart3, 
@@ -16,11 +18,13 @@ import {
   Upload,
   Trash2,
   FileCode,
-  List
+  List,
+  Download,
+  History
 } from 'lucide-react';
 import { AppStatus, ReportOutput, OnboardingStep } from './types';
 import { DEFAULT_CLINIC_DATA } from './constants';
-import { generateNarrativeReport, auditReport } from './services/geminiService';
+import { generateNarrativeReport, auditReport, extractMetrics } from './services/geminiService';
 import Button from './components/Button';
 import Dashboard from './components/Dashboard';
 import Onboarding from './components/Onboarding';
@@ -36,39 +40,33 @@ const SectionHeader: React.FC<{ id?: string; title: string; icon: React.ReactNod
   </div>
 );
 
-// Simple Markdown-ish renderer (basic)
 const ReportContent: React.FC<{ text: string }> = ({ text }) => {
-  const lines = text.split('\n');
   return (
-    <div className="space-y-4 text-slate-700 leading-relaxed">
-      {lines.map((line, i) => {
-        if (line.startsWith('## 1.')) {
-          return <h3 key={i} id="exec-summary" className="text-xl font-bold text-slate-900 pt-4 pb-1 border-b border-slate-100 scroll-mt-24">{line.replace('## ', '')}</h3>;
-        }
-        if (line.startsWith('## 3.')) {
-          return <h3 key={i} id="why-changed" className="text-xl font-bold text-slate-900 pt-4 pb-1 border-b border-slate-100 scroll-mt-24">{line.replace('## ', '')}</h3>;
-        }
-        if (line.startsWith('## 4.')) {
-          return <h3 key={i} id="at-risk" className="text-xl font-bold text-slate-900 pt-4 pb-1 border-b border-slate-100 scroll-mt-24">{line.replace('## ', '')}</h3>;
-        }
-        if (line.startsWith('## 5.')) {
-          return <h3 key={i} id="next-steps" className="text-xl font-bold text-slate-900 pt-4 pb-1 border-b border-slate-100 scroll-mt-24">{line.replace('## ', '')}</h3>;
-        }
-        if (line.startsWith('## ')) {
-          return <h3 key={i} className="text-xl font-bold text-slate-900 pt-4 pb-1 border-b border-slate-100 scroll-mt-24">{line.replace('## ', '')}</h3>;
-        }
-        if (line.startsWith('**') && line.endsWith('**')) {
-          return <p key={i} className="font-bold text-slate-900">{line.replace(/\*\*/g, '')}</p>;
-        }
-        if (line.startsWith('- ')) {
-          return <li key={i} className="ml-4 list-disc pl-2">{line.replace('- ', '')}</li>;
-        }
-        if (line.includes('🟢')) return <p key={i} className="flex items-center gap-2 py-1"><span className="text-emerald-500">🟢</span> {line.replace('🟢', '').trim()}</p>;
-        if (line.includes('🟡')) return <p key={i} className="flex items-center gap-2 py-1"><span className="text-amber-500">🟡</span> {line.replace('🟡', '').trim()}</p>;
-        if (line.includes('🔴')) return <p key={i} className="flex items-center gap-2 py-1"><span className="text-rose-500">🔴</span> {line.replace('🔴', '').trim()}</p>;
-        if (line.includes('⚠️')) return <div key={i} className="bg-amber-50 p-4 rounded-lg border-l-4 border-amber-400 my-4 font-medium"><span className="mr-2">⚠️</span>{line.replace('⚠️', '').trim()}</div>;
-        return <p key={i}>{line}</p>;
-      })}
+    <div className="markdown-body prose prose-slate max-w-none prose-headings:scroll-mt-24">
+      <ReactMarkdown 
+        remarkPlugins={[remarkGfm]}
+        components={{
+          h2: ({node, ...props}) => {
+            const id = props.children?.toString().toLowerCase().includes('executive summary') ? 'exec-summary' : 
+                       props.children?.toString().toLowerCase().includes('why it changed') ? 'why-changed' :
+                       props.children?.toString().toLowerCase().includes('at risk') ? 'at-risk' :
+                       props.children?.toString().toLowerCase().includes('next steps') ? 'next-steps' : undefined;
+            return <h2 id={id} className="text-2xl font-bold text-slate-900 mt-8 mb-4 pb-2 border-b border-slate-100" {...props} />;
+          },
+          h3: ({node, ...props}) => <h3 className="text-xl font-bold text-slate-800 mt-6 mb-3" {...props} />,
+          p: ({node, ...props}) => {
+            const content = props.children?.toString() || '';
+            if (content.includes('🟢')) return <p className="flex items-center gap-2 py-1 text-emerald-700 font-medium"><span className="text-emerald-500">🟢</span> {content.replace('🟢', '').trim()}</p>;
+            if (content.includes('🟡')) return <p className="flex items-center gap-2 py-1 text-amber-700 font-medium"><span className="text-amber-500">🟡</span> {content.replace('🟡', '').trim()}</p>;
+            if (content.includes('🔴')) return <p className="flex items-center gap-2 py-1 text-rose-700 font-medium"><span className="text-rose-500">🔴</span> {content.replace('🔴', '').trim()}</p>;
+            return <p className="text-slate-700 leading-relaxed mb-4" {...props} />;
+          },
+          li: ({node, ...props}) => <li className="text-slate-700 mb-2" {...props} />,
+          blockquote: ({node, ...props}) => <blockquote className="bg-blue-50 border-l-4 border-blue-500 p-4 my-6 italic text-blue-900" {...props} />,
+        }}
+      >
+        {text}
+      </ReactMarkdown>
     </div>
   );
 };
@@ -80,6 +78,8 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>('HIDDEN');
   const [showDataGuide, setShowDataGuide] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [history, setHistory] = useState<ReportOutput[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -89,6 +89,8 @@ const App: React.FC = () => {
     if (!hasOnboarded) {
       setOnboardingStep('WELCOME');
     }
+    const savedHistory = JSON.parse(localStorage.getItem('kazira_history') || '[]');
+    setHistory(savedHistory);
   }, []);
 
   const handleGenerate = async () => {
@@ -105,17 +107,29 @@ const App: React.FC = () => {
         setOnboardingStep('PROCESSING');
       }
 
-      const narrative = await generateNarrativeReport(clinicData);
+      // Parallelize narrative generation and metric extraction
+      const [narrative, metrics] = await Promise.all([
+        generateNarrativeReport(clinicData),
+        extractMetrics(clinicData)
+      ]);
       
       setStatus(AppStatus.AUDITING);
       const audit = await auditReport(clinicData, narrative);
       
-      setReport({
+      const newReport: ReportOutput = {
         narrative,
         audit,
+        metrics,
         timestamp: new Date().toLocaleString()
-      });
+      };
+
+      setReport(newReport);
       setStatus(AppStatus.SUCCESS);
+
+      // Save to history
+      const updatedHistory = [newReport, ...history].slice(0, 10);
+      setHistory(updatedHistory);
+      localStorage.setItem('kazira_history', JSON.stringify(updatedHistory));
 
       if (onboardingStep === 'PROCESSING') {
         setTimeout(() => setOnboardingStep('REPORT_OVERVIEW'), 1000);
@@ -125,6 +139,18 @@ const App: React.FC = () => {
       setError(err.message || "An unexpected error occurred.");
       setStatus(AppStatus.ERROR);
     }
+  };
+
+  const handleDownload = () => {
+    if (!report) return;
+    const content = `# Kazira.io Clinic Performance Report\nGenerated: ${report.timestamp}\n\n${report.narrative}\n\n## Audit Log\n${report.audit}`;
+    const blob = new Blob([content], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Kazira_Report_${report.timestamp.replace(/[/:\s]/g, '_')}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const reset = () => {
@@ -248,10 +274,78 @@ const App: React.FC = () => {
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold border border-emerald-100">
               <Zap size={14} fill="currentColor" /> SYSTEM ONLINE
             </div>
+            <Button variant="ghost" onClick={() => setShowHistory(!showHistory)} className="relative">
+              <History size={18} />
+              {history.length > 0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 text-white text-[10px] flex items-center justify-center rounded-full border-2 border-white">{history.length}</span>}
+            </Button>
             <Button variant="ghost" onClick={() => window.location.reload()}><RefreshCw size={18} /></Button>
           </div>
         </div>
       </header>
+
+      {/* History Sidebar */}
+      {showHistory && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowHistory(false)} />
+          <div className="relative w-full max-w-md bg-white h-full shadow-2xl animate-in slide-in-from-right duration-300 flex flex-col">
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <History className="text-blue-600" size={20} />
+                <h2 className="font-bold text-slate-900">Report History</h2>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setShowHistory(false)}><X size={20} /></Button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {history.length === 0 ? (
+                <div className="text-center py-12">
+                  <History size={48} className="mx-auto text-slate-200 mb-4" />
+                  <p className="text-slate-500 font-medium">No reports generated yet.</p>
+                </div>
+              ) : (
+                history.map((item, i) => (
+                  <div 
+                    key={i} 
+                    className="p-4 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-pointer group"
+                    onClick={() => {
+                      setReport(item);
+                      setStatus(AppStatus.SUCCESS);
+                      setShowHistory(false);
+                    }}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">{item.timestamp}</span>
+                      <ChevronRight size={14} className="text-slate-300 group-hover:text-blue-400 transition-colors" />
+                    </div>
+                    <h3 className="font-bold text-slate-800 text-sm line-clamp-1">
+                      {item.narrative.split('\n').find(l => l.startsWith('## 1.'))?.replace('## 1.', '').trim() || 'Weekly Report'}
+                    </h3>
+                    <div className="mt-2 flex gap-2">
+                      <div className="px-2 py-0.5 bg-slate-100 text-[10px] font-bold text-slate-500 rounded uppercase">
+                        ${item.metrics?.revenueThisWeek.toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            <div className="p-6 border-t border-slate-100">
+              <Button 
+                variant="secondary" 
+                className="w-full text-rose-500 hover:text-rose-600 hover:bg-rose-50 border-rose-100"
+                onClick={() => {
+                  if (confirm('Clear all history?')) {
+                    setHistory([]);
+                    localStorage.removeItem('kazira_history');
+                  }
+                }}
+                disabled={history.length === 0}
+              >
+                <Trash2 size={16} /> Clear History
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
         {isInputView ? (
@@ -420,7 +514,7 @@ const App: React.FC = () => {
               </div>
             ) : isSuccess ? (
               <div className="space-y-8">
-                <Dashboard data={null} />
+                <Dashboard data={report?.metrics} />
 
                 <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden">
                   <div className="bg-slate-900 text-white p-8 md:p-12">
@@ -433,8 +527,11 @@ const App: React.FC = () => {
                         <p className="text-slate-400 font-medium">{report?.timestamp}</p>
                       </div>
                       <div className="flex gap-3">
+                        <Button variant="secondary" className="bg-slate-800 border-slate-700 text-white hover:bg-slate-700" onClick={handleDownload}>
+                          <Download size={18} /> Export MD
+                        </Button>
                         <Button variant="secondary" className="bg-slate-800 border-slate-700 text-white hover:bg-slate-700" onClick={reset}>
-                          <RefreshCw size={18} /> Run New Report
+                          <RefreshCw size={18} /> New Report
                         </Button>
                       </div>
                     </div>
