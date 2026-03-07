@@ -25,6 +25,7 @@ import {
 import { AppStatus, ReportOutput, OnboardingStep } from './types';
 import { DEFAULT_CLINIC_DATA } from './constants';
 import { generateNarrativeReport, auditReport, extractMetrics } from './services/geminiService';
+import { processClinicData } from './utils/dataPipeline';
 import Button from './components/Button';
 import Dashboard from './components/Dashboard';
 import Onboarding from './components/Onboarding';
@@ -107,14 +108,17 @@ const App: React.FC = () => {
         setOnboardingStep('PROCESSING');
       }
 
-      // Parallelize narrative generation and metric extraction
+      // 1. Process and clean the raw data through the pipeline
+      const cleanedData = processClinicData(clinicData);
+
+      // 2. Parallelize narrative generation and metric extraction using cleaned data
       const [narrative, metrics] = await Promise.all([
-        generateNarrativeReport(clinicData),
-        extractMetrics(clinicData)
+        generateNarrativeReport(cleanedData),
+        extractMetrics(cleanedData)
       ]);
       
       setStatus(AppStatus.AUDITING);
-      const audit = await auditReport(clinicData, narrative);
+      const audit = await auditReport(cleanedData, narrative);
       
       const newReport: ReportOutput = {
         narrative,
