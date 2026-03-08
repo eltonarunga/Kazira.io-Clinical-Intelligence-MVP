@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import { Toaster, toast } from 'sonner';
 import { 
   ClipboardCheck, 
   BarChart3, 
@@ -28,8 +27,11 @@ import { generateNarrativeReport, auditReport, extractMetrics } from './services
 import { processClinicData } from './utils/dataPipeline';
 import Button from './components/Button';
 import Dashboard from './components/Dashboard';
+import DashboardSkeleton from './components/DashboardSkeleton';
 import Onboarding from './components/Onboarding';
 import DataInputGuide from './components/DataInputGuide';
+import ErrorBoundary from './components/ErrorBoundary';
+import ReportContent from './components/ReportContent';
 
 // Helper component for section headers
 const SectionHeader: React.FC<{ id?: string; title: string; icon: React.ReactNode }> = ({ id, title, icon }) => (
@@ -40,37 +42,6 @@ const SectionHeader: React.FC<{ id?: string; title: string; icon: React.ReactNod
     <h2 className="text-lg font-bold text-slate-800 uppercase tracking-tight">{title}</h2>
   </div>
 );
-
-const ReportContent: React.FC<{ text: string }> = ({ text }) => {
-  return (
-    <div className="markdown-body prose prose-slate max-w-none prose-headings:scroll-mt-24">
-      <ReactMarkdown 
-        remarkPlugins={[remarkGfm]}
-        components={{
-          h2: ({node, ...props}) => {
-            const id = props.children?.toString().toLowerCase().includes('executive summary') ? 'exec-summary' : 
-                       props.children?.toString().toLowerCase().includes('why it changed') ? 'why-changed' :
-                       props.children?.toString().toLowerCase().includes('at risk') ? 'at-risk' :
-                       props.children?.toString().toLowerCase().includes('next steps') ? 'next-steps' : undefined;
-            return <h2 id={id} className="text-2xl font-bold text-slate-900 mt-8 mb-4 pb-2 border-b border-slate-100" {...props} />;
-          },
-          h3: ({node, ...props}) => <h3 className="text-xl font-bold text-slate-800 mt-6 mb-3" {...props} />,
-          p: ({node, ...props}) => {
-            const content = props.children?.toString() || '';
-            if (content.includes('🟢')) return <p className="flex items-center gap-2 py-1 text-emerald-700 font-medium"><span className="text-emerald-500">🟢</span> {content.replace('🟢', '').trim()}</p>;
-            if (content.includes('🟡')) return <p className="flex items-center gap-2 py-1 text-amber-700 font-medium"><span className="text-amber-500">🟡</span> {content.replace('🟡', '').trim()}</p>;
-            if (content.includes('🔴')) return <p className="flex items-center gap-2 py-1 text-rose-700 font-medium"><span className="text-rose-500">🔴</span> {content.replace('🔴', '').trim()}</p>;
-            return <p className="text-slate-700 leading-relaxed mb-4" {...props} />;
-          },
-          li: ({node, ...props}) => <li className="text-slate-700 mb-2" {...props} />,
-          blockquote: ({node, ...props}) => <blockquote className="bg-blue-50 border-l-4 border-blue-500 p-4 my-6 italic text-blue-900" {...props} />,
-        }}
-      >
-        {text}
-      </ReactMarkdown>
-    </div>
-  );
-};
 
 const App: React.FC = () => {
   const [clinicData, setClinicData] = useState('');
@@ -97,7 +68,7 @@ const App: React.FC = () => {
   const handleGenerate = async () => {
     try {
       if (!clinicData.trim()) {
-        setError("Please enter or load some clinic data first.");
+        toast.error("Please enter or load some clinic data first.");
         return;
       }
       
@@ -129,6 +100,7 @@ const App: React.FC = () => {
 
       setReport(newReport);
       setStatus(AppStatus.SUCCESS);
+      toast.success("Report generated successfully!");
 
       // Save to history
       const updatedHistory = [newReport, ...history].slice(0, 10);
@@ -140,7 +112,9 @@ const App: React.FC = () => {
       }
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "An unexpected error occurred.");
+      const errorMessage = err.message || "An unexpected error occurred.";
+      setError(errorMessage);
+      toast.error(errorMessage);
       setStatus(AppStatus.ERROR);
     }
   };
@@ -255,13 +229,15 @@ const App: React.FC = () => {
   const isSuccess = status === AppStatus.SUCCESS;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Onboarding 
-        currentStep={onboardingStep} 
-        onNext={nextOnboarding} 
-        onPrev={prevOnboarding} 
-        onClose={() => setOnboardingStep('HIDDEN')}
-      />
+    <ErrorBoundary>
+      <div className="min-h-screen flex flex-col">
+        <Toaster position="top-right" richColors />
+        <Onboarding 
+          currentStep={onboardingStep} 
+          onNext={nextOnboarding} 
+          onPrev={prevOnboarding} 
+          onClose={() => setOnboardingStep('HIDDEN')}
+        />
 
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -435,13 +411,6 @@ const App: React.FC = () => {
                   </Button>
                 </div>
               </div>
-              
-              {error && (
-                <div className="bg-red-50 text-red-700 p-4 rounded-xl border border-red-100 flex items-center gap-3">
-                  <AlertTriangle size={20} className="shrink-0" />
-                  <p className="text-sm font-medium">{error}</p>
-                </div>
-              )}
             </div>
 
             <div className="space-y-6">
@@ -497,23 +466,28 @@ const App: React.FC = () => {
         ) : (
           <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
             {isProcessing ? (
-              <div className="flex flex-col items-center justify-center py-20 space-y-6">
-                <div className="relative">
-                  <div className="w-24 h-24 border-8 border-slate-100 border-t-blue-600 rounded-full animate-spin"></div>
-                  <div className="absolute inset-0 flex items-center justify-center text-blue-600 font-bold text-xl">
-                    {status === AppStatus.GENERATING_NARRATIVE ? '1/2' : '2/2'}
+              <div className="space-y-8">
+                <DashboardSkeleton />
+                <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden p-12 flex flex-col items-center justify-center min-h-[400px]">
+                  <div className="flex flex-col items-center justify-center space-y-6">
+                    <div className="relative">
+                      <div className="w-24 h-24 border-8 border-slate-100 border-t-blue-600 rounded-full animate-spin"></div>
+                      <div className="absolute inset-0 flex items-center justify-center text-blue-600 font-bold text-xl">
+                        {status === AppStatus.GENERATING_NARRATIVE ? '1/2' : '2/2'}
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <h2 className="text-2xl font-bold text-slate-800 mb-2">
+                        {status === AppStatus.GENERATING_NARRATIVE ? 'Synthesizing Narrative...' : 'Auditing Report Integrity...'}
+                      </h2>
+                      <p className="text-slate-500 max-w-md">
+                        {status === AppStatus.GENERATING_NARRATIVE 
+                          ? "Our Narrative Agent is connecting your clinic's data points and identifying primary drivers."
+                          : "The Audit Agent is verifying math, logic, and looking for potential hallucinations."
+                        }
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="text-center">
-                  <h2 className="text-2xl font-bold text-slate-800 mb-2">
-                    {status === AppStatus.GENERATING_NARRATIVE ? 'Synthesizing Narrative...' : 'Auditing Report Integrity...'}
-                  </h2>
-                  <p className="text-slate-500 max-w-md">
-                    {status === AppStatus.GENERATING_NARRATIVE 
-                      ? "Our Narrative Agent is connecting your clinic's data points and identifying primary drivers."
-                      : "The Audit Agent is verifying math, logic, and looking for potential hallucinations."
-                    }
-                  </p>
                 </div>
               </div>
             ) : isSuccess ? (
@@ -601,13 +575,14 @@ const App: React.FC = () => {
             <span>&copy; 2026</span>
           </div>
           <div className="flex gap-6 font-medium">
-            <a href="#" className="hover:text-slate-600">Methodology</a>
-            <a href="#" className="hover:text-slate-600">Documentation</a>
-            <a href="#" className="hover:text-slate-600">Support</a>
+            <a href="#" className="hover:text-slate-600 transition-colors">Methodology</a>
+            <a href="#" className="hover:text-slate-600 transition-colors">Documentation</a>
+            <a href="#" className="hover:text-slate-600 transition-colors">Support</a>
           </div>
         </div>
       </footer>
     </div>
+    </ErrorBoundary>
   );
 };
 

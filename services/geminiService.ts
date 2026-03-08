@@ -12,6 +12,39 @@ export const extractMetrics = async (rawInput: string): Promise<MetricSummary> =
     config: {
       systemInstruction: METRIC_EXTRACTION_SYSTEM_PROMPT,
       responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          revenueThisWeek: { type: Type.NUMBER, description: "Total revenue for the current week" },
+          revenueLastWeek: { type: Type.NUMBER, description: "Total revenue for the previous week" },
+          utilization: { type: Type.NUMBER, description: "Clinic utilization percentage (0-100)" },
+          cancellations: { type: Type.NUMBER, description: "Total number of cancellations" },
+          procedureMix: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                name: { type: Type.STRING },
+                value: { type: Type.NUMBER }
+              },
+              required: ["name", "value"]
+            }
+          },
+          practitionerPerformance: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                name: { type: Type.STRING },
+                patientsSeen: { type: Type.NUMBER },
+                revenueGenerated: { type: Type.NUMBER }
+              },
+              required: ["name", "patientsSeen", "revenueGenerated"]
+            }
+          }
+        },
+        required: ["revenueThisWeek", "revenueLastWeek", "utilization", "cancellations", "procedureMix", "practitionerPerformance"]
+      }
     },
   });
 

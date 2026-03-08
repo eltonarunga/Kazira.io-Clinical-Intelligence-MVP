@@ -4,6 +4,18 @@ All notable changes to the Kazira.io project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-03-07
+
+### Added
+- **Production Error Boundary:** Implemented a React Error Boundary to catch unhandled exceptions and provide a graceful fallback UI.
+- **Toast Notifications:** Integrated `sonner` for non-intrusive, professional toast notifications for success and error states.
+- **Loading Skeleton:** Added a `DashboardSkeleton` component to improve perceived performance and UX during the data processing phase.
+- **Structured JSON Schema:** Upgraded the `extractMetrics` Gemini call to use `responseSchema`, guaranteeing the AI returns a strictly typed JSON object, preventing parsing errors.
+
+### Changed
+- **Component Modularity:** Extracted the `ReportContent` markdown renderer into its own reusable component to clean up the main application file.
+- **Math Safety:** Fixed a potential division-by-zero bug in the Dashboard's growth calculation.
+
 ## [1.1.0] - 2026-03-06
 
 ### Added

@@ -28,7 +28,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           { label: 'Revenue', value: `$${data.revenueThisWeek.toLocaleString()}`, change: data.revenueThisWeek > data.revenueLastWeek ? 'up' : 'down' },
           { label: 'Utilization', value: `${data.utilization}%`, change: 'neutral' },
           { label: 'Cancellations', value: data.cancellations, change: 'neutral' },
-          { label: 'Growth', value: `${(((data.revenueThisWeek - data.revenueLastWeek) / data.revenueLastWeek) * 100).toFixed(1)}%`, change: data.revenueThisWeek > data.revenueLastWeek ? 'up' : 'down' }
+          { label: 'Growth', value: `${data.revenueLastWeek ? (((data.revenueThisWeek - data.revenueLastWeek) / data.revenueLastWeek) * 100).toFixed(1) : '100'}%`, change: data.revenueThisWeek > data.revenueLastWeek ? 'up' : 'down' }
         ].map((stat, i) => (
           <div key={i} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{stat.label}</p>
