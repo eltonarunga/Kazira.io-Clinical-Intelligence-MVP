@@ -4,6 +4,13 @@ All notable changes to the Kazira.io project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-03-16
+
+### Added
+- **Legal Compliance:** Added comprehensive Terms of Service and Privacy Policy documents.
+- **Security Prohibitions:** Explicitly prohibited unauthorized scraping, vulnerability testing, and security circumvention within the Terms of Service, outlining legal repercussions for violations.
+- **Legal Modals:** Implemented a reusable `Modal` component to display legal documents seamlessly from the application footer.
+
 ## [1.2.0] - 2026-03-07
 
 ### Added

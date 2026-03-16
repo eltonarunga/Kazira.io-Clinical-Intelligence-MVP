@@ -32,6 +32,9 @@ import Onboarding from './components/Onboarding';
 import DataInputGuide from './components/DataInputGuide';
 import ErrorBoundary from './components/ErrorBoundary';
 import ReportContent from './components/ReportContent';
+import Modal from './components/Modal';
+import TermsOfService from './components/TermsOfService';
+import PrivacyPolicy from './components/PrivacyPolicy';
 
 // Helper component for section headers
 const SectionHeader: React.FC<{ id?: string; title: string; icon: React.ReactNode }> = ({ id, title, icon }) => (
@@ -50,6 +53,8 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>('HIDDEN');
   const [showDataGuide, setShowDataGuide] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [history, setHistory] = useState<ReportOutput[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -575,12 +580,21 @@ const App: React.FC = () => {
             <span>&copy; 2026</span>
           </div>
           <div className="flex gap-6 font-medium">
-            <a href="#" className="hover:text-slate-600 transition-colors">Methodology</a>
-            <a href="#" className="hover:text-slate-600 transition-colors">Documentation</a>
+            <button onClick={() => setIsTermsOpen(true)} className="hover:text-slate-600 transition-colors">Terms of Service</button>
+            <button onClick={() => setIsPrivacyOpen(true)} className="hover:text-slate-600 transition-colors">Privacy Policy</button>
             <a href="#" className="hover:text-slate-600 transition-colors">Support</a>
           </div>
         </div>
       </footer>
+
+      {/* Legal Modals */}
+      <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} title="Terms of Service">
+        <TermsOfService />
+      </Modal>
+      
+      <Modal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} title="Privacy Policy">
+        <PrivacyPolicy />
+      </Modal>
     </div>
     </ErrorBoundary>
   );
