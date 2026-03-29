@@ -18,7 +18,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
     { name: 'This Week', revenue: data.revenueThisWeek },
   ];
 
-  const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b'];
+  const COLORS = ['#2B4C7E', '#D4AF37', '#567C8D', '#1A2A40', '#A8B5C2', '#8C9AAB'];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -30,33 +30,33 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           { label: 'Cancellations', value: data.cancellations, change: 'neutral' },
           { label: 'Growth', value: `${data.revenueLastWeek ? (((data.revenueThisWeek - data.revenueLastWeek) / data.revenueLastWeek) * 100).toFixed(1) : '100'}%`, change: data.revenueThisWeek > data.revenueLastWeek ? 'up' : 'down' }
         ].map((stat, i) => (
-          <div key={i} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{stat.label}</p>
-            <p className="text-2xl font-bold text-slate-900 mt-1">{stat.value}</p>
+          <div key={i} className="bg-surface p-4 rounded-xl border border-border2 shadow-sm">
+            <p className="text-xs font-semibold text-ink3 uppercase tracking-wider">{stat.label}</p>
+            <p className="text-2xl font-bold text-ink2 mt-1">{stat.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Revenue Comparison</h3>
+      <div className="bg-surface p-6 rounded-xl border border-border2 shadow-sm">
+        <h3 className="text-sm font-semibold text-ink3 uppercase tracking-wider mb-4">Revenue Comparison</h3>
         <div className="h-[250px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={revenueTrend}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} />
-              <YAxis axisLine={false} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#4A5568'}} />
+              <YAxis axisLine={false} tickLine={false} tick={{fill: '#4A5568'}} />
               <Tooltip 
-                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} 
+                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: '#F8FAFC', color: '#1A2A40' }} 
                 formatter={(value: any) => [`$${value.toLocaleString()}`, 'Revenue']}
               />
-              <Bar dataKey="revenue" fill="#3b82f6" radius={[6, 6, 0, 0]} barSize={50} />
+              <Bar dataKey="revenue" fill="#2B4C7E" radius={[6, 6, 0, 0]} barSize={50} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Procedure Mix</h3>
+      <div className="bg-surface p-6 rounded-xl border border-border2 shadow-sm">
+        <h3 className="text-sm font-semibold text-ink3 uppercase tracking-wider mb-4">Procedure Mix</h3>
         <div className="h-[250px] w-full flex flex-col items-center justify-center">
           <ResponsiveContainer width="100%" height={180}>
             <PieChart>
@@ -74,13 +74,14 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
                 ))}
               </Pie>
               <Tooltip 
+                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: '#F8FAFC', color: '#1A2A40' }}
                 formatter={(value: any) => [`$${value.toLocaleString()}`, 'Revenue']}
               />
             </PieChart>
           </ResponsiveContainer>
           <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-4 w-full px-2">
             {data.procedureMix.slice(0, 4).map((entry, index) => (
-              <div key={entry.name} className="flex items-center gap-2 text-[10px] font-medium text-slate-600 truncate">
+              <div key={entry.name} className="flex items-center gap-2 text-[10px] font-medium text-ink3 truncate">
                 <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
                 <span className="truncate">{entry.name}</span>
               </div>
@@ -89,19 +90,19 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Practitioner Load</h3>
+      <div className="bg-surface p-6 rounded-xl border border-border2 shadow-sm">
+        <h3 className="text-sm font-semibold text-ink3 uppercase tracking-wider mb-4">Practitioner Load</h3>
         <div className="h-[250px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data.practitionerPerformance} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E2E8F0" />
               <XAxis type="number" hide />
-              <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} width={80} style={{ fontSize: '12px' }} />
+              <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} width={80} style={{ fontSize: '12px', fill: '#4A5568' }} />
               <Tooltip 
-                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} 
+                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: '#F8FAFC', color: '#1A2A40' }} 
                 formatter={(value: any) => [value, 'Patients']}
               />
-              <Bar dataKey="patients" fill="#8b5cf6" radius={[0, 4, 4, 0]} barSize={20} />
+              <Bar dataKey="patients" fill="#D4AF37" radius={[0, 4, 4, 0]} barSize={20} />
             </BarChart>
           </ResponsiveContainer>
         </div>

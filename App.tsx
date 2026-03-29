@@ -35,14 +35,15 @@ import ReportContent from './components/ReportContent';
 import Modal from './components/Modal';
 import TermsOfService from './components/TermsOfService';
 import PrivacyPolicy from './components/PrivacyPolicy';
+import LandingPage from './components/LandingPage';
 
 // Helper component for section headers
 const SectionHeader: React.FC<{ id?: string; title: string; icon: React.ReactNode }> = ({ id, title, icon }) => (
-  <div id={id} className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2 scroll-mt-24">
-    <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg">
+  <div id={id} className="flex items-center gap-2 mb-4 border-b border-border pb-2 scroll-mt-24">
+    <div className="p-1.5 bg-accent-light text-accent rounded-lg">
       {icon}
     </div>
-    <h2 className="text-lg font-bold text-slate-800 uppercase tracking-tight">{title}</h2>
+    <h2 className="text-lg font-bold text-ink uppercase tracking-tight">{title}</h2>
   </div>
 );
 
@@ -57,6 +58,7 @@ const App: React.FC = () => {
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [history, setHistory] = useState<ReportOutput[]>([]);
+  const [showApp, setShowApp] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -233,9 +235,13 @@ const App: React.FC = () => {
   const isProcessing = status === AppStatus.GENERATING_NARRATIVE || status === AppStatus.AUDITING;
   const isSuccess = status === AppStatus.SUCCESS;
 
+  if (!showApp) {
+    return <LandingPage onLaunchApp={() => setShowApp(true)} />;
+  }
+
   return (
     <ErrorBoundary>
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-surface text-ink">
         <Toaster position="top-right" richColors />
         <Onboarding 
           currentStep={onboardingStep} 
@@ -244,24 +250,24 @@ const App: React.FC = () => {
           onClose={() => setOnboardingStep('HIDDEN')}
         />
 
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
+      <header className="bg-surface border-b border-border2 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-200">
+            <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-accent/20">
               K
             </div>
             <div>
-              <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">Kazira.io</h1>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none">Clinic Intelligence Report MVP</p>
+              <h1 className="text-xl font-extrabold text-ink tracking-tight font-serif">Kazira Clinical Intelligence</h1>
+              <p className="text-[10px] text-ink3 font-bold uppercase tracking-widest leading-none">Report MVP</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold border border-emerald-100">
+            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-accent-pale text-accent2 rounded-full text-xs font-bold border border-accent/20">
               <Zap size={14} fill="currentColor" /> SYSTEM ONLINE
             </div>
             <Button variant="ghost" onClick={() => setShowHistory(!showHistory)} className="relative">
               <History size={18} />
-              {history.length > 0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 text-white text-[10px] flex items-center justify-center rounded-full border-2 border-white">{history.length}</span>}
+              {history.length > 0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent text-white text-[10px] flex items-center justify-center rounded-full border-2 border-surface">{history.length}</span>}
             </Button>
             <Button variant="ghost" onClick={() => window.location.reload()}><RefreshCw size={18} /></Button>
           </div>
@@ -271,26 +277,26 @@ const App: React.FC = () => {
       {/* History Sidebar */}
       {showHistory && (
         <div className="fixed inset-0 z-50 flex justify-end">
-          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowHistory(false)} />
-          <div className="relative w-full max-w-md bg-white h-full shadow-2xl animate-in slide-in-from-right duration-300 flex flex-col">
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+          <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" onClick={() => setShowHistory(false)} />
+          <div className="relative w-full max-w-md bg-surface h-full shadow-2xl animate-in slide-in-from-right duration-300 flex flex-col">
+            <div className="p-6 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <History className="text-blue-600" size={20} />
-                <h2 className="font-bold text-slate-900">Report History</h2>
+                <History className="text-accent" size={20} />
+                <h2 className="font-bold text-ink">Report History</h2>
               </div>
               <Button variant="ghost" size="sm" onClick={() => setShowHistory(false)}><X size={20} /></Button>
             </div>
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {history.length === 0 ? (
                 <div className="text-center py-12">
-                  <History size={48} className="mx-auto text-slate-200 mb-4" />
-                  <p className="text-slate-500 font-medium">No reports generated yet.</p>
+                  <History size={48} className="mx-auto text-ink3/30 mb-4" />
+                  <p className="text-ink3 font-medium">No reports generated yet.</p>
                 </div>
               ) : (
                 history.map((item, i) => (
                   <div 
                     key={i} 
-                    className="p-4 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-pointer group"
+                    className="p-4 rounded-xl border border-border hover:border-accent/30 hover:bg-accent-light/30 transition-all cursor-pointer group"
                     onClick={() => {
                       setReport(item);
                       setStatus(AppStatus.SUCCESS);
@@ -298,14 +304,14 @@ const App: React.FC = () => {
                     }}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">{item.timestamp}</span>
-                      <ChevronRight size={14} className="text-slate-300 group-hover:text-blue-400 transition-colors" />
+                      <span className="text-[10px] font-bold text-accent uppercase tracking-widest">{item.timestamp}</span>
+                      <ChevronRight size={14} className="text-ink3/50 group-hover:text-accent transition-colors" />
                     </div>
-                    <h3 className="font-bold text-slate-800 text-sm line-clamp-1">
+                    <h3 className="font-bold text-ink2 text-sm line-clamp-1">
                       {item.narrative.split('\n').find(l => l.startsWith('## 1.'))?.replace('## 1.', '').trim() || 'Weekly Report'}
                     </h3>
                     <div className="mt-2 flex gap-2">
-                      <div className="px-2 py-0.5 bg-slate-100 text-[10px] font-bold text-slate-500 rounded uppercase">
+                      <div className="px-2 py-0.5 bg-surface2 text-[10px] font-bold text-ink3 rounded uppercase">
                         ${item.metrics?.revenueThisWeek.toLocaleString()}
                       </div>
                     </div>
@@ -313,10 +319,10 @@ const App: React.FC = () => {
                 ))
               )}
             </div>
-            <div className="p-6 border-t border-slate-100">
+            <div className="p-6 border-t border-border">
               <Button 
                 variant="secondary" 
-                className="w-full text-rose-500 hover:text-rose-600 hover:bg-rose-50 border-rose-100"
+                className="w-full text-warn hover:text-warn/80 hover:bg-warn-light border-warn/20"
                 onClick={() => {
                   if (confirm('Clear all history?')) {
                     setHistory([]);
@@ -338,19 +344,19 @@ const App: React.FC = () => {
             <div className="lg:col-span-2 space-y-6">
               <div 
                 id="data-input-area" 
-                className={`bg-white rounded-2xl border-2 transition-all duration-200 shadow-xl overflow-hidden scroll-mt-24 ${isDragging ? 'border-blue-500 border-dashed bg-blue-50/30' : 'border-slate-200'}`}
+                className={`bg-surface rounded-2xl border-2 transition-all duration-200 shadow-xl overflow-hidden scroll-mt-24 ${isDragging ? 'border-accent border-dashed bg-accent-light/30' : 'border-border2'}`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
               >
-                <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="p-4 border-b border-border bg-surface2/50 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-3 w-full">
-                    <div className="p-2 bg-blue-100 text-blue-700 rounded-lg">
+                    <div className="p-2 bg-accent-light text-accent2 rounded-lg">
                       <FileText size={20} />
                     </div>
                     <div>
-                      <h2 className="font-bold text-slate-800 text-sm">Input Stage</h2>
-                      <p className="text-[10px] text-slate-500 font-medium uppercase tracking-tight">Paste, Load, or Drop Files</p>
+                      <h2 className="font-bold text-ink2 text-sm">Input Stage</h2>
+                      <p className="text-[10px] text-ink3 font-medium uppercase tracking-tight">Paste, Load, or Drop Files</p>
                     </div>
                   </div>
                   
@@ -382,32 +388,32 @@ const App: React.FC = () => {
 
                 <div className="relative group">
                   <textarea
-                    className="w-full h-[450px] p-6 font-mono text-sm focus:ring-0 outline-none resize-none bg-transparent placeholder:text-slate-300 transition-all leading-relaxed"
+                    className="w-full h-[450px] p-6 font-mono text-sm focus:ring-0 outline-none resize-none bg-transparent placeholder:text-ink3/50 transition-all leading-relaxed"
                     value={clinicData}
                     onChange={(e) => setClinicData(e.target.value)}
                     placeholder="Paste clinic metrics here or drop a file (CSV, Markdown, Text)..."
                   />
                   {!clinicData && !isDragging && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-40">
-                      <Upload size={48} className="text-slate-300 mb-2" />
-                      <p className="text-sm font-medium text-slate-400">Drag & Drop data files here</p>
+                      <Upload size={48} className="text-ink3/50 mb-2" />
+                      <p className="text-sm font-medium text-ink3/70">Drag & Drop data files here</p>
                     </div>
                   )}
                 </div>
 
-                <div className="p-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
-                  <div className="flex items-center gap-6 text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                <div className="p-4 bg-surface2 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
+                  <div className="flex items-center gap-6 text-ink3 text-[10px] font-bold uppercase tracking-wider">
                     <div className="flex items-center gap-1.5"><List size={14} /> {lineCount} Lines</div>
                     <div className="flex items-center gap-1.5"><Info size={14} /> {charCount} Chars</div>
                     <div className="hidden sm:flex items-center gap-1.5">
-                      <div className={`w-2 h-2 rounded-full ${clinicData ? 'bg-emerald-500' : 'bg-slate-300 animate-pulse'}`}></div>
+                      <div className={`w-2 h-2 rounded-full ${clinicData ? 'bg-accent2' : 'bg-ink3/30 animate-pulse'}`}></div>
                       {clinicData ? 'Data Ready' : 'Awaiting Input'}
                     </div>
                   </div>
                   <Button 
                     id="generate-btn"
                     variant="primary" 
-                    className="w-full sm:w-auto px-10 py-3 text-lg font-bold shadow-lg shadow-blue-200" 
+                    className="w-full sm:w-auto px-10 py-3 text-lg font-bold shadow-lg shadow-accent/20" 
                     onClick={handleGenerate}
                     isLoading={isProcessing}
                     disabled={!clinicData}
@@ -419,47 +425,47 @@ const App: React.FC = () => {
             </div>
 
             <div className="space-y-6">
-              <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              <div className="bg-surface rounded-2xl border border-border2 overflow-hidden shadow-sm">
                 <div 
-                  className="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors"
+                  className="p-4 flex items-center justify-between cursor-pointer hover:bg-surface2 transition-colors"
                   onClick={() => setShowDataGuide(!showDataGuide)}
                 >
-                  <div className="flex items-center gap-2 font-bold text-slate-800 text-sm">
-                    <HelpCircle size={18} className="text-blue-500" />
+                  <div className="flex items-center gap-2 font-bold text-ink2 text-sm">
+                    <HelpCircle size={18} className="text-accent" />
                     Input Best Practices
                   </div>
-                  <ChevronRight size={18} className={`text-slate-400 transition-transform ${showDataGuide ? 'rotate-90' : ''}`} />
+                  <ChevronRight size={18} className={`text-ink3/70 transition-transform ${showDataGuide ? 'rotate-90' : ''}`} />
                 </div>
                 {showDataGuide && (
-                  <div className="p-4 pt-0 border-t border-slate-50">
+                  <div className="p-4 pt-0 border-t border-surface2">
                     <DataInputGuide />
                   </div>
                 )}
               </div>
 
-              <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-xl">
+              <div className="bg-gradient-to-br from-accent to-ink2 rounded-2xl p-6 text-white shadow-xl">
                 <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                  <Zap size={20} className="text-yellow-300" />
+                  <Zap size={20} className="text-gold" />
                   Operational Intelligence
                 </h3>
                 <div className="space-y-4">
                   <div className="p-3 bg-white/10 rounded-xl border border-white/10">
-                    <h4 className="text-xs font-bold uppercase tracking-widest text-blue-200 mb-1">Audit Verification</h4>
+                    <h4 className="text-xs font-bold uppercase tracking-widest text-accent-light mb-1">Audit Verification</h4>
                     <p className="text-xs opacity-90 leading-relaxed">Every claim is audited by a separate logic engine to prevent mathematical hallucination.</p>
                   </div>
                   <div className="p-3 bg-white/10 rounded-xl border border-white/10">
-                    <h4 className="text-xs font-bold uppercase tracking-widest text-blue-200 mb-1">Smart Causality</h4>
+                    <h4 className="text-xs font-bold uppercase tracking-widest text-accent-light mb-1">Smart Causality</h4>
                     <p className="text-xs opacity-90 leading-relaxed">Identifies exactly why revenue dropped, from cancellations to specific practitioner performance gaps.</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                <div className="flex items-center gap-2 mb-3 text-slate-800 font-bold">
-                  <Info size={18} className="text-blue-500" />
+              <div className="bg-surface rounded-2xl border border-border2 p-6 shadow-sm">
+                <div className="flex items-center gap-2 mb-3 text-ink2 font-bold">
+                  <Info size={18} className="text-accent" />
                   Integration Help
                 </div>
-                <div className="text-sm text-slate-600 space-y-3">
+                <div className="text-sm text-ink3 space-y-3">
                   <p className="text-xs">Kazira works best with weekly CSV exports from your PMS (Practice Management System).</p>
                   <Button variant="secondary" size="sm" onClick={() => setOnboardingStep('WELCOME')} className="mt-2 w-full text-xs">
                     Restart Concept Tour
@@ -473,19 +479,19 @@ const App: React.FC = () => {
             {isProcessing ? (
               <div className="space-y-8">
                 <DashboardSkeleton />
-                <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden p-12 flex flex-col items-center justify-center min-h-[400px]">
+                <div className="bg-surface rounded-3xl border border-border2 shadow-2xl overflow-hidden p-12 flex flex-col items-center justify-center min-h-[400px]">
                   <div className="flex flex-col items-center justify-center space-y-6">
                     <div className="relative">
-                      <div className="w-24 h-24 border-8 border-slate-100 border-t-blue-600 rounded-full animate-spin"></div>
-                      <div className="absolute inset-0 flex items-center justify-center text-blue-600 font-bold text-xl">
+                      <div className="w-24 h-24 border-8 border-surface2 border-t-accent rounded-full animate-spin"></div>
+                      <div className="absolute inset-0 flex items-center justify-center text-accent font-bold text-xl">
                         {status === AppStatus.GENERATING_NARRATIVE ? '1/2' : '2/2'}
                       </div>
                     </div>
                     <div className="text-center">
-                      <h2 className="text-2xl font-bold text-slate-800 mb-2">
+                      <h2 className="text-2xl font-bold text-ink2 mb-2">
                         {status === AppStatus.GENERATING_NARRATIVE ? 'Synthesizing Narrative...' : 'Auditing Report Integrity...'}
                       </h2>
-                      <p className="text-slate-500 max-w-md">
+                      <p className="text-ink3 max-w-md">
                         {status === AppStatus.GENERATING_NARRATIVE 
                           ? "Our Narrative Agent is connecting your clinic's data points and identifying primary drivers."
                           : "The Audit Agent is verifying math, logic, and looking for potential hallucinations."
@@ -499,21 +505,21 @@ const App: React.FC = () => {
               <div className="space-y-8">
                 <Dashboard data={report?.metrics} />
 
-                <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden">
-                  <div className="bg-slate-900 text-white p-8 md:p-12">
+                <div className="bg-surface rounded-3xl border border-border2 shadow-2xl overflow-hidden">
+                  <div className="bg-ink text-white p-8 md:p-12">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                       <div>
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs font-bold uppercase tracking-widest mb-4 border border-blue-500/30">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/20 text-accent-light rounded-full text-xs font-bold uppercase tracking-widest mb-4 border border-accent/30">
                           <ClipboardCheck size={14} /> Weekly Executive Intelligence
                         </div>
-                        <h1 className="text-3xl md:text-5xl font-black tracking-tighter mb-2">Clinic Performance Report</h1>
-                        <p className="text-slate-400 font-medium">{report?.timestamp}</p>
+                        <h1 className="text-3xl md:text-5xl font-black tracking-tighter mb-2 font-serif">Clinic Performance Report</h1>
+                        <p className="text-ink3/70 font-medium">{report?.timestamp}</p>
                       </div>
                       <div className="flex gap-3">
-                        <Button variant="secondary" className="bg-slate-800 border-slate-700 text-white hover:bg-slate-700" onClick={handleDownload}>
+                        <Button variant="secondary" className="bg-ink2 border-ink3 text-white hover:bg-ink3" onClick={handleDownload}>
                           <Download size={18} /> Export MD
                         </Button>
-                        <Button variant="secondary" className="bg-slate-800 border-slate-700 text-white hover:bg-slate-700" onClick={reset}>
+                        <Button variant="secondary" className="bg-ink2 border-ink3 text-white hover:bg-ink3" onClick={reset}>
                           <RefreshCw size={18} /> New Report
                         </Button>
                       </div>
@@ -526,44 +532,44 @@ const App: React.FC = () => {
                     </div>
 
                     <div className="lg:col-span-1 space-y-8">
-                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                      <div className="bg-surface2 p-6 rounded-2xl border border-border2">
                         <SectionHeader title="Trust Score" icon={<ShieldCheck size={18} />} />
                         <div className="space-y-4">
                           <div className="flex items-center justify-between text-sm">
-                            <span className="text-slate-600">Verification</span>
-                            <span className="text-emerald-600 font-bold flex items-center gap-1">
+                            <span className="text-ink3">Verification</span>
+                            <span className="text-accent2 font-bold flex items-center gap-1">
                               <CheckCircle2 size={14} /> Passed
                             </span>
                           </div>
                           <div className="flex items-center justify-between text-sm">
-                            <span className="text-slate-600">Logic Check</span>
-                            <span className="text-emerald-600 font-bold flex items-center gap-1">
+                            <span className="text-ink3">Logic Check</span>
+                            <span className="text-accent2 font-bold flex items-center gap-1">
                               <CheckCircle2 size={14} /> Verified
                             </span>
                           </div>
-                          <div className="pt-4 mt-4 border-t border-slate-200">
-                            <p className="text-[10px] text-slate-400 font-bold uppercase mb-2">Audit Agent Output</p>
-                            <p className="text-xs text-slate-700 italic leading-relaxed">
+                          <div className="pt-4 mt-4 border-t border-border2">
+                            <p className="text-[10px] text-ink3/70 font-bold uppercase mb-2">Audit Agent Output</p>
+                            <p className="text-xs text-ink2 italic leading-relaxed">
                               {report?.audit}
                             </p>
                           </div>
                         </div>
                       </div>
 
-                      <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                      <div className="bg-accent-light p-6 rounded-2xl border border-accent/20">
                         <SectionHeader title="Next Milestone" icon={<BarChart3 size={18} />} />
-                        <p className="text-sm text-slate-700 font-medium mb-3">Goal: $35k Weekly Revenue</p>
-                        <div className="w-full h-2 bg-blue-200 rounded-full overflow-hidden">
-                          <div className="h-full bg-blue-600 rounded-full" style={{ width: '81%' }}></div>
+                        <p className="text-sm text-ink2 font-medium mb-3">Goal: $35k Weekly Revenue</p>
+                        <div className="w-full h-2 bg-accent/20 rounded-full overflow-hidden">
+                          <div className="h-full bg-accent rounded-full" style={{ width: '81%' }}></div>
                         </div>
-                        <p className="text-[10px] text-blue-600 mt-2 font-bold uppercase">81% Progress</p>
+                        <p className="text-[10px] text-accent mt-2 font-bold uppercase">81% Progress</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex justify-center pb-12">
-                  <Button variant="ghost" onClick={reset} className="text-slate-500 hover:text-slate-800">
+                  <Button variant="ghost" onClick={reset} className="text-ink3 hover:text-ink2">
                     Scroll to top and start over
                   </Button>
                 </div>
@@ -573,16 +579,16 @@ const App: React.FC = () => {
         )}
       </main>
 
-      <footer className="bg-white border-t border-slate-100 py-8">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-400 text-sm">
+      <footer className="bg-surface border-t border-border py-8">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4 text-ink3/70 text-sm">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-600">Kazira.io</span>
+            <span className="font-bold text-ink3">Kazira Clinical Intelligence</span>
             <span>&copy; 2026</span>
           </div>
           <div className="flex gap-6 font-medium">
-            <button onClick={() => setIsTermsOpen(true)} className="hover:text-slate-600 transition-colors">Terms of Service</button>
-            <button onClick={() => setIsPrivacyOpen(true)} className="hover:text-slate-600 transition-colors">Privacy Policy</button>
-            <a href="#" className="hover:text-slate-600 transition-colors">Support</a>
+            <button onClick={() => setIsTermsOpen(true)} className="hover:text-ink3 transition-colors">Terms of Service</button>
+            <button onClick={() => setIsPrivacyOpen(true)} className="hover:text-ink3 transition-colors">Privacy Policy</button>
+            <a href="#" className="hover:text-ink3 transition-colors">Support</a>
           </div>
         </div>
       </footer>

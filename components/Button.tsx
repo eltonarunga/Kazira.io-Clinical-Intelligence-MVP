@@ -20,10 +20,10 @@ const Button: React.FC<ButtonProps> = ({
   const baseStyles = "rounded-lg font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed";
   
   const variants = {
-    primary: "bg-blue-600 text-white hover:bg-blue-700 shadow-sm",
-    secondary: "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50",
-    danger: "bg-red-600 text-white hover:bg-red-700 shadow-sm",
-    ghost: "bg-transparent text-slate-600 hover:bg-slate-100"
+    primary: "bg-ink text-white hover:bg-ink2 shadow-sm",
+    secondary: "bg-surface text-ink border border-border2 hover:bg-surface2",
+    danger: "bg-warn text-white hover:bg-warn/90 shadow-sm",
+    ghost: "bg-transparent text-ink3 hover:bg-surface2"
   };
 
   const sizes = {
