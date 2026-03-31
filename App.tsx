@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, Suspense, lazy } from 'react';
 import { Toaster, toast } from 'sonner';
 import { 
   ClipboardCheck, 
@@ -25,6 +25,7 @@ import { AppStatus, ReportOutput, OnboardingStep } from './types';
 import { DEFAULT_CLINIC_DATA } from './constants';
 import { generateNarrativeReport, auditReport, extractMetrics } from './services/geminiService';
 import { processClinicData } from './utils/dataPipeline';
+import { trackEvent } from './utils/analytics';
 import Button from './components/Button';
 import Dashboard from './components/Dashboard';
 import DashboardSkeleton from './components/DashboardSkeleton';
@@ -32,10 +33,19 @@ import Onboarding from './components/Onboarding';
 import DataInputGuide from './components/DataInputGuide';
 import ErrorBoundary from './components/ErrorBoundary';
 import ReportContent from './components/ReportContent';
-import Modal from './components/Modal';
-import TermsOfService from './components/TermsOfService';
-import PrivacyPolicy from './components/PrivacyPolicy';
 import LandingPage from './components/LandingPage';
+import CookieConsent from './components/CookieConsent';
+
+// Lazy load modals to improve initial load performance
+const Modal = lazy(() => import('./components/Modal'));
+const TermsOfService = lazy(() => import('./components/TermsOfService'));
+const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy'));
+const AcceptableUsePolicy = lazy(() => import('./components/AcceptableUsePolicy'));
+const DataProcessingAgreement = lazy(() => import('./components/DataProcessingAgreement'));
+const Changelog = lazy(() => import('./components/Changelog'));
+const Documentation = lazy(() => import('./components/Documentation'));
+const FeedbackWidget = lazy(() => import('./components/FeedbackWidget'));
+const DataManagement = lazy(() => import('./components/DataManagement'));
 
 // Helper component for section headers
 const SectionHeader: React.FC<{ id?: string; title: string; icon: React.ReactNode }> = ({ id, title, icon }) => (
@@ -56,12 +66,24 @@ const App: React.FC = () => {
   const [showDataGuide, setShowDataGuide] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const [isAupOpen, setIsAupOpen] = useState(false);
+  const [isDpaOpen, setIsDpaOpen] = useState(false);
+  const [isChangelogOpen, setIsChangelogOpen] = useState(false);
+  const [isDocsOpen, setIsDocsOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [isDataManagementOpen, setIsDataManagementOpen] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [history, setHistory] = useState<ReportOutput[]>([]);
   const [showApp, setShowApp] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const clearHistory = () => {
+    setHistory([]);
+    localStorage.removeItem('kazira_history');
+    trackEvent('data_deleted');
+  };
 
   useEffect(() => {
     const hasOnboarded = localStorage.getItem('kazira_onboarded');
@@ -81,6 +103,7 @@ const App: React.FC = () => {
       
       setError(null);
       setStatus(AppStatus.GENERATING_NARRATIVE);
+      trackEvent('report_generation_started', { dataLength: clinicData.length });
       
       if (onboardingStep === 'GENERATE') {
         setOnboardingStep('PROCESSING');
@@ -113,6 +136,11 @@ const App: React.FC = () => {
       const updatedHistory = [newReport, ...history].slice(0, 10);
       setHistory(updatedHistory);
       localStorage.setItem('kazira_history', JSON.stringify(updatedHistory));
+      
+      trackEvent('report_generation_completed', { 
+        revenue: newReport.metrics?.revenueThisWeek,
+        practitionerCount: newReport.metrics?.practitionerPerformance?.length 
+      });
 
       if (onboardingStep === 'PROCESSING') {
         setTimeout(() => setOnboardingStep('REPORT_OVERVIEW'), 1000);
@@ -123,6 +151,7 @@ const App: React.FC = () => {
       setError(errorMessage);
       toast.error(errorMessage);
       setStatus(AppStatus.ERROR);
+      trackEvent('report_generation_failed', { error: errorMessage });
     }
   };
 
@@ -194,6 +223,7 @@ const App: React.FC = () => {
     if (onboardingStep === 'COMPLETED') {
       localStorage.setItem('kazira_onboarded', 'true');
       setOnboardingStep('HIDDEN');
+      trackEvent('onboarding_completed');
       return;
     }
 
@@ -236,7 +266,10 @@ const App: React.FC = () => {
   const isSuccess = status === AppStatus.SUCCESS;
 
   if (!showApp) {
-    return <LandingPage onLaunchApp={() => setShowApp(true)} />;
+    return <LandingPage onLaunchApp={() => {
+      setShowApp(true);
+      trackEvent('app_launched');
+    }} />;
   }
 
   return (
@@ -265,7 +298,10 @@ const App: React.FC = () => {
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-accent-pale text-accent2 rounded-full text-xs font-bold border border-accent/20">
               <Zap size={14} fill="currentColor" /> SYSTEM ONLINE
             </div>
-            <Button variant="ghost" onClick={() => setShowHistory(!showHistory)} className="relative">
+            <Button variant="ghost" onClick={() => {
+              setShowHistory(!showHistory);
+              if (!showHistory) trackEvent('history_viewed');
+            }} className="relative">
               <History size={18} />
               {history.length > 0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent text-white text-[10px] flex items-center justify-center rounded-full border-2 border-surface">{history.length}</span>}
             </Button>
@@ -585,22 +621,59 @@ const App: React.FC = () => {
             <span className="font-bold text-ink3">Kazira Clinical Intelligence</span>
             <span>&copy; 2026</span>
           </div>
-          <div className="flex gap-6 font-medium">
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 font-medium">
+            <button onClick={() => setIsChangelogOpen(true)} className="hover:text-ink3 transition-colors">Changelog</button>
+            <button onClick={() => setIsDocsOpen(true)} className="hover:text-ink3 transition-colors">Documentation</button>
+            <button onClick={() => setIsFeedbackOpen(true)} className="hover:text-ink3 transition-colors">Feedback</button>
             <button onClick={() => setIsTermsOpen(true)} className="hover:text-ink3 transition-colors">Terms of Service</button>
             <button onClick={() => setIsPrivacyOpen(true)} className="hover:text-ink3 transition-colors">Privacy Policy</button>
-            <a href="#" className="hover:text-ink3 transition-colors">Support</a>
+            <button onClick={() => setIsAupOpen(true)} className="hover:text-ink3 transition-colors">AUP</button>
+            <button onClick={() => setIsDpaOpen(true)} className="hover:text-ink3 transition-colors">DPA</button>
+            <button onClick={() => setIsDataManagementOpen(true)} className="hover:text-ink3 transition-colors">Data Management</button>
+            <a href="mailto:support@kazira.io" className="hover:text-ink3 transition-colors">Support</a>
           </div>
         </div>
       </footer>
 
       {/* Legal Modals */}
-      <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} title="Terms of Service">
-        <TermsOfService />
-      </Modal>
-      
-      <Modal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} title="Privacy Policy">
-        <PrivacyPolicy />
-      </Modal>
+      <Suspense fallback={null}>
+        <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} title="Terms of Service">
+          <TermsOfService />
+        </Modal>
+        
+        <Modal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} title="Privacy Policy">
+          <PrivacyPolicy />
+        </Modal>
+
+        <Modal isOpen={isAupOpen} onClose={() => setIsAupOpen(false)} title="Acceptable Use Policy">
+          <AcceptableUsePolicy />
+        </Modal>
+
+        <Modal isOpen={isDpaOpen} onClose={() => setIsDpaOpen(false)} title="Data Processing Agreement">
+          <DataProcessingAgreement />
+        </Modal>
+
+        <Modal isOpen={isChangelogOpen} onClose={() => setIsChangelogOpen(false)} title="Changelog">
+          <Changelog />
+        </Modal>
+
+        <Modal isOpen={isDocsOpen} onClose={() => setIsDocsOpen(false)} title="Documentation">
+          <Documentation />
+        </Modal>
+
+        <Modal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} title="Feedback">
+          <FeedbackWidget onClose={() => setIsFeedbackOpen(false)} />
+        </Modal>
+
+        <Modal isOpen={isDataManagementOpen} onClose={() => setIsDataManagementOpen(false)} title="Data Management & Privacy">
+          <DataManagement 
+            onClearHistory={clearHistory} 
+            onClose={() => setIsDataManagementOpen(false)} 
+          />
+        </Modal>
+      </Suspense>
+
+      <CookieConsent />
     </div>
     </ErrorBoundary>
   );

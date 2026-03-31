@@ -91,7 +91,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                 Clinics don't know where they're <em className="italic text-accent2">losing money.</em> We tell them.
               </h1>
               <p className="text-[15px] text-ink3 leading-[1.65] max-w-[520px] mx-auto">
-                Kazira Clinical Intelligence automatically detects missed billing, tracks revenue trends, and delivers plain-language weekly reports — so private clinic owners always know exactly where their money went.
               </p>
             </div>
 
@@ -118,25 +117,21 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
             <div className="grid grid-cols-2 gap-2.5 px-6 mb-7">
               <div className="rounded-xl p-4 relative overflow-hidden bg-warn-light border border-warn/20">
                 <div className="absolute top-3 right-3.5 font-mono text-[22px] font-medium opacity-10 text-ink">01</div>
-                <div className="text-[20px] mb-2">📋</div>
                 <h4 className="text-[13px] font-semibold text-ink mb-1">Unbilled procedures</h4>
                 <p className="text-[12px] text-ink3 leading-[1.45]">Treatments performed but never invoiced — invisible without a cross-check system.</p>
               </div>
               <div className="rounded-xl p-4 relative overflow-hidden bg-warn-light border border-warn/20">
                 <div className="absolute top-3 right-3.5 font-mono text-[22px] font-medium opacity-10 text-ink">02</div>
-                <div className="text-[20px] mb-2">🗓️</div>
                 <h4 className="text-[13px] font-semibold text-ink mb-1">No-show follow-up gap</h4>
                 <p className="text-[12px] text-ink3 leading-[1.45]">Missed appointments rarely trigger rebooking — lost revenue walks out the door.</p>
               </div>
               <div className="rounded-xl p-4 relative overflow-hidden bg-gold-light border border-gold/20">
                 <div className="absolute top-3 right-3.5 font-mono text-[22px] font-medium opacity-10 text-ink">03</div>
-                <div className="text-[20px] mb-2">📊</div>
                 <h4 className="text-[13px] font-semibold text-ink mb-1">Monthly finance reviews</h4>
                 <p className="text-[12px] text-ink3 leading-[1.45]">Owners see numbers once a month — problems compound before they're spotted.</p>
               </div>
               <div className="rounded-xl p-4 relative overflow-hidden bg-gold-light border border-gold/20">
                 <div className="absolute top-3 right-3.5 font-mono text-[22px] font-medium opacity-10 text-ink">04</div>
-                <div className="text-[20px] mb-2">🔌</div>
                 <h4 className="text-[13px] font-semibold text-ink mb-1">Disconnected systems</h4>
                 <p className="text-[12px] text-ink3 leading-[1.45]">No link between clinical activity and the billing stack — gaps are invisible by design.</p>
               </div>
@@ -184,7 +179,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
             </div>
 
             <div className="text-center px-6 py-4 text-[11px] text-ink3 italic">
-              Built for private dental clinics in Nairobi. Expanding to general outpatient after 20 paying clients.
             </div>
           </div>
         )}

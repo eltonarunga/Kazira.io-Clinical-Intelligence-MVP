@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Clinic {
+  id                  String         @id @default(cuid())
+  name                String
+  owner_name          String
+  email               String
+  phone               String?
+  location            String?
+  created_at          DateTime       @default(now())
+  subscription_status String         @default("trial") // trial | active | inactive
+  subscription_tier   String         @default("pilot") // pilot | standard
+  patients            Patient[]
+  procedures          Procedure[]
+  invoices            Invoice[]
+  billing_flags       BillingFlag[]
+  weekly_reports      WeeklyReport[]
+}
+
+model Patient {
+  id          String      @id @default(cuid())
+  clinic_id   String
+  clinic      Clinic      @relation(fields: [clinic_id], references: [id])
+  patient_ref String
+  name        String
+  created_at  DateTime    @default(now())
+  procedures  Procedure[]
+  invoices    Invoice[]
+}
+
+model Procedure {
+  id                  String            @id @default(cuid())
+  clinic_id           String
+  clinic              Clinic            @relation(fields: [clinic_id], references: [id])
+  patient_id          String
+  patient             Patient           @relation(fields: [patient_id], references: [id])
+  procedure_code      String
+  procedure_name      String
+  performed_at        DateTime
+  performed_by        String?
+  notes               String?
+  billing_status      String            @default("unbilled") // billed | unbilled | flagged
+  estimated_value_kes Decimal
+  invoice_line_items  InvoiceLineItem[]
+  billing_flags       BillingFlag[]
+}
+
+model Invoice {
+  id               String            @id @default(cuid())
+  clinic_id        String
+  clinic           Clinic            @relation(fields: [clinic_id], references: [id])
+  patient_id       String
+  patient          Patient           @relation(fields: [patient_id], references: [id])
+  invoice_number   String
+  issued_at        DateTime
+  due_at           DateTime?
+  paid_at          DateTime?
+  total_amount_kes Decimal
+  status           String            @default("draft") // draft | issued | paid | cancelled
+  line_items       InvoiceLineItem[]
+}
+
+model InvoiceLineItem {
+  id             String     @id @default(cuid())
+  invoice_id     String
+  invoice        Invoice    @relation(fields: [invoice_id], references: [id])
+  procedure_id   String?
+  procedure      Procedure? @relation(fields: [procedure_id], references: [id])
+  description    String
+  quantity       Int        @default(1)
+  unit_price_kes Decimal
+  line_total_kes Decimal
+}
+
+model BillingFlag {
+  id                String     @id @default(cuid())
+  clinic_id         String
+  clinic            Clinic     @relation(fields: [clinic_id], references: [id])
+  procedure_id      String
+  procedure         Procedure  @relation(fields: [procedure_id], references: [id])
+  detected_at       DateTime   @default(now())
+  flag_type         String     // unbilled_procedure | missing_invoice | partial_charge
+  estimated_gap_kes Decimal
+  status            String     @default("open") // open | resolved | dismissed
+  resolved_at       DateTime?
+  resolution_note   String?
+}
+
+model WeeklyReport {
+  id                 String    @id @default(cuid())
+  clinic_id          String
+  clinic             Clinic    @relation(fields: [clinic_id], references: [id])
+  week_start         DateTime
+  week_end           DateTime
+  generated_at       DateTime  @default(now())
+  delivered_at       DateTime?
+  total_revenue_kes  Decimal
+  missed_billing_kes Decimal
+  procedures_count   Int
+  invoices_count     Int
+  report_text        String?   @db.Text
+  report_status      String    @default("draft") // draft | sent
+}
