@@ -19,7 +19,8 @@ import {
   FileCode,
   List,
   Download,
-  History
+  History,
+  Settings as SettingsIcon
 } from 'lucide-react';
 import { AppStatus, ReportOutput, OnboardingStep } from './types';
 import { DEFAULT_CLINIC_DATA } from './constants';
@@ -46,6 +47,7 @@ const Changelog = lazy(() => import('./components/Changelog'));
 const Documentation = lazy(() => import('./components/Documentation'));
 const FeedbackWidget = lazy(() => import('./components/FeedbackWidget'));
 const DataManagement = lazy(() => import('./components/DataManagement'));
+const Settings = lazy(() => import('./components/Settings'));
 
 // Helper component for section headers
 const SectionHeader: React.FC<{ id?: string; title: string; icon: React.ReactNode }> = ({ id, title, icon }) => (
@@ -72,6 +74,7 @@ const App: React.FC = () => {
   const [isDocsOpen, setIsDocsOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isDataManagementOpen, setIsDataManagementOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [history, setHistory] = useState<ReportOutput[]>([]);
   const [showApp, setShowApp] = useState(false);
@@ -298,14 +301,17 @@ const App: React.FC = () => {
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-accent-pale text-accent2 rounded-full text-xs font-bold border border-accent/20">
               <Zap size={14} fill="currentColor" /> SYSTEM ONLINE
             </div>
+            <Button variant="ghost" onClick={() => setIsSettingsOpen(true)} title="Settings">
+              <SettingsIcon size={18} />
+            </Button>
             <Button variant="ghost" onClick={() => {
               setShowHistory(!showHistory);
               if (!showHistory) trackEvent('history_viewed');
-            }} className="relative">
+            }} className="relative" title="History">
               <History size={18} />
               {history.length > 0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent text-white text-[10px] flex items-center justify-center rounded-full border-2 border-surface">{history.length}</span>}
             </Button>
-            <Button variant="ghost" onClick={() => window.location.reload()}><RefreshCw size={18} /></Button>
+            <Button variant="ghost" onClick={() => window.location.reload()} title="Reload"><RefreshCw size={18} /></Button>
           </div>
         </div>
       </header>
@@ -670,6 +676,10 @@ const App: React.FC = () => {
             onClearHistory={clearHistory} 
             onClose={() => setIsDataManagementOpen(false)} 
           />
+        </Modal>
+
+        <Modal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} title="Settings">
+          <Settings onClose={() => setIsSettingsOpen(false)} />
         </Modal>
       </Suspense>
 
