@@ -223,14 +223,15 @@ const App: React.FC = () => {
       setClinicData(DEFAULT_CLINIC_DATA);
     }
 
-    if (onboardingStep === 'COMPLETED') {
+    const next = steps[currentIndex + 1];
+    
+    if (next === 'COMPLETED') {
       localStorage.setItem('kazira_onboarded', 'true');
       setOnboardingStep('HIDDEN');
       trackEvent('onboarding_completed');
       return;
     }
 
-    const next = steps[currentIndex + 1];
     if (next) {
       setOnboardingStep(next);
       
