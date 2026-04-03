@@ -29,6 +29,7 @@ export interface MetricSummary {
 
 export type OnboardingStep = 
   | 'WELCOME'
+  | 'DPIA_COMPLIANCE'
   | 'DATA_INPUT'
   | 'GENERATE'
   | 'PROCESSING'

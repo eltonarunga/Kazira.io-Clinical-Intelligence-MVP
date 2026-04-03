@@ -79,6 +79,8 @@ const App: React.FC = () => {
   const [history, setHistory] = useState<ReportOutput[]>([]);
   const [showApp, setShowApp] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [segment, setSegment] = useState<'private' | 'public'>('private');
+  const [role, setRole] = useState<'facility_admin' | 'county_health' | 'moh'>('facility_admin');
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -214,7 +216,7 @@ const App: React.FC = () => {
 
   const nextOnboarding = () => {
     const steps: OnboardingStep[] = [
-      'WELCOME', 'DATA_INPUT', 'GENERATE', 'PROCESSING', 'REPORT_OVERVIEW', 
+      'WELCOME', 'DPIA_COMPLIANCE', 'DATA_INPUT', 'GENERATE', 'PROCESSING', 'REPORT_OVERVIEW', 
       'EXEC_SUMMARY', 'WHY_CHANGED', 'RISKS', 'ACTIONS', 'COMPLETED'
     ];
     const currentIndex = steps.indexOf(onboardingStep);
@@ -253,7 +255,7 @@ const App: React.FC = () => {
 
   const prevOnboarding = () => {
     const steps: OnboardingStep[] = [
-      'WELCOME', 'DATA_INPUT', 'GENERATE', 'PROCESSING', 'REPORT_OVERVIEW', 
+      'WELCOME', 'DPIA_COMPLIANCE', 'DATA_INPUT', 'GENERATE', 'PROCESSING', 'REPORT_OVERVIEW', 
       'EXEC_SUMMARY', 'WHY_CHANGED', 'RISKS', 'ACTIONS', 'COMPLETED'
     ];
     const currentIndex = steps.indexOf(onboardingStep);
@@ -270,10 +272,14 @@ const App: React.FC = () => {
   const isSuccess = status === AppStatus.SUCCESS;
 
   if (!showApp) {
-    return <LandingPage onLaunchApp={() => {
-      setShowApp(true);
-      trackEvent('app_launched');
-    }} />;
+    return <LandingPage 
+      onLaunchApp={() => {
+        setShowApp(true);
+        trackEvent('app_launched');
+      }} 
+      segment={segment}
+      setSegment={setSegment}
+    />;
   }
 
   return (
@@ -299,6 +305,20 @@ const App: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            {segment === 'public' && (
+              <div className="hidden md:flex items-center gap-2 mr-2">
+                <span className="text-[10px] font-bold text-ink3 uppercase tracking-wider">Role:</span>
+                <select 
+                  className="bg-surface2 border border-border2 rounded-md text-xs px-2 py-1 outline-none focus:border-accent"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value as any)}
+                >
+                  <option value="facility_admin">Facility Admin</option>
+                  <option value="county_health">County Health Dept</option>
+                  <option value="moh">SHA / MoH</option>
+                </select>
+              </div>
+            )}
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-accent-pale text-accent2 rounded-full text-xs font-bold border border-accent/20">
               <Zap size={14} fill="currentColor" /> SYSTEM ONLINE
             </div>

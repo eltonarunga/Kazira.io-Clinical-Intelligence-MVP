@@ -13,7 +13,8 @@ import {
   CheckCircle2,
   X,
   ArrowRight,
-  ArrowLeft
+  ArrowLeft,
+  Lock
 } from 'lucide-react';
 
 interface OnboardingProps {
@@ -30,6 +31,13 @@ const TOUR_STEPS: Record<string, { title: string; description: string; icon: Rea
     icon: ShieldCheck,
     color: "text-accent bg-accent-light",
     bgPattern: "from-accent-light/50 to-transparent"
+  },
+  DPIA_COMPLIANCE: {
+    title: "Data Privacy & DPIA",
+    description: "For public facilities, patient pseudonymisation is mandatory. Ensure your Kenya Data Protection Act 2019 DPIA is completed before data flows.",
+    icon: Lock,
+    color: "text-indigo-600 bg-indigo-100",
+    bgPattern: "from-indigo-100/50 to-transparent"
   },
   DATA_INPUT: {
     title: "1. Input Your Data",
@@ -90,7 +98,7 @@ const TOUR_STEPS: Record<string, { title: string; description: string; icon: Rea
 };
 
 const STEP_ORDER: OnboardingStep[] = [
-  'WELCOME', 'DATA_INPUT', 'GENERATE', 'PROCESSING', 'REPORT_OVERVIEW', 
+  'WELCOME', 'DPIA_COMPLIANCE', 'DATA_INPUT', 'GENERATE', 'PROCESSING', 'REPORT_OVERVIEW', 
   'EXEC_SUMMARY', 'WHY_CHANGED', 'RISKS', 'ACTIONS'
 ];
 
