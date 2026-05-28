@@ -36,6 +36,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import ReportContent from './components/ReportContent';
 import LandingPage from './components/LandingPage';
 import CookieConsent from './components/CookieConsent';
+import GovernmentDashboard from './components/GovernmentDashboard';
 
 // Lazy load modals to improve initial load performance
 const Modal = lazy(() => import('./components/Modal'));
@@ -306,8 +307,8 @@ const App: React.FC = () => {
           </div>
           <div className="flex items-center gap-4">
             {segment === 'public' && (
-              <div className="hidden md:flex items-center gap-2 mr-2">
-                <span className="text-[10px] font-bold text-ink3 uppercase tracking-wider">Role:</span>
+              <div className="flex items-center gap-1.5 mr-2">
+                <span className="text-[10px] font-bold text-ink3 uppercase tracking-wider hidden sm:inline">Role:</span>
                 <select 
                   className="bg-surface2 border border-border2 rounded-md text-xs px-2 py-1 outline-none focus:border-accent"
                   value={role}
@@ -402,7 +403,9 @@ const App: React.FC = () => {
       )}
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
-        {isInputView ? (
+        {segment === 'public' && (role === 'county_health' || role === 'moh') ? (
+          <GovernmentDashboard role={role} />
+        ) : isInputView ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="lg:col-span-2 space-y-6">
               <div 

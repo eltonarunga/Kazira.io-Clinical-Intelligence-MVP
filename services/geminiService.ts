@@ -1,5 +1,6 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { MetricSummary } from '../types';
+import { NARRATIVE_AGENT_SYSTEM_PROMPT, AUDIT_AGENT_SYSTEM_PROMPT, METRIC_EXTRACTION_SYSTEM_PROMPT } from '../constants';
 
 const getApiKey = () => {
   // 1. Check local storage (user provided)
@@ -32,14 +33,25 @@ const getAI = () => {
   if (!apiKey) {
     throw new Error("API Key is missing. Please set your Gemini API Key in the settings.");
   }
-  return new GoogleGenAI({ apiKey });
+  return new GoogleGenAI({ 
+    apiKey,
+    httpOptions: {
+      headers: {
+        'User-Agent': 'aistudio-build',
+      }
+    }
+  });
 };
 
 export const generateNarrativeReport = async (data: string): Promise<string> => {
   const ai = getAI();
   const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
-    contents: `You are an expert clinic business analyst. Analyze the following clinic data and generate an executive summary report. Use Markdown formatting. Data:\n\n${data}`,
+    model: 'gemini-3.5-flash',
+    contents: `Analyze the following clinic data and generate an executive summary report. Use Markdown formatting. Data:\n\n${data}`,
+    config: {
+      systemInstruction: NARRATIVE_AGENT_SYSTEM_PROMPT,
+      temperature: 0.1,
+    }
   });
   return response.text || 'Failed to generate narrative.';
 };
@@ -49,6 +61,10 @@ export const auditReport = async (data: string, narrative: string): Promise<stri
   const response = await ai.models.generateContent({
     model: 'gemini-3.1-pro-preview',
     contents: `Audit the following narrative report against the raw data. Verify math and logic. Report any discrepancies or confirm accuracy.\n\nRaw Data:\n${data}\n\nNarrative:\n${narrative}`,
+    config: {
+      systemInstruction: AUDIT_AGENT_SYSTEM_PROMPT,
+      temperature: 0.1,
+    }
   });
   return response.text || 'Failed to audit report.';
 };
@@ -56,10 +72,12 @@ export const auditReport = async (data: string, narrative: string): Promise<stri
 export const extractMetrics = async (data: string): Promise<MetricSummary> => {
   const ai = getAI();
   const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
-    contents: `Extract key metrics from the following clinic data. Return ONLY a JSON object matching this schema: { "revenueThisWeek": number, "revenueLastWeek": number, "utilization": number, "cancellations": number, "procedureMix": [{ "name": string, "value": number }], "practitionerPerformance": [{ "name": string, "patients": number }] }. Data:\n\n${data}`,
+    model: 'gemini-3.5-flash',
+    contents: `Extract key metrics from the following clinic data. Data:\n\n${data}`,
     config: {
+      systemInstruction: METRIC_EXTRACTION_SYSTEM_PROMPT,
       responseMimeType: 'application/json',
+      temperature: 0.1,
       responseSchema: {
         type: Type.OBJECT,
         properties: {
@@ -95,6 +113,7 @@ export const extractMetrics = async (data: string): Promise<MetricSummary> => {
   try {
     return JSON.parse(response.text || '{}') as MetricSummary;
   } catch (e) {
+    console.error("Failed to parse extracted metrics:", e);
     return {
       revenueThisWeek: 0,
       revenueLastWeek: 0,
