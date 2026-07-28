@@ -2,6 +2,7 @@ import React from 'react';
 import Button from './Button';
 import { Download, Trash2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
+import { safeStorage } from '../utils/storage';
 
 interface Props {
   onClearHistory: () => void;
@@ -11,7 +12,7 @@ interface Props {
 const DataManagement: React.FC<Props> = ({ onClearHistory, onClose }) => {
   const handleExport = () => {
     try {
-      const historyData = localStorage.getItem('kazira_history');
+      const historyData = safeStorage.getItem('kazira_history');
       if (!historyData) {
         toast.error('No data to export.');
         return;

@@ -1,24 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import Button from './Button';
+import { safeStorage } from '../utils/storage';
 
 const CookieConsent: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem('kazira_cookie_consent');
+    const consent = safeStorage.getItem('kazira_cookie_consent');
     if (!consent) {
       setIsVisible(true);
     }
   }, []);
 
   const handleAccept = () => {
-    localStorage.setItem('kazira_cookie_consent', 'accepted');
+    safeStorage.setItem('kazira_cookie_consent', 'accepted');
     setIsVisible(false);
   };
 
   const handleDecline = () => {
-    localStorage.setItem('kazira_cookie_consent', 'declined');
+    safeStorage.setItem('kazira_cookie_consent', 'declined');
     setIsVisible(false);
   };
 

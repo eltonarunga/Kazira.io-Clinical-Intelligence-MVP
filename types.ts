@@ -1,7 +1,10 @@
-
 export interface ClinicData {
   raw: string;
 }
+
+export type UserRole = 'facility_admin' | 'county_health' | 'moh';
+
+export type FacilityType = 'private' | 'public_faith';
 
 export interface ReportOutput {
   narrative: string;
@@ -25,6 +28,9 @@ export interface MetricSummary {
   cancellations: number;
   procedureMix: { name: string; value: number }[];
   practitionerPerformance: { name: string; patients: number }[];
+  shaClaimVolume?: number;
+  shaReimbursementPendingKes?: number;
+  unbilledRevenueKes?: number;
 }
 
 export type OnboardingStep = 
@@ -40,3 +46,20 @@ export type OnboardingStep =
   | 'ACTIONS'
   | 'COMPLETED'
   | 'HIDDEN';
+
+export interface IntegrationStatus {
+  dhis2Sync: {
+    lastSynced?: string;
+    status: 'IDLE' | 'SYNCING' | 'SUCCESS' | 'ERROR';
+    refId?: string;
+  };
+  fhirConnect: {
+    connected: boolean;
+    lastFetch?: string;
+    totalEncountersFetched: number;
+  };
+  smsAlerts: {
+    enabled: boolean;
+    lastSent?: string;
+  };
+}

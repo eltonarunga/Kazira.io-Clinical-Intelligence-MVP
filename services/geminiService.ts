@@ -1,10 +1,11 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { MetricSummary } from '../types';
 import { NARRATIVE_AGENT_SYSTEM_PROMPT, AUDIT_AGENT_SYSTEM_PROMPT, METRIC_EXTRACTION_SYSTEM_PROMPT } from '../constants';
+import { safeStorage } from '../utils/storage';
 
 const getApiKey = () => {
   // 1. Check local storage (user provided)
-  const storedKey = localStorage.getItem('kazira_api_key');
+  const storedKey = safeStorage.getItem('kazira_api_key');
   if (storedKey) return storedKey;
   
   // 2. Check process.env (AI Studio environment)

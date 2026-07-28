@@ -94,57 +94,64 @@ Return a JSON object with the following structure:
 - Ensure all numbers are clean (no currency symbols in values).
 `;
 
-export const DEFAULT_CLINIC_DATA = `# CLINIC DATA - Week of Jan 1-7, 2026
 
-## Revenue Data
-- Total revenue this week: $28,400
-- Last week revenue: $32,100
-- Procedures revenue: $22,000 (↓ from $26,500)
-- Consultations revenue: $6,400 (↑ from $5,600)
+export const PRIVATE_CLINIC_DATA = `# PRIVATE CLINIC DATA - Nairobi West Medical Centre (Week 25)
+## Revenue & Financial Leakage
+- Total revenue collected this week: KES 1,840,000 (↓ 11.5% vs KES 2,080,000 last week)
+- Unbilled procedures / revenue leakage detected: KES 310,000 (14.4% unbilled variance)
+- Consultations Billed: KES 420,000 | Unbilled: KES 65,000
+- Lab & Imaging Billed: KES 780,000 | Unbilled: KES 145,000
+- Pharmacy Dispensed: KES 640,000 | Unbilled / Inventory Variance: KES 100,000
 
-## Appointment Data
-- Total appointments: 142
-- Capacity: 180 slots
-- Utilization rate: 78.9% (↓ from 87.2% last week)
-- Cancellations: 23 (↑ from 14 last week)
-- No-shows: 8
-
-## Practitioner Performance
-- Dr. Okonkwo: 52 patients (avg: 58)
-- Dr. Amaka: 47 patients (avg: 49)
-- Dr. Mensah: 43 patients (avg: 54) ⚠️
-  - Monday-Wednesday: 32 patients (normal)
-  - Thursday-Friday: 11 patients (Thursday had 6 unfilled slots)
+## Capacity & Practitioner Performance
+- Total Appointments Scheduled: 210 | Completed: 168 | Cancellations: 32 | No-shows: 10
+- Room Utilization Rate: 72.5% (↓ from 84.0%)
+- Dr. Wanjiru (ObsGyn): 58 patients seen | Unbilled consultations: 4
+- Dr. Ochieng (Pediatrics): 62 patients seen | Unbilled lab tests: 12
+- Dr. Kiprop (General Surgery): 48 patients seen | Unbilled procedure items: 8
 
 ## Procedure Mix
-- Teeth cleaning: 45 procedures @ $80 = $3,600
-- Fillings: 28 procedures @ $150 = $4,200
-- Root canals: 8 procedures @ $450 = $3,600
-- Extractions: 12 procedures @ $200 = $2,400
-- Crowns: 6 procedures @ $800 = $4,800
-- Other: 43 procedures @ $3,400
+- Outpatient Consultations: 85 @ KES 3,000 = KES 255,000
+- Ultrasound Scans: 34 @ KES 4,500 = KES 153,000
+- Full Blood Count & Panels: 62 @ KES 2,500 = KES 155,000
+- Minor Surgical Procedures: 14 @ KES 25,000 = KES 350,000
+- Dental & Specialist Consults: 42 @ KES 5,000 = KES 210,000
+- Pharmacy Dispensing: 120 scripts @ avg KES 4,000 = KES 480,000
 
-## Collections vs Billing
-- Billed: $31,200
-- Collected: $28,400
-- Outstanding: $2,800 (9%)
+## KDPA 2019 Privacy Compliance Audit
+- Patient Records Processed: 168
+- Patient Identity PII Status: 100% Pseudonymised via SHA-256 Token Masking
+- DPIA Certificate Ref: KDPA/REG/2026/8942
+`;
 
-## Cash Flow
-- Cash at start of week: $45,000
-- Cash at end of week: $38,200
-- Weekly expenses: $35,200
-  - Payroll: $22,000
-  - Rent: $4,500
-  - Supplies: $5,200
-  - Utilities: $2,100
-  - Other: $1,400
+export const PUBLIC_FACILITY_CLINIC_DATA = `# PUBLIC / FAITH-BASED FACILITY DATA - Sub-County Level 4 Hospital (MFL-28341)
+## Social Health Authority (SHA) Claims & Submissions
+- SHA Aggregate Claims Volume: 412 claims generated this week
+- Total SHA Reimbursable Claim Value: KES 2,890,000
+- SHA Claims Submitted to DHIS2 Gateway: 380 claims (92.2% submission rate)
+- Pending / Rejected SHA Claims: 32 claims (KES 245,000 value at risk)
+- Primary Rejection Causes: Missing SHA Beneficiary Number (18), Unmatched MFL Facility Code (8), Coding Mismatch (6)
 
-## Inventory Alerts
-- Composite resin: 12 days remaining at current usage
-- Anesthetic (lidocaine): 8 days remaining ⚠️
-- Gloves: 45 days remaining
+## Facility Utilization & Patient Encounters
+- Total Patient Encounters (OpenMRS/KenyaEMR FHIR): 640 encounters
+- Outpatient Care Encounters: 480
+- Maternal & Primary Health Encounters: 110
+- Inpatient Admissions: 50
+- Facility Bed Capacity Utilization: 88.5%
 
-## Data Quality Notes
-- Monday appointment data missing for Dr. Mensah (estimated)
-- 3 procedures lack procedure codes (included in "Other")
-- Cancellation reasons not recorded`;
+## SHA Procedure Breakdown
+- Primary Care Consultations: 320 encounters @ KES 1,500 = KES 480,000
+- Antenatal & Maternal Health Services: 95 procedures @ KES 4,500 = KES 427,500
+- Immunization & Child Health: 110 visits @ KES 800 = KES 88,000
+- Inpatient Medical Days: 180 bed-days @ KES 3,500 = KES 630,000
+- Essential Diagnostic Panels: 240 tests @ KES 1,800 = KES 432,000
+- Chronic Disease Management (Hypertension/Diabetes): 120 consultations @ KES 2,200 = KES 264,000
+
+## Public Health Oversight & Data Protection
+- KDPA 2019 DPIA Status: HARD STOP VERIFIED (Cert: KDPA_DPIA_CERTIFICATE_REG_4839.pdf)
+- DHIS2 Integration Status: Active Sync Ready
+- Anonymization Protocol: HL7 FHIR Anonymised Bundle Standard
+`;
+
+export const DEFAULT_CLINIC_DATA = PRIVATE_CLINIC_DATA;
+

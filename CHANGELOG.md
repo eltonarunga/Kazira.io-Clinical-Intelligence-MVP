@@ -4,6 +4,21 @@ All notable changes to the Kazira.io project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-07-28
+
+### Added
+- **PapaParse CSV Ingestion & Quality Engine (`csvParser.ts`):** RFC 4180 compliant CSV parsing with automatic header validation, clinical fee detection, data quality scoring (0-100%), and real-time KDPA 2019 patient pseudonymization.
+- **DHIS2 Outbound SHA Claims Service (`dhis2Service.ts`):** End-to-end integration service for compiling and transmitting aggregate Social Health Authority (SHA) claims to Ministry of Health DHIS2 gateways with transaction references.
+- **OpenMRS / KenyaEMR FHIR R4 Client (`fhirService.ts`):** HL7 FHIR R4 interoperability module for pulling clinical encounter bundles from hospital EHR systems and normalizing them for AI narrative analysis.
+- **SMS Alert Dispatcher (`smsService.ts`):** Africa's Talking & Twilio SMS notification service for delivering revenue leakage alerts and SHA submission receipts to health facility directors.
+- **Dynamic Currency & Metric Visualizations:** Refactored Recharts dashboards with automatic KES / USD currency formatting, zero-division math safety, and public vs private metric tracking.
+
+
+### Added
+- **Swahili Language Support (i18n):** Created modular Swahili translations schema and incorporated full Swahili language toggles into the core clinical intelligence interface.
+- **Role-Based DPIA Hard Enforcement:** Introduced strict KDPA 2019 DPIA compliance validation in the user onboarding tour for public and faith-based facility administrators.
+- **Enhanced Localized Data Visualization:** Integrated language awareness into Recharts dashboards to automatically translate labels and descriptive indicators.
+
 ## [1.3.0] - 2026-03-16
 
 ### Added

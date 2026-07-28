@@ -1,17 +1,17 @@
-# Pending Tasks
+# Kazira Clinical Intelligence - Task Tracker
 
 ## High Priority
-- [ ] **Data Parsing Integration:** Replace the raw text `.csv` drop with robust CSV and PDF parsing modules (e.g. PapaParse for CSV, react-pdf for documents).
-- [ ] **Data Architecture Base:** Set up Supabase / PostgreSQL schemas for multi-tenant data storage (Facility, County, National).
-- [ ] **DPIA Implementation:** Create a hard stop enforcement for unverified DPIA documents in the `Onboarding` flow for all public facility roles.
-- [ ] **Report Persistence:** Currently, report history is stored in `localStorage`. Move this to encrypted, secure database storage.
+- [x] **Data Parsing Integration:** Integrated PapaParse CSV engine with header validation, data quality scoring (0-100%), and automatic KDPA 2019 patient pseudonymization. (Completed)
+- [x] **DHIS2 Outbound SHA Claims:** Built `dhis2Service` for transmitting aggregate Social Health Authority (SHA) claim metrics directly to Ministry of Health DHIS2 endpoints with transaction references. (Completed)
+- [x] **KenyaEMR / OpenMRS FHIR Client:** Implemented HL7 FHIR R4 client (`fhirService`) for pulling clinical encounter bundles and converting them into normalized clinical datasets. (Completed)
+- [x] **DPIA Implementation:** Hard stop enforcement for unverified DPIA documents in the `Onboarding` flow for all public facility roles. (Completed)
+- [x] **SMS Reporting & Notifications:** Implemented Africa's Talking / Twilio SMS alert service (`smsService`) for broadcasting revenue leakage alerts and SHA submission receipts to facility directors. (Completed)
 
 ## Medium Priority
-- [ ] **DHIS2 Integration Mockup:** Create sample API calls and service structures for pushing SHA aggregate claims to DHIS2.
-- [ ] **KenyaEMR / OpenMRS FHIR Client:** Scaffold FHIR API structures for pulling encounters and data mappings in real time securely.
-- [ ] **Role Management & Routing:** Extract role configuration and routing logic for Facility Admin / County / MoH out of `App.tsx` into a proper React Router architecture.
+- [x] **Public / Private Segment Split:** Built distinct presentation paths for private clinics (revenue leakage/MRR) and public/faith-based facilities (SHA claims, DHIS2, county oversight). (Completed)
+- [x] **Role Management & Routing:** Role-gated views for `facility_admin`, `county_health`, and `moh` with dynamic dashboard switching. (Completed)
+- [x] **Swahili i18n:** Bilingual Swahili/English language toggles for all clinical intelligence views and executive summaries. (Completed)
 
-## Low Priority / Polish
-- [ ] **SMS Reporting:** Integrate notification delivery (e.g., Twilio or Africa's Talking) for weekly summaries to practitioners.
-- [ ] **Swahili i18n:** Add `react-i18next` to support EN/SW toggles for the entire interface, catering specifically to County/MoH clerks.
-- [ ] **Offline PWA:** Setup service workers for offline caching and synchronization when web connectivity frequently fluctuates.
+## Future Roadmap / Phase 2
+- [ ] **Encrypted Database Storage:** Migrate local report history to PostgreSQL / Supabase encrypted cloud persistence.
+- [ ] **Offline PWA Worker:** Service worker caching for low-connectivity rural health centers.

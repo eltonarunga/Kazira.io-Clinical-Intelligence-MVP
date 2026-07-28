@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Key, Save, AlertCircle } from 'lucide-react';
 import Button from './Button';
+import { safeStorage } from '../utils/storage';
 
 interface SettingsProps {
   onClose: () => void;
@@ -11,7 +12,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
   const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
-    const storedKey = localStorage.getItem('kazira_api_key');
+    const storedKey = safeStorage.getItem('kazira_api_key');
     if (storedKey) {
       setApiKey(storedKey);
     }
@@ -19,9 +20,9 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
 
   const handleSave = () => {
     if (apiKey.trim()) {
-      localStorage.setItem('kazira_api_key', apiKey.trim());
+      safeStorage.setItem('kazira_api_key', apiKey.trim());
     } else {
-      localStorage.removeItem('kazira_api_key');
+      safeStorage.removeItem('kazira_api_key');
     }
     setIsSaved(true);
     setTimeout(() => {

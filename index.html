@@ -31,63 +31,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Outfit', 'sans-serif'],
-              serif: ['"DM Serif Display"', 'serif'],
-              mono: ['"DM Mono"', 'monospace'],
-            },
-            colors: {
-              ink: '#1a1a18',
-              ink2: '#3d3d38',
-              ink3: '#6b6b65',
-              surface: '#faf9f6',
-              surface2: '#f2f0ea',
-              surface3: '#e8e4da',
-              accent: '#1d6b4a',
-              accent2: '#2d9b6a',
-              'accent-light': '#e6f5ee',
-              'accent-pale': '#f0faf5',
-              warn: '#b85c1a',
-              'warn-light': '#fef3ea',
-              gold: '#c49a2a',
-              'gold-light': '#fdf6e3',
-              border: '#e5e5e5',
-              border2: '#d4d4d4',
-            }
-          }
-        }
-      }
-    </script>
-    <style type="text/tailwindcss">
-      @layer base {
-        .markdown-body h2 {
-          @apply text-2xl font-bold text-ink mt-8 mb-4 pb-2 border-b border-border2 font-serif;
-        }
-        .markdown-body h3 {
-          @apply text-xl font-bold text-ink2 mt-6 mb-3 font-serif;
-        }
-        .markdown-body p {
-          @apply text-ink3 leading-relaxed mb-4;
-        }
-        .markdown-body ul {
-          @apply list-disc ml-6 mb-4 space-y-2;
-        }
-        .markdown-body li {
-          @apply text-ink3;
-        }
-        .markdown-body blockquote {
-          @apply bg-accent-light border-l-4 border-accent p-4 my-6 italic text-ink2;
-        }
-        .markdown-body strong {
-          @apply font-bold text-ink;
-        }
-      }
-    </style>
 
 <!-- Structured Data / JSON-LD -->
 <script type="application/ld+json">

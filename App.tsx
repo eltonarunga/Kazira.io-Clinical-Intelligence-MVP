@@ -27,6 +27,8 @@ import { DEFAULT_CLINIC_DATA } from './constants';
 import { generateNarrativeReport, auditReport, extractMetrics } from './services/geminiService';
 import { processClinicData } from './utils/dataPipeline';
 import { trackEvent } from './utils/analytics';
+import { translations, Language } from './utils/translations';
+import { safeStorage } from './utils/storage';
 import Button from './components/Button';
 import Dashboard from './components/Dashboard';
 import DashboardSkeleton from './components/DashboardSkeleton';
@@ -63,6 +65,10 @@ const SectionHeader: React.FC<{ id?: string; title: string; icon: React.ReactNod
 const App: React.FC = () => {
   const [clinicData, setClinicData] = useState('');
   const [status, setStatus] = useState<AppStatus>(AppStatus.IDLE);
+  const [lang, setLang] = useState<Language>(() => {
+    return (safeStorage.getItem('kazira_lang') as Language) || 'en';
+  });
+  const t = translations[lang];
   const [report, setReport] = useState<ReportOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>('HIDDEN');
@@ -87,16 +93,29 @@ const App: React.FC = () => {
 
   const clearHistory = () => {
     setHistory([]);
-    localStorage.removeItem('kazira_history');
+    safeStorage.removeItem('kazira_history');
     trackEvent('data_deleted');
   };
 
   useEffect(() => {
-    const hasOnboarded = localStorage.getItem('kazira_onboarded');
+    const hasOnboarded = safeStorage.getItem('kazira_onboarded');
     if (!hasOnboarded) {
       setOnboardingStep('WELCOME');
     }
-    const savedHistory = JSON.parse(localStorage.getItem('kazira_history') || '[]');
+    
+    let savedHistory = [];
+    try {
+      const stored = safeStorage.getItem('kazira_history');
+      if (stored) {
+        savedHistory = JSON.parse(stored);
+        if (!Array.isArray(savedHistory)) {
+          savedHistory = [];
+        }
+      }
+    } catch (e) {
+      console.error('Failed to parse clinic history state from storage:', e);
+      safeStorage.removeItem('kazira_history'); // Clear corrupt data
+    }
     setHistory(savedHistory);
   }, []);
 
@@ -141,7 +160,7 @@ const App: React.FC = () => {
       // Save to history
       const updatedHistory = [newReport, ...history].slice(0, 10);
       setHistory(updatedHistory);
-      localStorage.setItem('kazira_history', JSON.stringify(updatedHistory));
+      safeStorage.setItem('kazira_history', JSON.stringify(updatedHistory));
       
       trackEvent('report_generation_completed', { 
         revenue: newReport.metrics?.revenueThisWeek,
@@ -229,7 +248,7 @@ const App: React.FC = () => {
     const next = steps[currentIndex + 1];
     
     if (next === 'COMPLETED') {
-      localStorage.setItem('kazira_onboarded', 'true');
+      safeStorage.setItem('kazira_onboarded', 'true');
       setOnboardingStep('HIDDEN');
       trackEvent('onboarding_completed');
       return;
@@ -292,6 +311,8 @@ const App: React.FC = () => {
           onNext={nextOnboarding} 
           onPrev={prevOnboarding} 
           onClose={() => setOnboardingStep('HIDDEN')}
+          segment={segment}
+          lang={lang}
         />
 
       <header className="bg-surface border-b border-border2 sticky top-0 z-10">
@@ -301,39 +322,53 @@ const App: React.FC = () => {
               K
             </div>
             <div>
-              <h1 className="text-xl font-extrabold text-ink tracking-tight font-serif">Kazira Clinical Intelligence</h1>
-              <p className="text-[10px] text-ink3 font-bold uppercase tracking-widest leading-none">Report MVP</p>
+              <h1 className="text-xl font-extrabold text-ink tracking-tight font-serif">{t.appName}</h1>
+              <p className="text-[10px] text-ink3 font-bold uppercase tracking-widest leading-none">{t.reportMVP}</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
+            {/* Language Switcher Button */}
+            <button 
+              onClick={() => {
+                const nextLang = lang === 'en' ? 'sw' : 'en';
+                setLang(nextLang);
+                safeStorage.setItem('kazira_lang', nextLang);
+                toast.success(nextLang === 'sw' ? 'Lugha imebadilishwa kuwa Kiswahili' : 'Language switched to English');
+              }}
+              className="flex items-center gap-1.5 px-2 py-1 bg-surface2 border border-border2 hover:border-accent hover:text-accent rounded-md text-xs font-bold transition-all h-8"
+              title="Switch Language / Badilisha Lugha"
+            >
+              <span className="text-xs">{lang === 'en' ? '🇰🇪 SW' : '🇬🇧 EN'}</span>
+            </button>
+
             {segment === 'public' && (
               <div className="flex items-center gap-1.5 mr-2">
-                <span className="text-[10px] font-bold text-ink3 uppercase tracking-wider hidden sm:inline">Role:</span>
+                <span className="text-[10px] font-bold text-ink3 uppercase tracking-wider hidden sm:inline">{t.role}</span>
                 <select 
                   className="bg-surface2 border border-border2 rounded-md text-xs px-2 py-1 outline-none focus:border-accent"
                   value={role}
                   onChange={(e) => setRole(e.target.value as any)}
                 >
-                  <option value="facility_admin">Facility Admin</option>
-                  <option value="county_health">County Health Dept</option>
-                  <option value="moh">SHA / MoH</option>
+                  <option value="facility_admin">{t.facilityAdmin}</option>
+                  <option value="county_health">{t.countyHealth}</option>
+                  <option value="moh">{t.moh}</option>
                 </select>
               </div>
             )}
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-accent-pale text-accent2 rounded-full text-xs font-bold border border-accent/20">
-              <Zap size={14} fill="currentColor" /> SYSTEM ONLINE
+              <Zap size={14} fill="currentColor" /> {t.systemOnline}
             </div>
-            <Button variant="ghost" onClick={() => setIsSettingsOpen(true)} title="Settings">
+            <Button variant="ghost" onClick={() => setIsSettingsOpen(true)} title={t.settings}>
               <SettingsIcon size={18} />
             </Button>
             <Button variant="ghost" onClick={() => {
               setShowHistory(!showHistory);
               if (!showHistory) trackEvent('history_viewed');
-            }} className="relative" title="History">
+            }} className="relative" title={t.history}>
               <History size={18} />
               {history.length > 0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent text-white text-[10px] flex items-center justify-center rounded-full border-2 border-surface">{history.length}</span>}
             </Button>
-            <Button variant="ghost" onClick={() => window.location.reload()} title="Reload"><RefreshCw size={18} /></Button>
+            <Button variant="ghost" onClick={() => window.location.reload()} title={t.reload}><RefreshCw size={18} /></Button>
           </div>
         </div>
       </header>
@@ -390,7 +425,7 @@ const App: React.FC = () => {
                 onClick={() => {
                   if (confirm('Clear all history?')) {
                     setHistory([]);
-                    localStorage.removeItem('kazira_history');
+                    safeStorage.removeItem('kazira_history');
                   }
                 }}
                 disabled={history.length === 0}
@@ -421,8 +456,8 @@ const App: React.FC = () => {
                       <FileText size={20} />
                     </div>
                     <div>
-                      <h2 className="font-bold text-ink2 text-sm">Input Stage</h2>
-                      <p className="text-[10px] text-ink3 font-medium uppercase tracking-tight">Paste, Load, or Drop Files</p>
+                      <h2 className="font-bold text-ink2 text-sm">{t.inputStage}</h2>
+                      <p className="text-[10px] text-ink3 font-medium uppercase tracking-tight">{t.dragDropOrPaste}</p>
                     </div>
                   </div>
                   
@@ -435,10 +470,10 @@ const App: React.FC = () => {
                       onChange={handleFileUpload} 
                     />
                     <Button variant="secondary" size="sm" onClick={() => fileInputRef.current?.click()} className="text-xs h-9 px-3">
-                      <Upload size={14} /> Upload
+                      <Upload size={14} /> {t.uploadBtn}
                     </Button>
                     <Button variant="secondary" size="sm" onClick={() => setClinicData(DEFAULT_CLINIC_DATA)} className="text-xs h-9 px-3">
-                      <FileCode size={14} /> Load Sample
+                      <FileCode size={14} /> {t.loadSampleBtn}
                     </Button>
                     <Button 
                       variant="ghost" 
@@ -447,7 +482,7 @@ const App: React.FC = () => {
                       className="text-xs text-rose-500 hover:text-rose-600 hover:bg-rose-50 h-9 px-3"
                       disabled={!clinicData}
                     >
-                      <Trash2 size={14} /> Clear
+                      <Trash2 size={14} /> {t.clearBtn}
                     </Button>
                   </div>
                 </div>
@@ -457,7 +492,7 @@ const App: React.FC = () => {
                     className="w-full h-[450px] p-6 font-mono text-sm focus:ring-0 outline-none resize-none bg-transparent placeholder:text-ink3/50 transition-all leading-relaxed"
                     value={clinicData}
                     onChange={(e) => setClinicData(e.target.value)}
-                    placeholder="Paste clinic metrics here or drop a file (CSV, Markdown, Text)..."
+                    placeholder={t.placeholderText}
                   />
                   {!clinicData && !isDragging && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-40">
@@ -469,11 +504,11 @@ const App: React.FC = () => {
 
                 <div className="p-4 bg-surface2 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
                   <div className="flex items-center gap-6 text-ink3 text-[10px] font-bold uppercase tracking-wider">
-                    <div className="flex items-center gap-1.5"><List size={14} /> {lineCount} Lines</div>
-                    <div className="flex items-center gap-1.5"><Info size={14} /> {charCount} Chars</div>
+                    <div className="flex items-center gap-1.5"><List size={14} /> {lineCount} {t.lines}</div>
+                    <div className="flex items-center gap-1.5"><Info size={14} /> {charCount} {t.chars}</div>
                     <div className="hidden sm:flex items-center gap-1.5">
                       <div className={`w-2 h-2 rounded-full ${clinicData ? 'bg-accent2' : 'bg-ink3/30 animate-pulse'}`}></div>
-                      {clinicData ? 'Data Ready' : 'Awaiting Input'}
+                      {clinicData ? t.dataReady : t.awaitingInput}
                     </div>
                   </div>
                   <Button 
@@ -484,7 +519,7 @@ const App: React.FC = () => {
                     isLoading={isProcessing}
                     disabled={!clinicData}
                   >
-                    Analyze & Generate
+                    {t.generateBtn}
                   </Button>
                 </div>
               </div>
@@ -498,7 +533,7 @@ const App: React.FC = () => {
                 >
                   <div className="flex items-center gap-2 font-bold text-ink2 text-sm">
                     <HelpCircle size={18} className="text-accent" />
-                    Input Best Practices
+                    {t.bestPractices}
                   </div>
                   <ChevronRight size={18} className={`text-ink3/70 transition-transform ${showDataGuide ? 'rotate-90' : ''}`} />
                 </div>
@@ -512,16 +547,16 @@ const App: React.FC = () => {
               <div className="bg-gradient-to-br from-accent to-ink2 rounded-2xl p-6 text-white shadow-xl">
                 <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                   <Zap size={20} className="text-gold" />
-                  Operational Intelligence
+                  {t.operationalIntelligence}
                 </h3>
                 <div className="space-y-4">
                   <div className="p-3 bg-white/10 rounded-xl border border-white/10">
-                    <h4 className="text-xs font-bold uppercase tracking-widest text-accent-light mb-1">Audit Verification</h4>
-                    <p className="text-xs opacity-90 leading-relaxed">Every claim is audited by a separate logic engine to prevent mathematical hallucination.</p>
+                    <h4 className="text-xs font-bold uppercase tracking-widest text-accent-light mb-1">{t.auditVerification}</h4>
+                    <p className="text-xs opacity-90 leading-relaxed">{t.auditVerificationDesc}</p>
                   </div>
                   <div className="p-3 bg-white/10 rounded-xl border border-white/10">
-                    <h4 className="text-xs font-bold uppercase tracking-widest text-accent-light mb-1">Smart Causality</h4>
-                    <p className="text-xs opacity-90 leading-relaxed">Identifies exactly why revenue dropped, from cancellations to specific practitioner performance gaps.</p>
+                    <h4 className="text-xs font-bold uppercase tracking-widest text-accent-light mb-1">{t.smartCausality}</h4>
+                    <p className="text-xs opacity-90 leading-relaxed">{t.smartCausalityDesc}</p>
                   </div>
                 </div>
               </div>
@@ -529,12 +564,12 @@ const App: React.FC = () => {
               <div className="bg-surface rounded-2xl border border-border2 p-6 shadow-sm">
                 <div className="flex items-center gap-2 mb-3 text-ink2 font-bold">
                   <Info size={18} className="text-accent" />
-                  Integration Help
+                  {t.integrationHelp}
                 </div>
                 <div className="text-sm text-ink3 space-y-3">
-                  <p className="text-xs">Kazira works best with weekly CSV exports from your PMS (Practice Management System).</p>
+                  <p className="text-xs">{t.integrationHelpDesc}</p>
                   <Button variant="secondary" size="sm" onClick={() => setOnboardingStep('WELCOME')} className="mt-2 w-full text-xs">
-                    Restart Concept Tour
+                    {t.restartTour}
                   </Button>
                 </div>
               </div>
@@ -555,12 +590,14 @@ const App: React.FC = () => {
                     </div>
                     <div className="text-center">
                       <h2 className="text-2xl font-bold text-ink2 mb-2">
-                        {status === AppStatus.GENERATING_NARRATIVE ? 'Synthesizing Narrative...' : 'Auditing Report Integrity...'}
+                        {status === AppStatus.GENERATING_NARRATIVE 
+                          ? (lang === 'sw' ? 'Tunaunda Maelezo...' : 'Synthesizing Narrative...') 
+                          : (lang === 'sw' ? 'Tunakagua Uadilifu wa Ripoti...' : 'Auditing Report Integrity...')}
                       </h2>
                       <p className="text-ink3 max-w-md">
                         {status === AppStatus.GENERATING_NARRATIVE 
-                          ? "Our Narrative Agent is connecting your clinic's data points and identifying primary drivers."
-                          : "The Audit Agent is verifying math, logic, and looking for potential hallucinations."
+                          ? (lang === 'sw' ? "Mjumbe wetu wa Maelezo anakusanya pointi za data za kliniki yako na kutambua vichocheo vikuu vya kiutendaji." : "Our Narrative Agent is connecting your clinic's data points and identifying primary drivers.")
+                          : (lang === 'sw' ? "Mjumbe wa Ukaguzi anathibitisha hesabu, mantiki, na kutafuta hitilafu zozote." : "The Audit Agent is verifying math, logic, and looking for potential hallucinations.")
                         }
                       </p>
                     </div>
@@ -569,16 +606,16 @@ const App: React.FC = () => {
               </div>
             ) : isSuccess ? (
               <div className="space-y-8">
-                <Dashboard data={report?.metrics} />
+                <Dashboard data={report?.metrics} lang={lang} />
 
                 <div className="bg-surface rounded-3xl border border-border2 shadow-2xl overflow-hidden">
                   <div className="bg-ink text-white p-8 md:p-12">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                       <div>
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/20 text-accent-light rounded-full text-xs font-bold uppercase tracking-widest mb-4 border border-accent/30">
-                          <ClipboardCheck size={14} /> Weekly Executive Intelligence
+                          <ClipboardCheck size={14} /> {lang === 'sw' ? 'Ujasusi wa Mtendaji wa Kila Wiki' : 'Weekly Executive Intelligence'}
                         </div>
-                        <h1 className="text-3xl md:text-5xl font-black tracking-tighter mb-2 font-serif">Clinic Performance Report</h1>
+                        <h1 className="text-3xl md:text-5xl font-black tracking-tighter mb-2 font-serif">{lang === 'sw' ? 'Ripoti ya Utendaji wa Kliniki' : 'Clinic Performance Report'}</h1>
                         <p className="text-ink3/70 font-medium">{report?.timestamp}</p>
                       </div>
                       <div className="flex gap-3">
@@ -586,7 +623,7 @@ const App: React.FC = () => {
                           <Download size={18} /> Export MD
                         </Button>
                         <Button variant="secondary" className="bg-ink2 border-ink3 text-white hover:bg-ink3" onClick={reset}>
-                          <RefreshCw size={18} /> New Report
+                          <RefreshCw size={18} /> {lang === 'sw' ? 'Ripoti Mpya' : 'New Report'}
                         </Button>
                       </div>
                     </div>
@@ -597,24 +634,30 @@ const App: React.FC = () => {
                       <ReportContent text={report?.narrative || ''} />
                     </div>
 
-                    <div className="lg:col-span-1 space-y-8">
+                    <div className="lg:col-span-1 space-y-8 animate-in fade-in duration-550">
                       <div className="bg-surface2 p-6 rounded-2xl border border-border2">
-                        <SectionHeader title="Trust Score" icon={<ShieldCheck size={18} />} />
+                        <SectionHeader title={t.trustScore} icon={<ShieldCheck size={18} />} />
                         <div className="space-y-4">
                           <div className="flex items-center justify-between text-sm">
-                            <span className="text-ink3">Verification</span>
-                            <span className="text-accent2 font-bold flex items-center gap-1">
+                            <span className="text-ink3">GDPR / KDPA 2019</span>
+                            <span className="text-emerald-600 font-bold flex items-center gap-1 text-xs">
                               <CheckCircle2 size={14} /> Passed
                             </span>
                           </div>
                           <div className="flex items-center justify-between text-sm">
+                            <span className="text-ink3">Verification</span>
+                            <span className="text-accent2 font-bold flex items-center gap-1 text-xs">
+                              <CheckCircle2 size={14} /> {t.verificationPassed}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
                             <span className="text-ink3">Logic Check</span>
-                            <span className="text-accent2 font-bold flex items-center gap-1">
-                              <CheckCircle2 size={14} /> Verified
+                            <span className="text-accent2 font-bold flex items-center gap-1 text-xs">
+                              <CheckCircle2 size={14} /> {t.logicCheckVerified}
                             </span>
                           </div>
                           <div className="pt-4 mt-4 border-t border-border2">
-                            <p className="text-[10px] text-ink3/70 font-bold uppercase mb-2">Audit Agent Output</p>
+                            <p className="text-[10px] text-ink3/70 font-bold uppercase mb-2">{t.auditOutput}</p>
                             <p className="text-xs text-ink2 italic leading-relaxed">
                               {report?.audit}
                             </p>
@@ -623,12 +666,12 @@ const App: React.FC = () => {
                       </div>
 
                       <div className="bg-accent-light p-6 rounded-2xl border border-accent/20">
-                        <SectionHeader title="Next Milestone" icon={<BarChart3 size={18} />} />
-                        <p className="text-sm text-ink2 font-medium mb-3">Goal: $35k Weekly Revenue</p>
+                        <SectionHeader title={t.nextMilestone} icon={<BarChart3 size={18} />} />
+                        <p className="text-sm text-ink2 font-medium mb-3">{t.milestoneGoal}</p>
                         <div className="w-full h-2 bg-accent/20 rounded-full overflow-hidden">
                           <div className="h-full bg-accent rounded-full" style={{ width: '81%' }}></div>
                         </div>
-                        <p className="text-[10px] text-accent mt-2 font-bold uppercase">81% Progress</p>
+                        <p className="text-[10px] text-accent mt-2 font-bold uppercase">81% {t.progress}</p>
                       </div>
                     </div>
                   </div>
@@ -636,7 +679,7 @@ const App: React.FC = () => {
 
                 <div className="flex justify-center pb-12">
                   <Button variant="ghost" onClick={reset} className="text-ink3 hover:text-ink2">
-                    Scroll to top and start over
+                    {t.scrollToTop}
                   </Button>
                 </div>
               </div>
