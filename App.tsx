@@ -22,8 +22,9 @@ import {
   History,
   Settings as SettingsIcon
 } from 'lucide-react';
-import { AppStatus, ReportOutput, OnboardingStep } from './types';
+import { AppStatus, ReportOutput, OnboardingStep, DebtItem, RecoveryLogEntry, BaselineConfig } from './types';
 import { DEFAULT_CLINIC_DATA } from './constants';
+import { INITIAL_DEBT_ITEMS, INITIAL_RECOVERY_ENTRIES, DEFAULT_BASELINE_CONFIG } from './constants/sampleDebts';
 import { generateNarrativeReport, auditReport, extractMetrics } from './services/geminiService';
 import { processClinicData } from './utils/dataPipeline';
 import { trackEvent } from './utils/analytics';
@@ -39,6 +40,8 @@ import ReportContent from './components/ReportContent';
 import LandingPage from './components/LandingPage';
 import CookieConsent from './components/CookieConsent';
 import GovernmentDashboard from './components/GovernmentDashboard';
+import DebtReceivablesList from './components/DebtReceivablesList';
+import RecoveryLogbook from './components/RecoveryLogbook';
 
 // Lazy load modals to improve initial load performance
 const Modal = lazy(() => import('./components/Modal'));
@@ -88,6 +91,70 @@ const App: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [segment, setSegment] = useState<'private' | 'public'>('private');
   const [role, setRole] = useState<'facility_admin' | 'county_health' | 'moh'>('facility_admin');
+  const [activeTab, setActiveTab] = useState<'overview' | 'debt_ledger' | 'recovery_logbook'>('overview');
+
+  // Debts & Receivables State
+  const [debts, setDebts] = useState<DebtItem[]>(() => {
+    try {
+      const stored = safeStorage.getItem('kazira_debt_items');
+      if (stored) return JSON.parse(stored);
+    } catch (e) {}
+    return INITIAL_DEBT_ITEMS;
+  });
+
+  // Recovery Logbook Entries State
+  const [logEntries, setLogEntries] = useState<RecoveryLogEntry[]>(() => {
+    try {
+      const stored = safeStorage.getItem('kazira_recovery_entries');
+      if (stored) return JSON.parse(stored);
+    } catch (e) {}
+    return INITIAL_RECOVERY_ENTRIES;
+  });
+
+  // Baseline Comparison Config State
+  const [baselineConfig, setBaselineConfig] = useState<BaselineConfig>(() => {
+    const storedWeeks = safeStorage.getItem('kazira_baseline_weeks');
+    const storedRate = safeStorage.getItem('kazira_baseline_rate');
+    return {
+      ...DEFAULT_BASELINE_CONFIG,
+      baselineWeeks: storedWeeks ? Number(storedWeeks) : 12,
+      preKaziraLeakageRateKes: storedRate ? Number(storedRate) : 380000
+    };
+  });
+
+  const handleUpdateDebt = (updatedItem: DebtItem) => {
+    const updatedList = debts.map((d) => (d.id === updatedItem.id ? updatedItem : d));
+    setDebts(updatedList);
+    safeStorage.setItem('kazira_debt_items', JSON.stringify(updatedList));
+
+    // If resolved or collected, create or update a recovery log entry automatically
+    if (updatedItem.status === 'collected' || updatedItem.status === 'dismissed' || updatedItem.status === 'escalated') {
+      const newEntry: RecoveryLogEntry = {
+        id: `REC-${Date.now()}-${updatedItem.id}`,
+        debtItemId: updatedItem.id,
+        patientRef: updatedItem.patientRef,
+        procedureName: updatedItem.procedureName,
+        detectedKes: updatedItem.estimatedKes,
+        actionedKes: updatedItem.estimatedKes,
+        collectedKes: updatedItem.status === 'collected' ? (updatedItem.amountCollectedKes || updatedItem.estimatedKes) : 0,
+        attribution: updatedItem.attribution,
+        date: updatedItem.resolvedAt || new Date().toISOString().split('T')[0],
+        status: updatedItem.status,
+        invoiceRef: updatedItem.invoiceRef,
+        resolutionNote: updatedItem.resolutionNote || (updatedItem.status === 'collected' ? 'Verified invoice payment' : '')
+      };
+
+      const updatedLog = [newEntry, ...logEntries.filter(l => l.debtItemId !== updatedItem.id)];
+      setLogEntries(updatedLog);
+      safeStorage.setItem('kazira_recovery_entries', JSON.stringify(updatedLog));
+    }
+  };
+
+  const handleAddDebt = (newItem: DebtItem) => {
+    const updatedList = [newItem, ...debts];
+    setDebts(updatedList);
+    safeStorage.setItem('kazira_debt_items', JSON.stringify(updatedList));
+  };
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -373,6 +440,51 @@ const App: React.FC = () => {
         </div>
       </header>
 
+      {/* Module Navigation Sub-Header */}
+      <div className="bg-surface2/80 border-b border-border2 px-4">
+        <div className="max-w-7xl mx-auto flex items-center gap-1 sm:gap-2 overflow-x-auto py-2">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeTab === 'overview'
+                ? 'bg-accent text-white shadow-sm shadow-accent/20'
+                : 'text-ink3 hover:text-ink hover:bg-surface3'
+            }`}
+          >
+            <BarChart3 size={15} /> Clinical Intelligence
+          </button>
+
+          <button
+            onClick={() => setActiveTab('debt_ledger')}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap relative ${
+              activeTab === 'debt_ledger'
+                ? 'bg-accent text-white shadow-sm shadow-accent/20'
+                : 'text-ink3 hover:text-ink hover:bg-surface3'
+            }`}
+          >
+            <FileText size={15} /> Receivables & Debt Ledger
+            {debts.filter(d => d.status === 'pending').length > 0 && (
+              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
+                activeTab === 'debt_ledger' ? 'bg-white text-accent font-black' : 'bg-rose-500 text-white font-bold'
+              }`}>
+                {debts.filter(d => d.status === 'pending').length}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('recovery_logbook')}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeTab === 'recovery_logbook'
+                ? 'bg-accent text-white shadow-sm shadow-accent/20'
+                : 'text-ink3 hover:text-ink hover:bg-surface3'
+            }`}
+          >
+            <ClipboardCheck size={15} /> Recovery Logbook & ROI
+          </button>
+        </div>
+      </div>
+
       {/* History Sidebar */}
       {showHistory && (
         <div className="fixed inset-0 z-50 flex justify-end">
@@ -438,7 +550,20 @@ const App: React.FC = () => {
       )}
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
-        {segment === 'public' && (role === 'county_health' || role === 'moh') ? (
+        {activeTab === 'debt_ledger' ? (
+          <DebtReceivablesList
+            debts={debts}
+            onUpdateDebt={handleUpdateDebt}
+            onAddDebt={handleAddDebt}
+          />
+        ) : activeTab === 'recovery_logbook' ? (
+          <RecoveryLogbook
+            debts={debts}
+            logEntries={logEntries}
+            baselineConfig={baselineConfig}
+            onUpdateBaselineConfig={setBaselineConfig}
+          />
+        ) : segment === 'public' && (role === 'county_health' || role === 'moh') ? (
           <GovernmentDashboard role={role} />
         ) : isInputView ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">

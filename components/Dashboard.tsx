@@ -15,12 +15,9 @@ const Dashboard: React.FC<DashboardProps> = ({ data, lang = 'en' }) => {
   if (!data) return null;
   const t = translations[lang];
 
-  // Helper to format financial numbers cleanly (detects KES vs USD)
+  // Helper to format financial numbers cleanly (always KES)
   const formatCurrency = (val: number) => {
-    if (val >= 10000) {
-      return `KES ${val.toLocaleString()}`;
-    }
-    return `$${val.toLocaleString()}`;
+    return `KES ${val.toLocaleString()}`;
   };
 
   // Safe percentage growth calculation

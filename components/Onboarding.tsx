@@ -49,6 +49,15 @@ const TOUR_STEPS = (lang: Language): Record<string, { title: string; description
     color: "text-indigo-600 bg-indigo-100",
     bgPattern: "from-indigo-100/50 to-transparent"
   },
+  BASELINE_CONFIG: {
+    title: lang === 'sw' ? "Kipindi cha Msingi Cha Kulinganisha" : "Define Pre-Kazira Baseline Period",
+    description: lang === 'sw'
+      ? "Weka muda wa kulinganisha wa kliniki yako kabla ya Kazira (kawaida wiki 12). Hii inatumika kuhesabu viwango vya ulinganifu na kuonyesha uthibitisho wa kurejesha mapato."
+      : "Define your facility's pre-Kazira comparison window (default 12 weeks). This baseline powers your pre/post leakage rate comparison and attribution evidence.",
+    icon: BarChart3,
+    color: "text-emerald-600 bg-emerald-100",
+    bgPattern: "from-emerald-100/50 to-transparent"
+  },
   DATA_INPUT: {
     title: lang === 'sw' ? "1. Weka Data Yako" : "1. Input Your Data",
     description: lang === 'sw'
@@ -124,7 +133,7 @@ const TOUR_STEPS = (lang: Language): Record<string, { title: string; description
 });
 
 const STEP_ORDER: OnboardingStep[] = [
-  'WELCOME', 'DPIA_COMPLIANCE', 'DATA_INPUT', 'GENERATE', 'PROCESSING', 'REPORT_OVERVIEW', 
+  'WELCOME', 'DPIA_COMPLIANCE', 'BASELINE_CONFIG', 'DATA_INPUT', 'GENERATE', 'PROCESSING', 'REPORT_OVERVIEW', 
   'EXEC_SUMMARY', 'WHY_CHANGED', 'RISKS', 'ACTIONS'
 ];
 
@@ -229,7 +238,43 @@ const Onboarding: React.FC<OnboardingProps> = ({
             {stepData.description}
           </p>
 
-          {/* Special Hard Stop DPIA Compliance Form specifically for Public Sector Segment */}
+          {/* Baseline Configuration Form */}
+          {currentStep === 'BASELINE_CONFIG' && (
+            <div className="my-4 p-4 rounded-xl border border-emerald-200 bg-emerald-50/50 space-y-3 animate-in fade-in duration-300">
+              <div className="text-xs font-bold text-emerald-900 uppercase tracking-wider">
+                Facility Pre-Kazira Historical Baseline
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-emerald-950 block mb-1">
+                  Baseline Period Duration (Weeks)
+                </label>
+                <select
+                  value={safeStorage.getItem('kazira_baseline_weeks') || '12'}
+                  onChange={(e) => safeStorage.setItem('kazira_baseline_weeks', e.target.value)}
+                  className="w-full px-3 py-1.5 bg-white border border-emerald-300 rounded-lg text-xs font-bold text-ink"
+                >
+                  <option value="4">4 Weeks Pre-Kazira</option>
+                  <option value="8">8 Weeks Pre-Kazira</option>
+                  <option value="12">12 Weeks Pre-Kazira (Recommended Standard)</option>
+                  <option value="24">24 Weeks Pre-Kazira</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-emerald-950 block mb-1">
+                  Est. Pre-Kazira Weekly Unbilled Leakage (KES)
+                </label>
+                <input
+                  type="number"
+                  defaultValue={safeStorage.getItem('kazira_baseline_rate') || '380000'}
+                  onChange={(e) => safeStorage.setItem('kazira_baseline_rate', e.target.value)}
+                  placeholder="e.g. 380000"
+                  className="w-full px-3 py-1.5 bg-white border border-emerald-300 rounded-lg text-xs font-mono font-bold text-ink"
+                />
+              </div>
+            </div>
+          )}
           {segment === 'public' && currentStep === 'DPIA_COMPLIANCE' && (
             <div className="my-6 p-4 rounded-xl border border-rose-200 bg-rose-50/50 space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex gap-2 items-start">

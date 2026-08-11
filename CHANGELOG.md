@@ -4,6 +4,22 @@ All notable changes to the Kazira.io project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-08-11
+
+### Added
+- **Unbilled Debt & Receivables Ledger (`DebtReceivablesList.tsx`):** Named debt table featuring patient ref (pseudonymised), procedure name, date performed, gap type, estimated KES value, insurer, claim status, days outstanding, and status.
+- **Flag Resolution & Reason Codes:** Contextual flag action modal with Collected (invoice reference + amount received), Dismissed (reason codes: already invoiced, patient refused, write-off, data error, duplicate), and Escalated workflows.
+- **Insurance Claim Fields & Tracking:** Added claim reference, submission date, insurer name, and status (`unsubmitted`, `submitted`, `approved`, `rejected`, `resubmitted`) to billing gap models.
+- **Financial Recovery Logbook (`RecoveryLogbook.tsx`):** 3-column running totals (Detected KES, Actioned KES, Collected KES) with Net Recovery ROI proof line and pre/post baseline comparison panel.
+- **Attribution Badging (`kazira_flagged` vs `manually_identified`):** Strict attribution tags ensuring only auto-detected flags count towards Kazira ROI totals.
+- **CSV Export Engine (`exportCsv.ts`):** Downloadable CSV exports for both Debt Receivables and Recovery Logbook.
+- **Baseline Period Selector:** Pre-Kazira comparison period selector (default 12 weeks) integrated into onboarding and logbook.
+
+### Fixed
+- **Gemini Model Strings & Schema (`geminiService.ts`):** Corrected model aliases to `gemini-2.5-flash` and `gemini-2.5-pro` across narrative generation, auditing, and metric extraction. Added `unbilledRevenueKes`, `shaReimbursementPendingKes`, and `shaClaimVolume` to Gemini extraction schema.
+- **Currency Formatting (`Dashboard.tsx`):** Removed threshold condition in `formatCurrency()` to consistently prefix `KES` across all revenue metrics regardless of amount.
+- **Meta Description & Agent Framing:** Expanded `index.html` meta tags to cover both private and public healthcare facilities, and refined `AGENTS.md` instructions.
+
 ## [1.5.0] - 2026-07-28
 
 ### Added

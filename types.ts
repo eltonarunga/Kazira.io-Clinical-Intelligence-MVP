@@ -36,6 +36,7 @@ export interface MetricSummary {
 export type OnboardingStep = 
   | 'WELCOME'
   | 'DPIA_COMPLIANCE'
+  | 'BASELINE_CONFIG'
   | 'DATA_INPUT'
   | 'GENERATE'
   | 'PROCESSING'
@@ -62,4 +63,66 @@ export interface IntegrationStatus {
     enabled: boolean;
     lastSent?: string;
   };
+}
+
+// =========================================
+// DEBT, RECOVERIES & ATTRIBUTION SCHEMAS
+// =========================================
+
+export type FlagAttribution = 'kazira_flagged' | 'manually_identified';
+
+export type ClaimStatus = 'unsubmitted' | 'submitted' | 'approved' | 'rejected' | 'resubmitted';
+
+export type FlagStatus = 'pending' | 'collected' | 'dismissed' | 'escalated';
+
+export type DismissalReasonCode = 
+  | 'already_invoiced'
+  | 'patient_refused'
+  | 'write_off'
+  | 'data_error'
+  | 'duplicate';
+
+export interface DebtItem {
+  id: string;
+  patientRef: string; // e.g., "PAT-ANON-8923"
+  procedureName: string;
+  datePerformed: string;
+  gapType: string; // e.g., "Unbilled Consultation", "Unbilled Lab Panel", "Missing SHA ID"
+  estimatedKes: number;
+  insurer?: string; // e.g., "SHA", "Jubilee", "AAR", "NHIF", "Out-of-Pocket"
+  claimRef?: string;
+  submissionDate?: string;
+  claimStatus?: ClaimStatus;
+  daysOutstanding: number;
+  status: FlagStatus;
+  attribution: FlagAttribution;
+  // Resolution details
+  resolvedAt?: string;
+  resolutionReason?: DismissalReasonCode;
+  resolutionNote?: string;
+  amountCollectedKes?: number;
+  invoiceRef?: string;
+  escalatedTo?: string;
+}
+
+export interface RecoveryLogEntry {
+  id: string;
+  debtItemId: string;
+  patientRef: string;
+  procedureName: string;
+  detectedKes: number;
+  actionedKes: number;
+  collectedKes: number;
+  attribution: FlagAttribution;
+  date: string;
+  status: FlagStatus;
+  invoiceRef?: string;
+  resolutionNote?: string;
+}
+
+export interface BaselineConfig {
+  startDate: string;
+  endDate: string;
+  baselineWeeks: number; // default 12 weeks
+  preKaziraLeakageRateKes: number; // estimated pre-Kazira weekly leakage rate
 }

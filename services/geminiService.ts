@@ -47,7 +47,7 @@ const getAI = () => {
 export const generateNarrativeReport = async (data: string): Promise<string> => {
   const ai = getAI();
   const response = await ai.models.generateContent({
-    model: 'gemini-3.5-flash',
+    model: 'gemini-2.5-flash',
     contents: `Analyze the following clinic data and generate an executive summary report. Use Markdown formatting. Data:\n\n${data}`,
     config: {
       systemInstruction: NARRATIVE_AGENT_SYSTEM_PROMPT,
@@ -60,7 +60,7 @@ export const generateNarrativeReport = async (data: string): Promise<string> => 
 export const auditReport = async (data: string, narrative: string): Promise<string> => {
   const ai = getAI();
   const response = await ai.models.generateContent({
-    model: 'gemini-3.1-pro-preview',
+    model: 'gemini-2.5-pro',
     contents: `Audit the following narrative report against the raw data. Verify math and logic. Report any discrepancies or confirm accuracy.\n\nRaw Data:\n${data}\n\nNarrative:\n${narrative}`,
     config: {
       systemInstruction: AUDIT_AGENT_SYSTEM_PROMPT,
@@ -73,7 +73,7 @@ export const auditReport = async (data: string, narrative: string): Promise<stri
 export const extractMetrics = async (data: string): Promise<MetricSummary> => {
   const ai = getAI();
   const response = await ai.models.generateContent({
-    model: 'gemini-3.5-flash',
+    model: 'gemini-2.5-flash',
     contents: `Extract key metrics from the following clinic data. Data:\n\n${data}`,
     config: {
       systemInstruction: METRIC_EXTRACTION_SYSTEM_PROMPT,
@@ -86,6 +86,9 @@ export const extractMetrics = async (data: string): Promise<MetricSummary> => {
           revenueLastWeek: { type: Type.NUMBER },
           utilization: { type: Type.NUMBER },
           cancellations: { type: Type.NUMBER },
+          unbilledRevenueKes: { type: Type.NUMBER },
+          shaReimbursementPendingKes: { type: Type.NUMBER },
+          shaClaimVolume: { type: Type.NUMBER },
           procedureMix: {
             type: Type.ARRAY,
             items: {
@@ -120,6 +123,9 @@ export const extractMetrics = async (data: string): Promise<MetricSummary> => {
       revenueLastWeek: 0,
       utilization: 0,
       cancellations: 0,
+      unbilledRevenueKes: 0,
+      shaReimbursementPendingKes: 0,
+      shaClaimVolume: 0,
       procedureMix: [],
       practitionerPerformance: []
     };

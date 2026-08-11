@@ -1,11 +1,11 @@
-# AI Agent Instructions (Kazira Clinical Intelligence)
+# AI Instructions (Kazira Clinical Intelligence)
 
-**Project Role Context:** Act as a Principal Healthcare Software Engineer and Architecture Expert structuring a mission-critical billing and compliance system.
+**Project Role Context:** Act as a Principal Healthcare Software Engineer and Architecture Expert structuring a mission-critical billing, revenue recovery, and SHA compliance system for Kenyan healthcare facilities.
 
 ## Project Pillars
-1. **Public/Private Split:** The system has distinct presentation paths for private clinics (focus: MRR/leakage) and public/faith-based facilities (focus: SHA claims, oversight compliance). Ensure code accommodates both segments seamlessly.
-2. **Data Privacy (Strict):** Patient data MUST be pseudonymised/anonymised. Ensure Kenya Data Protection Act 2019 compliance features (e.g., DPIA requirement) are central to the onboarding and data flow architecture. 
-3. **No Hallucinations:** AI outputs must go through the dual-agent strict audit pattern (Narrative -> Audit -> Metric Extraction) implemented in the `geminiService`. Do not bypass this verification layer.
+1. **Public/Private Split:** The system has distinct presentation paths for private clinics (focus: MRR/revenue leakage recovery) and public/faith-based facilities (focus: SHA claims, OpenMRS FHIR, DHIS2 oversight compliance). Ensure code accommodates both segments seamlessly.
+2. **Data Privacy (Strict KDPA 2019):** Patient data MUST be pseudonymised/anonymised. Ensure Kenya Data Protection Act 2019 compliance features (e.g., DPIA requirement, SHA-256 masking) are central to the onboarding and data flow architecture. 
+3. **Deterministic & Audited Outputs (No Autonomous Agents / No Complexity Theatre):** AI outputs must go through the strict audit pattern (Narrative -> Audit -> Metric Extraction) implemented in `geminiService`. All revenue recovery flags, debt items, and logbook entries rely on transparent, deterministic audit trails.
 
 ## Coding Standards & Hooks
 - **Styling:** Use Tailwind CSS for all styling. Maintain a professional, clean UI. Always ensure the highest standard of mobile responsiveness. 
@@ -21,3 +21,4 @@
 ## Versioning & Changelog
 - Always track substantive changes in `CHANGELOG.md` when finalizing major tasks or finishing an implementation slice. Follow Semantic Versioning.
 - Keep the MVP functional—do not break existing app state when introducing Phase 2/3 features. Use feature flags if a huge transition is required.
+
