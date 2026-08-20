@@ -1,27 +1,45 @@
 import React from 'react';
+import { FileCheck, ShieldCheck, Lock, Server } from 'lucide-react';
 
 const DataProcessingAgreement: React.FC = () => {
   return (
-    <div className="prose prose-sm max-w-none text-ink3">
-      <h3 className="text-lg font-bold text-ink mb-4 font-serif">Data Processing Agreement (DPA)</h3>
-      <p className="mb-4">Last updated: March 31, 2026</p>
-      
-      <p className="mb-4">This Data Processing Agreement ("DPA") forms part of the Terms of Service between Kazira Clinical Intelligence ("Data Processor") and the Clinic ("Data Controller").</p>
+    <div className="space-y-6 text-ink2">
+      <div className="bg-accent-pale p-5 rounded-xl border border-accent/20">
+        <div className="flex items-center gap-3 mb-2">
+          <FileCheck className="text-accent" size={22} />
+          <h3 className="text-xl font-bold text-ink font-serif">Data Processing Agreement (DPA)</h3>
+        </div>
+        <p className="text-xs text-ink3">KDPA 2019 & GDPR Data Processor Agreement &bull; Last updated: April 3, 2026</p>
+      </div>
 
-      <h4 className="font-bold text-ink mt-6 mb-2">1. Scope of Processing</h4>
-      <p className="mb-4">The Data Processor will process data solely for the purpose of providing the Kazira Clinical Intelligence service, which includes analyzing clinic revenue, missed billing, and generating reports.</p>
+      <div className="space-y-4 text-sm">
+        <section className="bg-surface2/50 p-4 rounded-xl border border-border2">
+          <h4 className="font-bold text-ink font-serif text-base mb-2 flex items-center gap-2">
+            <ShieldCheck className="text-accent" size={16} /> 1. Scope & Purpose of Processing
+          </h4>
+          <p className="text-xs text-ink3 leading-relaxed">
+            Kazira Clinical Intelligence acts as a Data Processor on behalf of the Health Facility (Data Controller) solely to identify revenue variance, audit billing completeness, and compute SHA claims performance.
+          </p>
+        </section>
 
-      <h4 className="font-bold text-ink mt-6 mb-2">2. Data Types</h4>
-      <p className="mb-4">The Data Controller agrees to only provide anonymized financial and operational data. The Data Controller must not provide any Protected Health Information (PHI) or Personally Identifiable Information (PII).</p>
+        <section className="bg-surface2/50 p-4 rounded-xl border border-border2">
+          <h4 className="font-bold text-ink font-serif text-base mb-2 flex items-center gap-2">
+            <Lock className="text-accent" size={16} /> 2. Technical & Organizational Measures
+          </h4>
+          <p className="text-xs text-ink3 leading-relaxed">
+            All data at rest is encrypted using AES-256, and data in transit is protected via TLS 1.3. Patient IDs undergo irreversible one-way SHA-256 cryptographic hashing prior to analytics execution.
+          </p>
+        </section>
 
-      <h4 className="font-bold text-ink mt-6 mb-2">3. Security Measures</h4>
-      <p className="mb-4">The Data Processor implements appropriate technical and organizational measures to ensure a level of security appropriate to the risk, including encryption in transit and at rest.</p>
-
-      <h4 className="font-bold text-ink mt-6 mb-2">4. Sub-processors</h4>
-      <p className="mb-4">The Data Processor may use Google (Gemini API) as a sub-processor for generating narrative reports and auditing data. The Data Processor ensures that any sub-processor is bound by obligations equivalent to those in this DPA.</p>
-
-      <h4 className="font-bold text-ink mt-6 mb-2">5. Data Deletion</h4>
-      <p className="mb-4">Upon termination of the service, or upon written request by the Data Controller, the Data Processor will delete all processed data within 30 days, unless required by law to retain it.</p>
+        <section className="bg-surface2/50 p-4 rounded-xl border border-border2">
+          <h4 className="font-bold text-ink font-serif text-base mb-2 flex items-center gap-2">
+            <Server className="text-accent" size={16} /> 3. Data Sovereignty & Kenyan Hosting
+          </h4>
+          <p className="text-xs text-ink3 leading-relaxed">
+            For public and faith-based healthcare facilities, data processing adheres to Kenya Data Protection Act 2019 data localisation mandates.
+          </p>
+        </section>
+      </div>
     </div>
   );
 };

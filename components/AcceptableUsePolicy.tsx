@@ -1,26 +1,40 @@
 import React from 'react';
+import { AlertOctagon, CheckCircle2, ShieldAlert } from 'lucide-react';
 
 const AcceptableUsePolicy: React.FC = () => {
   return (
-    <div className="prose prose-sm max-w-none text-ink3">
-      <h3 className="text-lg font-bold text-ink mb-4 font-serif">Acceptable Use Policy</h3>
-      <p className="mb-4">Last updated: March 31, 2026</p>
-      
-      <h4 className="font-bold text-ink mt-6 mb-2">1. Prohibited Activities</h4>
-      <p className="mb-4">You may not use Kazira Clinical Intelligence to:</p>
-      <ul className="list-disc pl-5 mb-4 space-y-1">
-        <li>Violate any applicable laws or regulations.</li>
-        <li>Process sensitive patient data (PHI/PII) without proper anonymization.</li>
-        <li>Attempt to bypass or exploit any security mechanisms.</li>
-        <li>Reverse engineer, decompile, or disassemble the software.</li>
-        <li>Use the service for any illegal, harmful, or fraudulent purpose.</li>
-      </ul>
+    <div className="space-y-6 text-ink2">
+      <div className="bg-accent-pale p-5 rounded-xl border border-accent/20">
+        <div className="flex items-center gap-3 mb-2">
+          <AlertOctagon className="text-accent" size={22} />
+          <h3 className="text-xl font-bold text-ink font-serif">Acceptable Use Policy</h3>
+        </div>
+        <p className="text-xs text-ink3">Last updated: April 3, 2026</p>
+      </div>
 
-      <h4 className="font-bold text-ink mt-6 mb-2">2. Data Input Requirements</h4>
-      <p className="mb-4">Users are responsible for ensuring that any data uploaded to the platform is fully anonymized and stripped of Personally Identifiable Information (PII) before processing.</p>
+      <div className="space-y-5 text-sm">
+        <section className="bg-surface2/50 p-4 rounded-xl border border-border2">
+          <h4 className="font-bold text-ink font-serif text-base mb-2 flex items-center gap-2">
+            <ShieldAlert className="text-warn" size={16} /> 1. Prohibited Activities
+          </h4>
+          <p className="text-xs text-ink3 mb-2">You may not use Kazira Clinical Intelligence to:</p>
+          <ul className="list-disc pl-5 space-y-1.5 text-xs text-ink3">
+            <li>Violate any Kenyan or international healthcare data protection regulations.</li>
+            <li>Upload unmasked patient identifiers (PII/PHI) without utilizing our built-in pseudonymisation tools.</li>
+            <li>Attempt unauthorized access, reverse engineering, or penetration testing against platform APIs.</li>
+            <li>Use the platform for fraudulent claim submission or falsification of audit logs.</li>
+          </ul>
+        </section>
 
-      <h4 className="font-bold text-ink mt-6 mb-2">3. Enforcement</h4>
-      <p className="mb-4">We reserve the right to suspend or terminate access to the service for any user who violates this Acceptable Use Policy, without prior notice.</p>
+        <section className="bg-surface2/50 p-4 rounded-xl border border-border2">
+          <h4 className="font-bold text-ink font-serif text-base mb-2 flex items-center gap-2">
+            <CheckCircle2 className="text-accent" size={16} /> 2. Clinical Data Responsibilities
+          </h4>
+          <p className="text-xs text-ink3 leading-relaxed">
+            Clinic administrators are responsible for ensuring that all uploaded data complies with local institutional health ethics approvals and KDPA 2019 compliance mandates.
+          </p>
+        </section>
+      </div>
     </div>
   );
 };

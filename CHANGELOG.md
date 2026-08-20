@@ -4,6 +4,16 @@ All notable changes to the Kazira.io project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-08-20
+
+### Added
+- **Formalized Design Language System (`design_language.md`):** Complete design system codifying color tokens (`surface`, `ink`, `accent`, `warn`, `gold`), typography hierarchy (`DM Serif Display`, `Outfit`, `DM Mono`), mathematical spacing, and button/badge/modal standards.
+- **Enhanced Documentation & Policy Modals:** Standardized styling for Help Center Documentation, Acceptable Use Policy (AUP), Data Processing Agreement (DPA), and Changelog with consistent typography, badge accents, and Lucide icons.
+
+### Fixed
+- **App-wide Currency Consistency:** Audited all components and history entries to ensure strict `KES` currency prefixing and monospaced number formatting.
+- **Modal Geometry & Headings:** Aligned `Modal.tsx` and all dialog components with `font-serif` headings, subtle border contrasts, and unified corner radii.
+
 ## [1.6.0] - 2026-08-11
 
 ### Added

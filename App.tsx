@@ -522,8 +522,8 @@ const App: React.FC = () => {
                       {item.narrative.split('\n').find(l => l.startsWith('## 1.'))?.replace('## 1.', '').trim() || 'Weekly Report'}
                     </h3>
                     <div className="mt-2 flex gap-2">
-                      <div className="px-2 py-0.5 bg-surface2 text-[10px] font-bold text-ink3 rounded uppercase">
-                        ${item.metrics?.revenueThisWeek.toLocaleString()}
+                      <div className="px-2 py-0.5 bg-surface2 text-[10px] font-bold font-mono text-ink3 rounded uppercase">
+                        KES {item.metrics?.revenueThisWeek.toLocaleString()}
                       </div>
                     </div>
                   </div>

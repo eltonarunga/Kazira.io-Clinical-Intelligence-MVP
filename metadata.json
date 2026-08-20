@@ -1,6 +1,6 @@
 {
   "name": "Kazira.io Clinic Intelligence MVP",
-  "description": "An autonomous clinic intelligence system that generates executive narrative reports from raw clinic data using Gemini AI.",
+  "description": "Clinical and financial intelligence platform for Kenyan healthcare facilities and private clinics, generating audited executive reports, debt recovery tracking, and SHA compliance analytics.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
