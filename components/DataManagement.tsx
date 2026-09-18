@@ -1,15 +1,16 @@
 import React from 'react';
 import Button from './Button';
-import { Download, Trash2, AlertTriangle } from 'lucide-react';
+import { Download, Trash2, AlertTriangle, FileSpreadsheet, UploadCloud } from 'lucide-react';
 import { toast } from 'sonner';
 import { safeStorage } from '../utils/storage';
 
 interface Props {
   onClearHistory: () => void;
   onClose: () => void;
+  onOpenCsvIngestion?: () => void;
 }
 
-const DataManagement: React.FC<Props> = ({ onClearHistory, onClose }) => {
+const DataManagement: React.FC<Props> = ({ onClearHistory, onClose, onOpenCsvIngestion }) => {
   const handleExport = () => {
     try {
       const historyData = safeStorage.getItem('kazira_history');
@@ -45,6 +46,28 @@ const DataManagement: React.FC<Props> = ({ onClearHistory, onClose }) => {
 
   return (
     <div className="text-ink3 space-y-6">
+      {/* Manual CSV Ingestion */}
+      {onOpenCsvIngestion && (
+        <div className="pb-6 border-b border-border2">
+          <h3 className="text-lg font-bold text-ink mb-2 font-serif flex items-center gap-2">
+            <FileSpreadsheet size={20} className="text-primary" /> Manual CSV &amp; PMS Ingestion
+          </h3>
+          <p className="text-sm mb-4">
+            Ingest hospital encounters, theatre registers, and outpatient fee manifests directly into your sovereign facility ledger with KDPA 2019 pseudonymisation.
+          </p>
+          <Button 
+            variant="primary" 
+            onClick={() => {
+              onClose();
+              onOpenCsvIngestion();
+            }} 
+            className="flex items-center gap-2"
+          >
+            <UploadCloud size={16} /> Open Ingestion Engine
+          </Button>
+        </div>
+      )}
+
       <div>
         <h3 className="text-lg font-bold text-ink mb-2 font-serif">Data Export</h3>
         <p className="text-sm mb-4">

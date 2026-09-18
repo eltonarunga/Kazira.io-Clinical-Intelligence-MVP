@@ -101,3 +101,6 @@ export const exportRecoveryLogbookToCSV = (entries: RecoveryLogEntry[], baseline
   const dateStr = new Date().toISOString().split('T')[0];
   downloadCSV(`Kazira_Recovery_Logbook_${dateStr}.csv`, headers, rows);
 };
+
+export const exportDebtsToCsv = exportDebtListToCSV;
+export const exportRecoveryLogToCsv = exportRecoveryLogbookToCSV;

@@ -1,39 +1,88 @@
-// Simple analytics utility for tracking events
-// In a real application, this would integrate with PostHog, Mixpanel, or Amplitude
+// Kazira Analytics Engine - KDPA 2019 Sovereign Privacy Standards
+// Tracks interface telemetry without collecting Personally Identifiable Information (PII)
 
-type EventName = 
+import { safeStorage } from './storage';
+
+export type EventName = 
   | 'app_launched'
+  | 'page_view'
+  | 'cta_clicked'
   | 'onboarding_started'
   | 'onboarding_completed'
-  | 'data_input_started'
-  | 'report_generation_started'
-  | 'report_generation_completed'
-  | 'report_generation_failed'
+  | 'audit_triggered'
+  | 'audit_completed'
+  | 'audit_failed'
+  | 'debt_resolved'
+  | 'debt_added'
+  | 'claim_resubmitted'
   | 'report_exported'
   | 'history_viewed'
   | 'legal_document_viewed'
+  | 'faq_viewed'
   | 'feedback_submitted'
-  | 'data_deleted';
+  | 'data_deleted'
+  | 'briefing_shared';
 
-export const trackEvent = (eventName: EventName, properties?: Record<string, any>) => {
-  // In production, this would send data to your analytics provider
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`[Analytics] ${eventName}`, properties || '');
-  }
-  
-  // Example PostHog integration (commented out)
-  // if (window.posthog) {
-  //   window.posthog.capture(eventName, properties);
-  // }
+interface EventProperties {
+  tab?: string;
+  ctaName?: string;
+  consent?: string;
+  source?: string;
+  category?: string;
+  status?: string;
+  amountKes?: number;
+  provider?: string;
+  durationMs?: number;
+  [key: string]: any;
+}
+
+// Check whether analytics telemetry is permitted under user's cookie consent
+export const isAnalyticsPermitted = (): boolean => {
+  const consent = safeStorage.getItem('kazira_cookie_consent');
+  const analyticsPref = safeStorage.getItem('kazira_cookie_analytics');
+  if (consent === 'accepted_all') return true;
+  if (analyticsPref === 'true') return true;
+  return false;
 };
 
-export const identifyUser = (userId: string, traits?: Record<string, any>) => {
+export const trackEvent = (eventName: EventName, properties?: EventProperties) => {
+  // Always sanitize to ensure no patient PII is accidentally passed
+  const sanitizedProps = { ...(properties || {}) };
+  delete sanitizedProps.patientName;
+  delete sanitizedProps.idNumber;
+  delete sanitizedProps.phoneNumber;
+
   if (process.env.NODE_ENV === 'development') {
-    console.log(`[Analytics] Identify User: ${userId}`, traits || '');
+    console.log(`[Kazira Analytics] ${eventName}`, sanitizedProps);
   }
-  
-  // Example PostHog integration
-  // if (window.posthog) {
-  //   window.posthog.identify(userId, traits);
-  // }
+
+  // Respect user privacy consent
+  if (!isAnalyticsPermitted() && eventName !== 'app_launched') {
+    return;
+  }
+
+  // Push to dataLayer if present (for Google Tag Manager or hospital enterprise analytics)
+  if (typeof window !== 'undefined') {
+    (window as any).dataLayer = (window as any).dataLayer || [];
+    (window as any).dataLayer.push({
+      event: eventName,
+      timestamp: new Date().toISOString(),
+      ...sanitizedProps
+    });
+  }
+};
+
+export const trackPageView = (tab: string) => {
+  trackEvent('page_view', { tab });
+};
+
+export const trackCtaClick = (ctaName: string, source: string) => {
+  trackEvent('cta_clicked', { ctaName, source });
+};
+
+export default {
+  trackEvent,
+  trackPageView,
+  trackCtaClick,
+  isAnalyticsPermitted
 };

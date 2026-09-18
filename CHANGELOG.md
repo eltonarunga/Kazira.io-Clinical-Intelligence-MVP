@@ -4,6 +4,386 @@ All notable changes to the Kazira.io project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.4] - 2026-09-18
+
+### Added
+- **Manual CSV & Hospital PMS Ingestion Module on Dashboard (`components/views/OverviewRecoveryView.tsx`, `App.tsx`):**
+  - Added a dedicated "Manual CSV & Hospital PMS Ingestion" action section (`#dashboard-csv-pms-ingestion`) right on the executive recovery dashboard.
+  - Provided direct modal launcher button (`#dashboard-cta-upload-csv`) for uploading or pasting encounter CSV records with real-time KDPA 2019 SHA-256 HMAC pseudonymisation.
+  - Implemented 1-click blank template download (`#dashboard-cta-download-template`) tailored to the active facility's MFL code.
+  - Added supported PMS format badges (KenyaEMR, Fun-Soft, Meditech, OpenMRS FHIR, Kranium, Standard CSV) and direct PMS connector navigation.
+  - Added "Manual CSV / PMS" action button in the dashboard top header and an "Ingest Hospital CSV" CTA within the zero-state billing trend chart.
+
+## [2.8.3] - 2026-09-17
+
+### Changed
+- **Shortcut Grid & Visual Alignment in Hamburger Menu (`components/Sidebar.tsx`):**
+  - Standardized the 2-column shortcut tools grid with uniform touch-friendly dimensions (`h-10 min-h-[40px] px-2.5`) and optical baseline alignment across all items.
+  - Implemented dedicated micro-icon containers (`w-6 h-6 rounded-md bg-surface-container-high/80`) for all shortcuts (History, Ingest CSV, Data Vault, Settings, Take Tour, FAQ & Help, Share Briefing) ensuring optical column and row alignment down to the single pixel.
+  - Harmonized color palettes across shortcut icons to the cohesive brand primary tone, eliminating inconsistent amber styling.
+  - Fixed invalid Tailwind padding classes and enhanced touch ergonomics and active/focus states.
+  - Added unique `id` attributes (`shortcut-history`, `shortcut-ingest-csv`, `shortcut-data-vault`, `shortcut-settings`, `shortcut-take-tour`, `shortcut-faq`, `shortcut-share-briefing`, etc.) and ARIA attributes for full accessibility compliance.
+
+## [2.8.2] - 2026-09-17
+
+### Removed
+- **"Switch Persona" Section (`components/views/ProfileView.tsx`):**
+  - Removed the targeted Persona Switcher card (`div#root > ... > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2)`) and its header from the Practitioner Profile view.
+  - Persona management and role testing are now housed exclusively within the mobile hamburger drawer and sidebar, eliminating duplication and streamlining statutory registration credentials.
+
+## [2.8.1] - 2026-09-17
+
+### Removed
+- **Guest Sandbox Mode Notification Banner (`App.tsx`):**
+  - Deleted the targeted Guest Sandbox Mode notification banner element (`#guest-mode-banner`) from the main content container.
+  - Removes vertical overhead and banner clutter, allowing direct, immediate visibility of the executive revenue overview and clinical data views.
+
+## [2.8.0] - 2026-09-17
+
+### Changed
+- **Unified Navigation & Operational Shortcuts in Hamburger Menu / Sidebar (`Sidebar.tsx`, `AppHeader.tsx`, `App.tsx`):**
+  - Migrated all shortcut menu details previously housed in the `AppHeader` dropdown popover directly into the hamburger menu / sidebar drawer.
+  - Integrated **Clinical Control & AI Engine** section into the sidebar: Run Dual-Loop AI Audit, Total Recovered telemetry capsule, and live Sovereign Server node indicator.
+  - Integrated **Operational Shortcuts** grid into the sidebar: Audit History with dynamic badge count, Share Briefing with clipboard fallback, System FAQ, Ingest CSV, Settings, Take Tour, and Data Vault & Export.
+  - Integrated **Session & Account Management** into the sidebar: Profile overview card, Guest Sandbox mode switcher, persona/role switcher, and session sign out.
+  - Removed the redundant dropdown chevron button (`#shortcut-menu-trigger`) and floating popover from `AppHeader.tsx`, providing a cleaner, institutional header layout with direct access to user profile and hamburger drawer toggle.
+
+## [2.7.3] - 2026-09-17
+
+### Removed
+- **Selected Guest Access Icons (`SignInView.tsx`):**
+  - Deleted the targeted SVG elements from the `Guest Access` tab button (`#auth-tab-guest > svg:nth-of-type(1)`) and the `Standard Sandbox Guest Mode` card header (`div#root > ... > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > svg:nth-of-type(1)`).
+  - Streamlines the Guest Access pane and navigation tabs, matching the minimalist, typography-led institutional aesthetic.
+
+## [2.7.2] - 2026-09-17
+
+### Removed
+- **Selected Registration Notice Banner (`SignInView.tsx`):**
+  - Deleted the targeted notice element (`div#root > ... > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1)`) from the Facility Registration / Sign Up tab.
+  - Eliminates visual clutter above the registration form, allowing hospital onboarding staff to focus directly on entering facility and administrator credentials.
+
+## [2.7.1] - 2026-09-17
+
+### Removed
+- **Selected Sign-In Footer Cross-Link Container (`SignInView.tsx`):**
+  - Deleted the targeted `<div>` element (`div#root > ... > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(2)`) containing the redundant cross-link prompt below the Facility Sign In form.
+  - Streamlines the Sign In pane to keep user attention strictly focused on hospital credential submission, leaving tab switching to the primary top navigation segments.
+
+## [2.7.0] - 2026-09-17
+
+### Added
+- **Manual Clinical CSV Ingestion Engine (`components/CsvIngestionModal.tsx`, `utils/csvParser.ts`):**
+  - Full-stack manual CSV ingestion allowing authenticated hospital accounts and guest evaluators to batch ingest clinical records directly from KenyaEMR or billing spreadsheets.
+  - Client-side parser with KDPA 2019 SHA-256 HMAC pseudonymisation transforms patient names and MRNs into secure pseudonyms before leaving the browser.
+  - Interactive modal with drag-and-drop file upload, raw text editor, real-time data quality scoring (0–100%), column headers detection, and live table preview.
+  - Three pre-packaged clinical sample datasets: Main Theatre Consumables, SHA Gazette Claims Manifest, and Outpatient Fee Register.
+  - Blank CSV template generator with standard column schemas for clinical staff.
+  - Direct trigger to launch the dual-loop Gemini AI recovery audit on ingested records.
+- **Batch Debt API & Storage (`server.ts`, `serverStore.ts`, `services/apiService.ts`):**
+  - Added `POST /api/debts/batch` with multi-tenant partitioning (`isGuest` and `facilityCode`).
+  - Added `saveDebtItemsBatch` method in `apiService` for atomic synchronization with offline local caching in `safeStorage`.
+- **UI Entry Points (`UnbilledGapLedgerView.tsx`, `IntegrationsView.tsx`, `AppHeader.tsx`, `DataManagement.tsx`):**
+  - Added "Ingest CSV Batch" action in the Unbilled Gap Ledger header and within the empty-state callout for real facilities.
+  - Added "Manual CSV & PMS Ingestion" connector card in the Interoperability Gateway Hub.
+  - Added "Ingest CSV" action in the AppHeader shortcuts menu.
+  - Added "Manual CSV & PMS Ingestion" section in the Data Management & Vault modal.
+
+## [2.6.4] - 2026-09-16
+
+### Removed
+- **Header Badge Pill Deletion (`SignInView.tsx`):**
+  - Deleted the targeted `<span>` badge (`Zero-Mock Guarantee`) from the facility registration pane header (`div#root > ... > span:nth-of-type(1)`).
+  - Aligned the evaluator sandbox header by removing the corresponding `Non-Destructive Demo` badge, establishing consistent, minimalist typography across all authentication tab headers.
+
+## [2.6.3] - 2026-09-16
+
+### Removed
+- **Sign-In Quick Facility Switcher Segment (`SignInView.tsx`):**
+  - Removed the targeted "Quick test facilities" segmented switcher block and persona chips from the primary sign-in form pane, eliminating demo clutter and presenting an unencumbered credential entry interface for operational facility staff.
+
+## [2.6.2] - 2026-09-16
+
+### Removed
+- **Selected Element Deletion (`SignInView.tsx`):**
+  - Deleted the targeted `<span>` element (`Sovereign Login` badge) from the Facility Sign In form pane header (`div#root > ... > span:nth-of-type(1)`), creating a cleaner and uncluttered section header for hospital users.
+
+## [2.6.1] - 2026-09-16
+
+### Added
+- **Official Brand Logo & Vector Emblem (`components/KaziraLogo.tsx`, `public/kazira-logo.svg`, `public/favicon.svg`):**
+  - Implemented the official Kazira Clinical Intelligence brand mark: a two-tone shield framing the Caduceus serpent coils, central ringed staff, and an upward revenue recovery growth arrow in authentic forest green (`#0d5d3a`) and warm ochre gold (`#c58c2b`).
+  - Added vector component `<KaziraLogo>` and `<KaziraEmblem>` supporting both standalone emblem and full typographic lockup.
+  - Exported standalone high-resolution SVG assets to `/public/kazira-logo.svg` and updated `/public/favicon.svg`.
+
+### Changed
+- **Selected Sign-In Header Logo Element (`SignInView.tsx`):**
+  - Updated the focused logo container with elevated contrast styling (`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white shadow-lg border border-white/40 p-2 sm:p-2.5 transition-transform hover:scale-105`), rendering the new emblem crisply against the sovereign banner background.
+  - Aligned brand marks across `Sidebar.tsx` and `AppHeader.tsx` to use the unified emblem.
+
+## [2.6.0] - 2026-09-16
+
+### Removed
+- **Sovereign KDPA Compliance Gateway Branding & Navigation:**
+  - Removed `"& Sovereign KDPA Compliance Gateway"` from the header subtitle on the authentication screen (`SignInView.tsx`), refocusing the platform purely on `"Kenya Healthcare Revenue Recovery"`.
+  - Applied clean, proportional typography styling (`text-xs sm:text-sm text-emerald-100/90 mt-1 max-w-md font-medium tracking-normal`) to the target subtitle element.
+  - Removed the standalone `Compliance` navigation tab from `Sidebar.tsx` and retired its route handler from `App.tsx` and `types.ts`.
+  - Streamlined `OverviewRecoveryView.tsx` by replacing the gateway navigation button with an inline local encryption status badge (`Zero PII Exfiltration`).
+  - Removed the simulated `KDPA Sovereign Node` gateway card from `IntegrationsView.tsx`, focusing the interoperability directory strictly on healthcare EHR and national financial infrastructure (KenyaEMR FHIR, MoH DHIS2, SHA National Clearinghouse, Africa's Talking, and Safaricom Daraja M-Pesa).
+
+## [2.5.9] - 2026-09-16
+
+### Fixed
+- **AI Metric Extraction Request Payload Parameter Alignment (`server.ts`, `services/geminiService.ts`):**
+  - Resolved `Missing "text" string in request body.` HTTP 400 error on `/api/ai/extract-metrics`.
+  - Updated `/api/ai/extract-metrics`, `/api/ai/narrative`, and `/api/ai/audit` in `server.ts` to flexibly accept both `data` and `text` payload aliases.
+  - Aligned `services/geminiService.ts` to dispatch both `data` and `text` properties across all AI proxy requests.
+
+## [2.5.8] - 2026-09-16
+
+### Enhanced
+- **Minimalist & Visually Readable Institutional Footer (`AppFooter.tsx`, `App.tsx`):**
+  - **Modular Architecture:** Extracted the footer from `App.tsx` into a dedicated `components/AppFooter.tsx` sub-component.
+  - **Visual Hierarchy & Optical Readability:** Replaced the dense, monospaced single-line bullet list with an airy, two-tier layout featuring balanced negative space, subtle hairline dividers, and high-contrast body typography.
+  - **Facility & Regulatory Context:** Consolidated institutional context into a clean facility badge (`MFL #` normalized to eliminate duplicated prefixes) paired with an active KDPA 2019 Sovereign Node indicator.
+  - **Grouped Action Links:** Organized navigation links into scannable semantic groupings (Resources: System FAQ, API & Docs, Changelog; Governance: Privacy, Terms, KDPA DPA; Tools: Feedback, Data Vault) with single-line labels and clear hover transitions.
+  - **Contact & Compliance Sub-line:** Structured phone, email, and sovereign local node confirmation cleanly on a subtle baseline row.
+
+## [2.5.7] - 2026-09-16
+
+### Added
+- **Full-Stack Multi-Tenant Backend Integration (`server.ts`, `server/store.ts`, `services/apiService.ts`):**
+  - **Facility Registration & Profiles API (`/api/auth/register`, `/api/auth/profiles`):** Connected the Sign-Up workflow directly to the sovereign Express backend. When hospital administrators register, the facility profile is securely recorded in the persistent server store, a sovereign session token is generated, and a zero-mock partitioned ledger is immediately initialized.
+  - **SHA Claims Multi-Tenant Endpoints (`/api/claims` GET, POST, PUT, DELETE):** Exposed RESTful claims management endpoints partitioned by `isGuest` and `facilityCode` headers. Ensures strict isolation between guest sandbox simulation claims and production hospital batches.
+  - **Full-Stack Claims Synchronization (`ShaClaimsView.tsx`):** Integrated real-time claims fetching, inline tariff adjustment persistence, KenyaEMR encounter ingestion, and manual claim creation directly with the backend API while maintaining resilient client cache fallback.
+  - **Recovery Logbook Backend Persistence (`App.tsx`, `services/apiService.ts`):** Added automated dispatch of newly resolved debt recovery log entries (`apiService.saveRecoveryEntry`) upon debt collection, dismissal, or escalation.
+  - **Deterministic AI Dual-Loop Report Audit Realignment:** Fixed argument order (`auditReport(data, narrative)`) in `/api/ai/audit` and normalized response structure (`result.audit || result.auditedReport`) across `server.ts` and `geminiService.ts`.
+
+## [2.5.6] - 2026-09-16
+
+### Added
+- **Unified 3-Way Authentication Suite (`SignInView.tsx`):**
+  - **Sign In Tab:** Credential and institutional MFL-based authentication with remember-me preference, dynamic facility validation against statutory records, and zero cloud spillover.
+  - **Sign Up Tab:** Dedicated facility onboarding registration form capturing facility name, official MFL code, operational model (`private` vs. `public_faith`), county, clinical lead credentials, and KDPA compliance attestation. Instantly initializes fresh accounts with a strict zero-mock guarantee.
+  - **Guest Access Tab:** One-click sandbox evaluation environment showcasing real Kenyan healthcare archetypes (Dr. Amina Mutua, David Kiprop, Dr. Jane Kerubo, or general Sandbox Evaluator) preloaded with benchmark simulation data.
+  - **Tenant Data Isolation & Persistence (`App.tsx`):** Integrated `handleSignUp` and multi-tenant ledger resets so newly registered facilities onboard to empty unbilled ledgers, clean claims batches, and unpopulated debt queues ready for live EMR integration.
+
+### Enhanced
+- **Zero-Mock Assurance for Real Sign-In & Onboarding Profiles:**
+  - **Onboarding Tour (`Onboarding.tsx`):** Neutralized hardcoded benchmark figures (e.g., KES 3.42M, 81% capture rate) from the onboarding tour copy to eliminate mock assumptions for newly onboarded clinics.
+  - **Dynamic Top Navigation Capsule (`AppHeader.tsx` & `App.tsx`):** Converted the header "Total Recovered" indicator and capture badge to dynamically evaluate the authenticated facility's actual collections (`KES 0` / "Ready" upon first login) while preserving rich demo telemetry strictly for guest sandbox evaluators.
+  - **Tenant Storage Hardening:** Verified that client and server data stores strictly isolate records (`kazira_debt_items_<facilityCode>`, `kazira_sha_claims_<facilityCode>`), ensuring new production accounts onboard to pristine, empty ledgers ready for live KenyaEMR or CSV ingestion.
+
+## [2.5.4] - 2026-09-15
+
+### Added
+- **Restored Mock Entities (Eldoret Doctors Plaza & David Kiprop) to Guest Evaluator Access:**
+  - Added "David Kiprop, CPA (K)" (`Eldoret Doctors Plaza`, `MFL #18204`) back as a dedicated evaluator guest profile in `constants/profiles.ts`.
+  - Updated the **Guest Evaluator Access** panel in `SignInView.tsx` with a responsive 3-column selector covering:
+    1. **Dr. Amina Mutua** (`Nairobi West Memorial Hospital`, `MFL #14920`)
+    2. **David Kiprop, CPA (K)** (`Eldoret Doctors Plaza`, `MFL #18204`)
+    3. **Dr. Jane Kerubo** (`Nairobi County Health Services`, `MOH-NRB-HQ`)
+    Along with the standalone **Sandbox Guest** mode.
+  - Enabled switching and access for evaluator sessions across all UI persona switchers (Profile view, App header menu, and Sign-In view).
+
+## [2.5.3] - 2026-09-15
+
+### Removed
+- **Removed 1-Click Clinical Personas from Sign-In Interface (`SignInView.tsx`):**
+  - Completely removed the "1-Click Clinical Personas (Evaluator Access)" block, the "Instant Access" badge, and the profile shortcut buttons (Dr. Amina Mutua and Dr. Jane Kerubo) from the sign-in modal.
+  - The login view now centers strictly on facility credential entry (Work Email / MFL code and PIN/password) and the guest sandbox option.
+  - Cleaned up unused icons and imports in `SignInView.tsx`.
+
+## [2.5.2] - 2026-09-15
+
+### Removed
+- **Eliminated Hardcoded Mock Facility & Profile Artifacts:**
+  - Removed "David Kiprop, CPA (K)" and "Eldoret Doctors Plaza" (`MFL #18204`) from `constants/profiles.ts`. Authenticated profiles now strictly reflect genuine production institutions (Dr. Amina Mutua at Nairobi West Memorial Hospital and Dr. Jane Kerubo at Nairobi County Department of Health Services).
+  - Sanitized cached local storage session logic in `App.tsx` to automatically invalidate and purge any stale `user-david-kiprop` profiles, resetting seamlessly to the default administrator.
+  - Adjusted quick sign-in grid in `SignInView.tsx` from 3 columns to 2 columns to cleanly present the active authenticatable profiles.
+  - Replaced hardcoded "Dr. Kiprop" fallbacks in `server/gemini.ts` with dynamically extracted clinicians and neutral attending clinician references.
+  - Updated sample data in `constants.tsx`, `components/views/OverviewRecoveryView.tsx`, and `components/views/UnbilledGapLedgerView.tsx` to eliminate all occurrences of "Dr. Kiprop".
+
+## [2.5.1] - 2026-09-14
+
+### Changed
+- **Comprehensive Mock Data Elimination for Production Accounts:**
+  - **SHA Claims Adjudication (`ShaClaimsView.tsx`):**
+    - Isolated claims state by tenant using facility-specific local vaults (`kazira_sha_claims_${facilityCode}`) for authenticated accounts.
+    - Production facilities start with clean zero-state queues instead of hardcoded sample claims, featuring active "Sync KenyaEMR" and "New Claim" modal actions.
+    - Converted all batch metric cards (Total Claims, Ready to Submit, Action Required, Pass Rate) to 100% dynamic arithmetical calculations derived strictly from actual queued records when running in production mode.
+  - **Dual-Loop AI Audit View (`AiAuditView.tsx`):**
+    - Suppressed default Nairobi West Memorial Hospital synthetic narratives, verification logs, and financial metrics for authenticated facility profiles until an actual audit is triggered.
+    - Added clean institutional zero-state cards with 1-click audit triggers tailored to the active facility's statutory name and MFL code.
+    - Preserved rich synthetic demonstration data exclusively for interactive Guest Sandbox sessions (`isGuest: true`).
+  - **App Orchestrator (`App.tsx`):**
+    - Threaded `isGuest` and `activeProfile` props into `OverviewRecoveryView`, `ShaClaimsView`, and `AiAuditView` for uniform multi-tenant state governance.
+
+## [2.5.0] - 2026-09-14
+
+### Added
+- **Multi-Tenant Sovereign Data Partitioning (`server/store.ts`, `server.ts`, `apiService.ts`, `App.tsx`):**
+  - Implemented strict isolation between the interactive Guest Sandbox (`isGuest: true`) and real authenticated facilities (`isGuest: false`, scoped by statutory `facilityCode`).
+  - Real hospital administrators and evaluators start with zero mock/sample data in their live clinical accounts, preventing mock data pollution in production records while preserving rich sandbox demonstration datasets for guest auditors.
+- **Client-Side Resource Fallback & 404 Handler (`NotFoundView.tsx`):**
+  - Created dedicated responsive 404 view displaying clinical guidance, clear HTTP status badges, and one-click return paths to the primary overview dashboard and unbilled ledger.
+- **Security & Input Sanitization Layer (`utils/sanitize.ts`, `server/security.ts`):**
+  - Added XSS sanitization and strip-tag routines for all clinical text inputs, patient pseudonym tokens, and procedure descriptions.
+  - Added strict numeric validation for Kenya Shillings (`KES`) monetary fields to prevent negative or non-numeric values.
+  - Enforced rate limiting, Content Security Policy, X-Content-Type-Options, and Bearer session verification on the sovereign Express backend.
+- **Brand Mark Click Navigation (`AppHeader.tsx`, `Sidebar.tsx`):**
+  - Enabled direct return navigation to the executive recovery overview when clicking the brand emblem across all headers and navigation sidebars.
+
+### Fixed
+- **TypeScript Strict Compilation & Type Alignment (`types.ts`, `UnbilledGapLedgerView.tsx`, `server.ts`):**
+  - Extended `DebtItem` interface with optional clinical metadata (`department`, `doctorName`, `icd10Code`, `notes`) and `BaselineConfig` with `hospitalName`.
+  - Resolved type discrepancies in CSV export attribution and guarded department array filter checks.
+  - Eliminated duplicate key declarations in the server-side authentication response.
+
+## [2.4.2] - 2026-09-13
+
+### Fixed
+- **API Error Resilience & Deterministic Fallback**:
+  - Resolved `generateNarrative`, `extractMetrics`, and `auditReport` 400 `API key not valid` error logging when unconfigured or placeholder keys are provided.
+  - Added `safeGeminiCall` wrapper that catches API key errors without generating unhandled runtime logs, automatically marks invalid keys, and seamlessly executes deterministic clinical audit extraction.
+  - Added `isGeminiActive` telemetry to `/api/health` and `/api/system/status` endpoints to clearly distinguish between live API and sovereign deterministic offline operation.
+
+## [2.4.1] - 2026-09-13
+
+### Added
+- **Direct Profile Page Navigation:**
+  - Header profile button (avatar, name, facility code) now directs straight to the dedicated Clinical Practitioner Profile page (`activeTab = 'profile'`), styled with an active sovereign ring.
+  - Added dedicated Profile button in `Sidebar.tsx` footer for direct access on both desktop and mobile layouts.
+  - Implemented `ProfileView.tsx` component with practitioner credentials, editable contact endpoints (name, title, work email, phone, department), statutory credentials (KMPDC practice license, MoH MFL registry, KDPA ODPC certificate), notification preferences (Africa's Talking SMS alerts, SHA claims daily digest), granted permissions checklist, instant persona switcher, and session sign out controls.
+- **Refined Sign In & Sign Out Flow:**
+  - Implemented `isAuthenticated` session gating with local encrypted vault persistence in `safeStorage`.
+  - Created sovereign `SignInView.tsx` with:
+    - 1-Click Clinical Personas for instant evaluator access (Dr. Amina Mutua, Dr. Jane Kerubo, David Kiprop).
+    - Facility work credentials authentication form (Work email or MFL code and facility PIN).
+    - 1-Click Guest Sandbox Access with preloaded synthetic FHIR encounters.
+    - Statutory KDPA Section 31 sovereign tokenization guarantee.
+  - Added graceful sign-out confirmation modals in both `ProfileView.tsx` and `AppHeader.tsx`.
+
+## [2.4.0] - 2026-09-13
+
+### Added
+- **Minimalist Header & Unified Shortcut Menu (`AppHeader.tsx`):**
+  - Streamlined the global top header to display exclusively the minimalist brand logo and the Profile Shortcut pill, eliminating visual clutter.
+  - Engineered an accessible, responsive Shortcut Menu dropdown consolidating all auxiliary tools and clinical actions:
+    - **Active Profile Card**: Monogram avatar, full name, clinical title, email, facility name, MFL registry code, and KDPA status badge.
+    - **Guest Sandbox Banner & Quick Toggle**: Direct action to switch between guest sandbox simulation and licensed facility administrator.
+    - **Clinical AI Engine Trigger**: Primary "Run Dual-Loop AI Audit" button with Gemini 3.8 Dual-Loop badge and live spinner.
+    - **Revenue Recovery Capsule**: Total recovered counter (KES 3,420,000 / 81% capture rate).
+    - **Sovereign Status Indicator**: Online sync telemetry with roundtrip latency and Nairobi DC cloud status.
+    - **Operational Shortcuts**: Audit History with live item counter, Executive Briefing share action, System FAQ knowledge base, Facility Settings & Gateways, Guided Onboarding Tour launcher, and Data Vault.
+    - **Persona Switcher**: Seamless switching between Dr. Amina Mutua (Facility Admin), Dr. Jane Kerubo (County Health Director), David Kiprop, CPA (Finance Director), and Guest Evaluator.
+- **Kenyan Clinical Persona & Profile Infrastructure (`types.ts`, `constants/profiles.ts`):**
+  - Added strict `UserProfile` interface with role typing (`facility_admin`, `county_health`, `moh`, `guest`), facility metadata, MFL codes, and specific administrative permissions.
+  - Implemented persistent profile storage via `safeStorage` with instant toast feedback upon switching.
+- **Guest Sign In Flow:**
+  - One-click Guest Sign In feature allowing immediate evaluation in a safe sandbox mode with synthetic patient records.
+  - Contextual Guest Sandbox notice banner at the top of the workspace providing quick actions to take the guided tour or return to staff administrator mode.
+- **Onboarding Machine (`Onboarding.tsx` & `App.tsx`):**
+  - Full 8-step interactive tour detailing KDPA 2019 DPIA tokenization, pre-Kazira baseline configuration, KenyaEMR data ingestion, Gemini 3.8 dual-loop audit determinism, unbilled gap ledger reconciliation, and live launch.
+  - Auto-launches for new visitors and is re-launchable anytime from the Profile Shortcut Menu or Guest Banner.
+
+## [2.3.0] - 2026-09-13
+
+### Added
+- **Minimalist Sovereign Header (`AppHeader.tsx`):**
+  - Redesigned top navigation with an ultra-clean geometric medical mark, single-line facility identifier, and sleek recovery capsule.
+  - Added high-hierarchy "Run Audit" primary CTA with live Gemini 3.8 audit spinning indicators.
+  - Implemented Web Share API briefing launcher with one-click clipboard fallback and notification toast.
+  - Unified action icons (Settings, Audit History, FAQ, Status) with 44px minimum touch targets and accessible focus rings.
+- **20-Point Site Optimization & Production Readiness:**
+  - **1. Privacy Policy (`PrivacyPolicy.tsx`):** KDPA 2019 comprehensive policy covering Data Controller vs Processor roles, SHA-256 tokenization, 90-day retention, and DPO contact.
+  - **2. Terms of Service (`TermsOfService.tsx`):** Master clinical agreement defining clinical non-interference boundaries, SHA pre-submission verification, and NCIA arbitration.
+  - **3. Clear CTA:** High-contrast pine emerald primary action ("Run Audit") visible in header and recovery views.
+  - **4. System FAQ (`FaqModal.tsx`):** Searchable, categorized knowledge base with 8 comprehensive topics on revenue leakage, SHA tariffs, KDPA compliance, and EMR integration.
+  - **5. robots.txt (`public/robots.txt`):** Search engine crawler configuration allowing public indexing, disallowing internal `/api/`, and linking to sitemap.
+  - **6. sitemap.xml (`public/sitemap.xml`):** Comprehensive XML sitemap covering all clinical routes and legal pages with priority rankings.
+  - **7. Custom 404 (`public/404.html`):** Sovereign-branded 404 error page with diagnostic explanation and quick return actions.
+  - **8. Alt Text & Accessible SVGs (`BrandLogo.tsx`):** Added `role="img"` and descriptive `aria-label` tags across all vector graphics and emblems.
+  - **9. KDPA Analytics (`utils/analytics.ts`):** Client-side analytics engine with event catalog, cookie consent gating, and zero patient PII collection.
+  - **10. Dynamic Meta Titles:** Synchronized `document.title` across every navigation view with hospital context.
+  - **11. High-Conversion Meta Descriptions:** Tailored Kenyan health revenue recovery and SHA compliance descriptions in `index.html`.
+  - **12. Social Share (OpenGraph & Twitter):** Added OpenGraph, Twitter Cards, and schema.org JSON-LD with `en_KE` locale.
+  - **13. Sovereign Favicon (`public/favicon.svg`):** Vector medical cross with amber telemetry line on pine emerald `#005235`.
+  - **14. Canonical URLs:** Standardized canonical tags in `index.html` and dynamic route updates.
+  - **15. Cookie Consents (`CookieConsent.tsx`):** Minimalist floating consent banner separating strictly necessary KDPA tokens from optional telemetry.
+  - **16. Mobile Responsiveness:** Verified mobile navigation drawer, fluid typography, and touch target standards across all viewports.
+  - **17. Accessibility (a11y):** Implemented Escape key listeners in `Modal.tsx`, `role="dialog"`, `aria-modal="true"`, and WCAG AA contrast compliance.
+  - **18. Form Validation & Testing:** Verified procedural gap addition, status transitions, and inline search filters.
+  - **19. Link Verification:** Audited and resolved all footer and modal triggers across legal, documentation, and feedback dialogs.
+  - **20. Performance Optimization:** Lazy loading for all modal dialogues via `React.lazy` and `Suspense`, lightweight SVG icons, and explicit Express crawler routes.
+
+## [2.2.2] - 2026-09-12
+
+### Fixed
+- **Gemini Engine Error Handling & Fallback Resilience:**
+  - Resolved `API_KEY_INVALID` runtime exceptions when initiating clinical AI narrative generation and structured metrics extraction.
+  - Upgraded model selection to `gemini-3.8-flash` per modern `@google/genai` guidelines, and added `'aistudio-build'` User-Agent telemetry headers.
+  - Implemented dual-mode intelligence fallback: queries live Gemini API first, seamlessly defaulting to deterministic KDPA-compliant clinical extraction if the external key is invalid or pending configuration, eliminating 500 errors.
+  - Cleaned up client-side request headers in `geminiService.ts` to prevent stale browser tokens from overriding server-side credentials.
+  - Redesigned `Settings.tsx` into a Facility & Compliance management module, removing prohibited client-side API key inputs and referencing platform Secrets management.
+
+### Changed
+- **Architectural & Visual Polish (Anti-Slop Compliance):**
+  - Eliminated arbitrary glassmorphism and background blur effects across navigation headers, backdrops, and modal dialogs in favor of crisp, opaque surface layering with 1px tactile borders.
+  - Standardized component corner geometry according to nested border radius mathematics (`rounded-md` on cards/containers, `rounded` on child controls and badges), removing pill-inside-card visual conflicts.
+  - Stripped unnecessary artificial animations and glowing shadows across modals, badges, and interactive controls.
+  - Refactored `ShaClaimsView`, `DebtReceivablesList`, `RecoveryLogbook`, `Onboarding`, and modal dialogues to adhere to high-contrast clinical design standards.
+
+### Removed
+- **Dead Code Elimination:** Removed unreferenced legacy `LandingPage.tsx` and unused `DashboardSkeleton.tsx` artifacts to maintain a lean, single-source-of-truth codebase.
+
+## [2.2.0] - 2026-09-12
+
+### Changed
+- **Minimalist & Streamlined UI Refactoring:**
+  - **App Header (`AppHeader.tsx`):** Reduced visual noise and redundancy by compacting MFL facility identifiers, live ping badges, and report history buttons into an uncluttered, high-contrast bar.
+  - **Recovery Overview (`OverviewRecoveryView.tsx`):** Restructured into a clean, scannable layout featuring 4 easily understandable key metrics (Unbilled Gaps Detected, Recovered to Date, Recovery Rate, and At-Risk SHA Claims). Streamlined pathway selector, simplified weekly performance chart, and unified recent recovery actions into an intuitive feed.
+  - **Unbilled Gap Ledger (`UnbilledGapLedgerView.tsx`):** Eliminated verbose cryptographic jargon and nested redundant boxes. Introduced clean status pills, quick departmental filters, clear table views with procedure/location/tariff, and a streamlined side inspector with one-click actions (SMS reminder and resolve).
+  - **SHA Claims Adjudication (`ShaClaimsView.tsx`):** Replaced wall-of-text diagnostic banners with direct, one-click resolution cards for tariff caps and missing ICD-10 codes, clear submission readiness indicators, and simplified batch transmission workflows.
+
+
+### Added
+- **Warm Editorial & Clinical Precision Design System:** 
+  - Restructured entire frontend aesthetic around high-contrast clinical clarity and typography pairings: *Newsreader* for editorial headings, *Plus Jakarta Sans* for dense clinical data, and *JetBrains Mono* for monetary figures, procedural codes, and transaction hashes.
+  - Implemented semantic Tailwind token architecture (`surface`, `surface-container`, `primary`, `secondary`, `tertiary`, `outline`) with mathematical spacing scales.
+- **Sovereign Fixed Navigation Sidebar (`Sidebar.tsx`):**
+  - Left navigation supporting 6 dedicated views: *Clinical Recovery Overview*, *Unbilled Gap Ledger*, *SHA Claims Engine*, *Deterministic AI Audit*, *Ecosystem Integrations*, and *KDPA 2019 Telemetry*.
+  - Real-time recovery snapshot (KES 1,290,000 recovered / 81% capture rate), KDPA 2019 Sovereign Node indicator, and mobile responsive drawer toggle.
+- **Brand Identity & Header (`BrandLogo.tsx`, `AppHeader.tsx`):**
+  - Clinical monogram emblem, MFL #14920 facility badge, full-stack live latency indicator, audit history drawer toggle, and global notifications.
+- **Interactive Unbilled Gap Ledger (`UnbilledGapLedgerView.tsx`):**
+  - Rich procedural ledger with status filtering, multi-condition search, quick reconciliation modal, slide-over encounter detail drawer, Africa's Talking clinician SMS trigger, and Safaricom Daraja M-Pesa STK push.
+- **Social Health Authority (SHA) Adjudication Engine (`ShaClaimsView.tsx`):**
+  - Pre-submission validation workflow for public and faith-based facility claims under Kenya Gazette Vol. CXXVI No. 112.
+  - One-click Caesarean tariff cap adjustments, ICD-10 hydration secondary code application, biometric pre-auth SMS dispatch, and signed batch submission.
+- **Deterministic Dual-Loop AI Audit Viewer (`AiAuditView.tsx`):**
+  - Flash narrative synthesis alongside Stage 2 Gemini 2.5 Pro arithmetic determinism verification and raw JSON payload telemetry.
+- **Interoperability Hub & Gateway Connectors (`IntegrationsView.tsx`):**
+  - Live ping testable connectors for KenyaEMR / OpenMRS FHIR R4, MoH DHIS2 National Data Warehouse, SHA Claims Clearinghouse, Africa's Talking, Safaricom Daraja, and Sovereign Local Edge.
+- **KDPA 2019 Sovereign Telemetry Hub (`ComplianceView.tsx`):**
+  - In-browser client-side SHA-256 HMAC tokenization test sandbox, statutory compliance checklist (Sections 25, 31, 44, 50), and ODPC DPIA Certificate download.
+- **Custom Institutional Toast Banner (`ToastBanner.tsx`):**
+  - Floating status toast supporting success, warning, clinical audit, and telecom SMS actions.
+
+## [2.0.0] - 2026-09-09
+
+### Added
+- **Full-Stack Architecture (Express + Vite + esbuild):** Transitioned application to a production-grade full-stack architecture running an Express server (`server.ts`) with custom Vite development middleware and compiled standalone `dist/server.cjs` production bundle.
+- **Server-Side API Route Protection:** Moved all Gemini AI processing (`gemini-2.5-flash` narrative, `gemini-2.5-pro` audit, and structured metrics extraction) behind protected `/api/ai/*` server endpoints, completely eliminating client-side API key exposure.
+- **Server-Side Clinical Data Persistence (`server/store.ts`):** Established a resilient server data store with disk-backed JSON persistence (`data/kazira_store.json`), supporting atomic CRUD operations for debt receivables, financial recovery logs, baseline configurations, and generated clinical reports.
+- **Server-Side Health Interoperability Endpoints:**
+  - `/api/dhis2/sync`: Authenticated gateway integration for Ministry of Health SHA aggregate claims submission.
+  - `/api/fhir/encounters`: HL7 FHIR R4 encounter synchronization for OpenMRS / KenyaEMR interoperability.
+  - `/api/sms/send`: Server-side transactional SMS notification gateway for Africa's Talking (+254 Kenyan mobile numbers).
+  - `/api/system/status`: Real-time full-stack diagnostics and KDPA 2019 compliance verification.
+- **Interactive Server Health Monitor (`ServerStatusModal.tsx`):** Added live system architecture modal in top navigation displaying connection state, server uptime, KDPA 2019 SHA-256 masking verification, and active database statistics.
+- **Dual Server-Client State Synchronization (`apiService.ts`):** Implemented resilient offline-first API synchronization with local storage cache fallbacks for low-connectivity Kenyan clinic environments.
+- **Enterprise Documentation & Architecture Guide (`README.md`):** Comprehensively overhauled README with system diagrams, deterministic AI verification flows, KDPA 2019 compliance specifications, full API endpoint tables, and setup instructions.
+
 ## [1.7.0] - 2026-08-20
 
 ### Added

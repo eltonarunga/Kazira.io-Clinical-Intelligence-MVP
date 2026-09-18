@@ -3,6 +3,20 @@
 @tailwind utilities;
 
 @layer base {
+  html, body, #root {
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Prevent table and pre formatting blowouts on mobile */
+  pre, code, table {
+    max-width: 100%;
+  }
+
   .markdown-body h2 {
     @apply text-2xl font-bold text-ink mt-8 mb-4 pb-2 border-b border-border2 font-serif;
   }
@@ -19,9 +33,10 @@
     @apply text-ink3;
   }
   .markdown-body blockquote {
-    @apply bg-accent-light border-l-4 border-accent p-4 my-6 italic text-ink2;
+    @apply bg-surface2/60 border border-border2 p-4 my-6 italic text-ink2 rounded;
   }
   .markdown-body strong {
     @apply font-bold text-ink;
   }
 }
+

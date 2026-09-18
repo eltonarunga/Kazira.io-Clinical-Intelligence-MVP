@@ -1,77 +1,79 @@
 import React from 'react';
-import { Shield, FileText, AlertTriangle, Scale, Lock } from 'lucide-react';
+import { Scale, FileText, AlertTriangle, ShieldCheck, CheckCircle2, Building2 } from 'lucide-react';
 
-const TermsOfService: React.FC = () => (
-  <div className="space-y-8 text-ink2">
-    <div className="bg-accent-pale p-6 rounded-xl border border-accent/20">
-      <div className="flex items-center gap-3 mb-2">
-        <Scale className="text-accent" size={24} />
-        <h2 className="text-xl font-bold text-ink">Terms of Service</h2>
+export const TermsOfService: React.FC = () => (
+  <div className="space-y-6 text-on-surface" id="terms-of-service-content">
+    {/* Header Banner */}
+    <div className="bg-surface-container p-5 rounded-md border border-outline-variant/30 flex items-start gap-3.5">
+      <div className="w-10 h-10 rounded bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 text-primary mt-0.5">
+        <Scale size={22} />
       </div>
-      <p className="text-sm text-ink3">Last Updated: April 3, 2026</p>
-      <p className="mt-4 text-sm">
-        Welcome to Kazira Clinical Intelligence. By accessing or using our application, you agree to be bound by these Terms of Service. Please read them carefully.
-      </p>
+      <div>
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-bold font-headline-sm text-on-surface">Terms of Service</h2>
+          <span className="px-2 py-0.5 text-[10px] font-bold bg-primary/10 text-primary rounded border border-primary/20">
+            Healthcare Standard v2.6
+          </span>
+        </div>
+        <p className="text-xs text-on-surface-variant mt-1">
+          Last Revised: September 13, 2026 • Master Subscription &amp; Clinical Use Agreement
+        </p>
+      </div>
     </div>
 
-    <div className="space-y-6">
-      <section>
-        <h3 className="text-lg font-bold text-ink flex items-center gap-2 mb-3">
-          <FileText size={18} className="text-accent" />
-          1. Acceptance of Terms
+    <div className="space-y-5 text-xs text-on-surface-variant leading-relaxed">
+      {/* 1. Acceptance & Permitted Use */}
+      <section className="bg-surface-container-lowest p-4 rounded-md border border-outline-variant/20 space-y-2">
+        <h3 className="text-sm font-bold text-on-surface flex items-center gap-2">
+          <FileText size={16} className="text-primary" />
+          1. Acceptance of Terms &amp; Authorized Facility Use
         </h3>
-        <p className="text-sm leading-relaxed">
-          By accessing or using Kazira Clinical Intelligence ("the Service"), you agree to these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.
+        <p>
+          By accessing or deploying Kazira Clinical Intelligence ("the Service"), your healthcare institution ("Customer", "Facility") agrees to be bound by these Terms of Service. Access is granted exclusively to licensed healthcare facilities registered under the Kenya Master Facility List (MFL) and authorized clinical and administrative personnel.
         </p>
       </section>
 
-      <section>
-        <h3 className="text-lg font-bold text-ink flex items-center gap-2 mb-3">
-          <Shield size={18} className="text-accent" />
-          2. Use License
+      {/* 2. Clinical Non-Interference */}
+      <section className="bg-surface-container-lowest p-4 rounded-md border border-outline-variant/20 space-y-2">
+        <h3 className="text-sm font-bold text-on-surface flex items-center gap-2">
+          <AlertTriangle size={16} className="text-amber-600" />
+          2. Clinical Decision Support &amp; Billing Accuracy Boundary
         </h3>
-        <p className="text-sm leading-relaxed mb-3">
-          Permission is granted to temporarily download one copy of the materials (information or software) on Kazira's website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:
-        </p>
-        <ul className="list-disc pl-5 text-sm space-y-2">
-          <li>modify or copy the materials;</li>
-          <li>use the materials for any commercial purpose, or for any public display (commercial or non-commercial);</li>
-          <li>attempt to decompile or reverse engineer any software contained on Kazira's website;</li>
-          <li>remove any copyright or other proprietary notations from the materials; or</li>
-          <li>transfer the materials to another person or "mirror" the materials on any other server.</li>
-        </ul>
-      </section>
-
-      <section>
-        <h3 className="text-lg font-bold text-ink flex items-center gap-2 mb-3">
-          <Lock size={18} className="text-accent" />
-          3. Data Privacy & Security
-        </h3>
-        <p className="text-sm leading-relaxed">
-          You are responsible for ensuring that any data you input into the Service complies with applicable data protection laws, including the Kenya Data Protection Act 2019. You must pseudonymise or anonymise patient data before processing. Kazira acts as a Data Processor and does not claim ownership over your data.
+        <p>
+          Kazira provides administrative, diagnostic coding, and financial intelligence tools. <strong>The Service does not practice medicine, formulate diagnoses, or prescribe treatments.</strong> All clinical care remains the sole fiduciary responsibility of the attending medical practitioner. While Kazira identifies billing discrepancies and unbilled procedures, the final verification and sign-off of claims submitted to the Social Health Authority (SHA) or private insurers rests with the facility's licensed billing officers.
         </p>
       </section>
 
-      <section>
-        <h3 className="text-lg font-bold text-ink flex items-center gap-2 mb-3">
-          <AlertTriangle size={18} className="text-accent" />
-          4. Disclaimer
+      {/* 3. Customer Data Obligations */}
+      <section className="bg-surface-container-lowest p-4 rounded-md border border-outline-variant/20 space-y-2">
+        <h3 className="text-sm font-bold text-on-surface flex items-center gap-2">
+          <ShieldCheck size={16} className="text-primary" />
+          3. Compliance with Kenya Data Protection Act (KDPA 2019)
         </h3>
-        <p className="text-sm leading-relaxed">
-          The materials on Kazira's website are provided on an 'as is' basis. Kazira makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
-        </p>
-        <p className="text-sm leading-relaxed mt-2">
-          The Service provides AI-generated insights based on the data you provide. These insights are for informational purposes only and should not replace professional medical, legal, or financial advice.
+        <p>
+          The Customer warrants that it has lawful authority under Section 29 of the KDPA 2019 to process patient data and that all encounter data synchronized with Kazira adheres to the mandatory cryptographic pseudonymisation standards outlined in our Data Processing Agreement (DPA). Customer shall not disable pseudonymisation gates or inject unmasked PII into non-encrypted fields.
         </p>
       </section>
 
-      <section>
-        <h3 className="text-lg font-bold text-ink flex items-center gap-2 mb-3">
-          <Scale size={18} className="text-accent" />
-          5. Limitations
+      {/* 4. SLA & Uptime */}
+      <section className="bg-surface-container-lowest p-4 rounded-md border border-outline-variant/20 space-y-2">
+        <h3 className="text-sm font-bold text-on-surface flex items-center gap-2">
+          <CheckCircle2 size={16} className="text-primary" />
+          4. Service Availability &amp; Offline Resiliency
         </h3>
-        <p className="text-sm leading-relaxed">
-          In no event shall Kazira or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on Kazira's website, even if Kazira or a Kazira authorized representative has been notified orally or in writing of the possibility of such damage.
+        <p>
+          Kazira maintains a 99.9% scheduled uptime Service Level Agreement (SLA) for core ledger and gateway services. The application includes offline-first local caching to ensure hospital billing desks can continue documenting gap resolutions during internet connectivity disruptions.
+        </p>
+      </section>
+
+      {/* 5. Governing Law */}
+      <section className="bg-surface-container-lowest p-4 rounded-md border border-outline-variant/20 space-y-2">
+        <h3 className="text-sm font-bold text-on-surface flex items-center gap-2">
+          <Building2 size={16} className="text-primary" />
+          5. Governing Law &amp; Dispute Resolution
+        </h3>
+        <p>
+          These Terms are governed by and construed in accordance with the laws of the Republic of Kenya. Any dispute arising out of or in connection with these Terms shall be resolved through good-faith executive escalation, followed if necessary by arbitration under the Nairobi Centre for International Arbitration (NCIA) Rules.
         </p>
       </section>
     </div>

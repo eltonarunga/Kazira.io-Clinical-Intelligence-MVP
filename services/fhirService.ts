@@ -70,6 +70,18 @@ export class FHIRService {
    * Simulates/Executes authenticated FHIR R4 encounter synchronization with KenyaEMR instance
    */
   public async fetchRecentEncounters(count: number = 20): Promise<FHIRBundle<FHIREncounter>> {
+    try {
+      const res = await fetch(`/api/fhir/encounters?count=${count}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.bundle) {
+          return data.bundle;
+        }
+      }
+    } catch (e) {
+      console.warn('[FHIR Service] Server endpoint unavailable, using simulated FHIR R4 Bundle:', e);
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 800));
 
     // Generate compliant FHIR Bundle representation

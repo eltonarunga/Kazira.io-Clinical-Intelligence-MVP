@@ -1,0 +1,129 @@
+import React from 'react';
+import { 
+  Menu
+} from 'lucide-react';
+import { UserProfile, NavTab } from '../types';
+import { KaziraEmblem } from './KaziraLogo';
+
+export interface AppHeaderProps {
+  onToggleMobileSidebar: () => void;
+  activeProfile: UserProfile;
+  profiles?: UserProfile[];
+  onSwitchProfile?: (profile: UserProfile) => void;
+  onSignInAsGuest?: () => void;
+  onSignOut?: () => void;
+  onNavigateToProfile: () => void;
+  onNavigateHome?: () => void;
+  activeTab?: NavTab;
+  onRestartOnboarding?: () => void;
+  serverOnline?: boolean | null;
+  onOpenServerStatus?: () => void;
+  onOpenSettings?: () => void;
+  onToggleHistory?: () => void;
+  onOpenFaq?: () => void;
+  onOpenDataVault?: () => void;
+  onOpenCsvIngestion?: () => void;
+  onTriggerAudit?: () => void;
+  isAuditing?: boolean;
+  onShowToast?: (title: string, msg: string, type?: 'success' | 'warn' | 'info' | 'sms' | 'audit') => void;
+  historyCount?: number;
+  recoveredTotal?: string;
+  shaPendingTotal?: string;
+  isDesktopSidebarOpen?: boolean;
+}
+
+export const AppHeader: React.FC<AppHeaderProps> = ({
+  onToggleMobileSidebar,
+  activeProfile,
+  onNavigateToProfile,
+  onNavigateHome,
+  activeTab,
+  isDesktopSidebarOpen = true
+}) => {
+  return (
+    <header 
+      id="app-header"
+      role="banner"
+      aria-label="Kazira Clinical Intelligence Header"
+      className={`fixed top-0 left-0 ${isDesktopSidebarOpen ? 'lg:left-sidebar-width' : 'lg:left-0'} right-0 h-14 sm:h-16 bg-surface/95 backdrop-blur-md border-b border-outline-variant/20 z-40 px-3 sm:px-6 flex items-center justify-between gap-3 transition-[left] duration-300`}
+    >
+      {/* LEFT: Hamburger Menu Trigger & Brand Identity */}
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        <button
+          id="hamburger-menu-trigger"
+          onClick={onToggleMobileSidebar}
+          className="p-2 -ml-1 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center border border-transparent hover:border-outline-variant/30"
+          aria-label="Toggle Navigation Drawer & Shortcuts"
+          title="Open Menu & Shortcuts"
+        >
+          <Menu size={20} />
+        </button>
+
+        <button 
+          onClick={onNavigateHome}
+          className="flex items-center gap-2.5 min-w-0 text-left cursor-pointer hover:opacity-85 transition-opacity"
+          title="Kazira Clinical Intelligence - Return to Dashboard"
+          aria-label="Kazira Clinical Intelligence Home"
+        >
+          {/* Kazira Official Brand Mark */}
+          <div 
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-surface-container-lowest border border-outline-variant/30 flex items-center justify-center p-0.5 shrink-0 shadow-2xs"
+            aria-hidden="true"
+          >
+            <KaziraEmblem size={24} className="w-full h-full" />
+          </div>
+
+          <div className="flex items-baseline gap-2 min-w-0">
+            <span className="font-headline-sm text-base sm:text-lg font-bold text-on-surface tracking-tight">
+              Kazira
+            </span>
+            <span className="hidden sm:inline text-outline-variant text-xs">•</span>
+            <span className="text-xs text-on-surface-variant font-medium hidden sm:inline truncate max-w-[200px]" title={`${activeProfile.facilityName} (${activeProfile.facilityCode})`}>
+              {activeProfile.facilityName}
+            </span>
+          </div>
+        </button>
+      </div>
+
+      {/* RIGHT: Profile Button (Directs to Profile Page) */}
+      <div className="flex items-center">
+        <button
+          id="profile-shortcut-trigger"
+          onClick={onNavigateToProfile}
+          title={`View Profile: ${activeProfile.name}`}
+          aria-label={`Open profile page for ${activeProfile.name}`}
+          className={`flex items-center gap-2 p-1 sm:pl-2 sm:pr-3 py-1 rounded-full border transition-all cursor-pointer select-none ${
+            activeTab === 'profile' 
+              ? 'bg-primary/15 border-primary ring-2 ring-primary/30 shadow-xs text-on-surface' 
+              : 'bg-surface-container/60 hover:bg-surface-container border-outline-variant/30 text-on-surface hover:border-primary/40'
+          }`}
+        >
+          {/* Avatar Monogram */}
+          <div 
+            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 shadow-xs ${
+              activeProfile.avatarColor || 'bg-primary text-white'
+            }`}
+            aria-hidden="true"
+          >
+            {activeProfile.avatarMonogram}
+          </div>
+
+          {/* Profile Name & Role (Desktop) */}
+          <div className="hidden md:flex flex-col text-left pr-0.5">
+            <span className="text-xs font-semibold text-on-surface leading-tight truncate max-w-[150px]">
+              {activeProfile.name.split(',')[0]}
+            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] text-on-surface-variant leading-none font-medium">
+                {activeProfile.isGuest ? 'Guest Sandbox' : activeProfile.facilityCode}
+              </span>
+              <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+            </div>
+          </div>
+        </button>
+      </div>
+    </header>
+  );
+};
+
+export default AppHeader;

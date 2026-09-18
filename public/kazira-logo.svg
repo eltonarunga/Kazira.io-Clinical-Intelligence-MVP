@@ -1,0 +1,95 @@
+<svg width="360" height="180" viewBox="0 0 360 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Emblem Section -->
+  <g transform="translate(10, 10)">
+    <!-- 1. Left Shield Frame (Forest Green) -->
+    <path 
+      d="M 68 36 L 42 36 C 30 36 24 42 24 54 L 24 88 C 24 102 36 118 64 126" 
+      stroke="#0d5d3a" 
+      stroke-width="9" 
+      stroke-linecap="round" 
+      stroke-linejoin="round" 
+    />
+
+    <!-- 2. Right Shield Top & Right Wall (Warm Gold) -->
+    <path 
+      d="M 92 36 L 118 36 C 130 36 136 42 136 54 L 136 86" 
+      stroke="#c58c2b" 
+      stroke-width="9" 
+      stroke-linecap="round" 
+      stroke-linejoin="round" 
+    />
+
+    <!-- 3. Bottom Recovery Arrow (Warm Gold) -->
+    <path 
+      d="M 44 126 L 68 140 L 126 90" 
+      stroke="#c58c2b" 
+      stroke-width="9" 
+      stroke-linecap="round" 
+      stroke-linejoin="round" 
+    />
+    <!-- Arrowhead -->
+    <path 
+      d="M 112 88 L 132 86 L 130 106" 
+      stroke="#c58c2b" 
+      stroke-width="8" 
+      stroke-linecap="round" 
+      stroke-linejoin="round" 
+    />
+
+    <!-- 4. Central Staff with Ring Terminal (Forest Green) -->
+    <circle 
+      cx="80" 
+      cy="24" 
+      r="7" 
+      stroke="#0d5d3a" 
+      stroke-width="7" 
+      fill="none" 
+    />
+    <path 
+      d="M 80 34 L 80 128" 
+      stroke="#0d5d3a" 
+      stroke-width="8" 
+      stroke-linecap="round" 
+    />
+
+    <!-- 5. Entwined Caduceus Serpents -->
+    <!-- Upper Left Loop (Green) -->
+    <path 
+      d="M 80 50 C 64 42 42 46 42 58 C 42 70 66 74 80 78" 
+      stroke="#0d5d3a" 
+      stroke-width="8" 
+      stroke-linecap="round" 
+      stroke-linejoin="round" 
+    />
+    <!-- Upper Right Loop (Warm Gold) -->
+    <path 
+      d="M 80 50 C 96 42 118 46 118 58 C 118 70 94 74 80 78" 
+      stroke="#c58c2b" 
+      stroke-width="8" 
+      stroke-linecap="round" 
+      stroke-linejoin="round" 
+    />
+
+    <!-- Middle-Lower Left Loop (Green) -->
+    <path 
+      d="M 80 78 C 62 82 48 88 48 98 C 48 110 68 114 80 126" 
+      stroke="#0d5d3a" 
+      stroke-width="8" 
+      stroke-linecap="round" 
+      stroke-linejoin="round" 
+    />
+    <!-- Middle-Lower Right Loop (Warm Gold) -->
+    <path 
+      d="M 80 78 C 98 82 112 88 112 98 C 112 110 92 114 80 126" 
+      stroke="#c58c2b" 
+      stroke-width="8" 
+      stroke-linecap="round" 
+      stroke-linejoin="round" 
+    />
+  </g>
+
+  <!-- Typography Section (Georgia / Serif in Forest Green) -->
+  <text x="180" y="66" font-family="Georgia, Cambria, 'Times New Roman', serif" font-size="34" font-weight="700" fill="#0d5d3a" letter-spacing="-0.5">Kazira</text>
+  <text x="180" y="104" font-family="Georgia, Cambria, 'Times New Roman', serif" font-size="30" font-weight="600" fill="#0d5d3a" letter-spacing="-0.5">Clinical</text>
+  <text x="180" y="142" font-family="Georgia, Cambria, 'Times New Roman', serif" font-size="30" font-weight="600" fill="#0d5d3a" letter-spacing="-0.5">Intelligence</text>
+</svg>

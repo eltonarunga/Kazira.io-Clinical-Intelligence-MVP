@@ -1,57 +1,68 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kazira Clinical Intelligence | Stop Revenue Leakage</title>
-    <meta name="description" content="Kazira Clinical Intelligence automatically detects missed billing, tracks revenue trends, manages SHA claims, and delivers weekly compliance reports for private clinics and public healthcare facilities in Kenya.">
-    <meta name="keywords" content="clinic intelligence, revenue leakage, SHA claims, KenyaEMR, DHIS2, KDPA 2019, healthcare analytics Kenya">
+    <title>Kazira Clinical Intelligence | Kenyan Healthcare Revenue Recovery &amp; SHA Compliance</title>
+    <meta name="description" content="Kazira Clinical Intelligence stops revenue leakage, reconciles Social Health Authority (SHA) claims, detects unbilled clinical procedures, and enforces KDPA 2019 compliance for Kenyan private clinics and public hospitals.">
+    <meta name="keywords" content="clinic intelligence, revenue leakage, SHA claims, KenyaEMR, DHIS2, KDPA 2019, healthcare analytics Kenya, unbilled procedures Kenya">
+    <meta name="theme-color" content="#005235">
+    <meta name="application-name" content="Kazira Clinical Intelligence">
     
-    <!-- OpenGraph / Facebook -->
+    <!-- OpenGraph / Facebook / LinkedIn -->
     <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Kazira Clinical Intelligence">
     <meta property="og:url" content="https://kazira.io/">
-    <meta property="og:title" content="Kazira Clinical Intelligence">
-    <meta property="og:description" content="Stop revenue leakage. Kazira automatically detects missed billing and tracks revenue trends.">
+    <meta property="og:title" content="Kazira Clinical Intelligence | Stop Revenue Leakage &amp; Automate SHA Claims">
+    <meta property="og:description" content="Deterministic clinical revenue recovery and Social Health Authority (SHA) claim scrubbing with strict KDPA 2019 data sovereignty for Kenyan healthcare institutions.">
     <meta property="og:image" content="https://kazira.io/og-image.jpg">
+    <meta property="og:locale" content="en_KE">
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://kazira.io/">
-    <meta property="twitter:title" content="Kazira Clinical Intelligence">
-    <meta property="twitter:description" content="Stop revenue leakage. Kazira automatically detects missed billing and tracks revenue trends.">
-    <meta property="twitter:image" content="https://kazira.io/og-image.jpg">
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@kazira_health">
+    <meta name="twitter:url" content="https://kazira.io/">
+    <meta name="twitter:title" content="Kazira Clinical Intelligence | Stop Healthcare Revenue Leakage">
+    <meta name="twitter:description" content="Automated unbilled procedure detection, SHA claims validation, and KDPA 2019 compliance for Kenyan healthcare facilities.">
+    <meta name="twitter:image" content="https://kazira.io/og-image.jpg">
 
-    <!-- Favicon & Manifest -->
+    <!-- Favicon & Icons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="apple-touch-icon" href="/favicon.svg">
     <link rel="manifest" href="/manifest.json">
     <link rel="canonical" href="https://kazira.io/">
 
+    <!-- Typography Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<!-- Structured Data / JSON-LD -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "Kazira Clinical Intelligence",
-  "operatingSystem": "Web",
-  "applicationCategory": "BusinessApplication",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD"
-  },
-  "description": "Stop revenue leakage. Kazira automatically detects missed billing and tracks revenue trends."
-}
-</script>
+    <!-- Structured Data / JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Kazira Clinical Intelligence",
+      "headline": "Healthcare Revenue Recovery & SHA Compliance for Kenya",
+      "operatingSystem": "Web, Android, iOS",
+      "applicationCategory": "HealthCareApplication, BusinessApplication",
+      "url": "https://kazira.io",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "KES"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "Kazira Health Technologies",
+        "url": "https://kazira.io"
+      },
+      "description": "Deterministic clinical revenue recovery and Social Health Authority (SHA) claim scrubbing with strict KDPA 2019 data sovereignty for Kenyan healthcare institutions."
+    }
+    </script>
 </head>
 <body class="bg-surface text-ink font-sans">
     <div id="root"></div>
-    <!-- Explicitly load the application entry point for standalone deployments -->
     <script type="module" src="/main.tsx"></script>
 </body>
 </html>

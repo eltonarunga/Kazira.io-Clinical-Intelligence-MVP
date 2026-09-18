@@ -4,47 +4,147 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Page Not Found - Kazira</title>
+    <title>404 - Clinical Page Not Found | Kazira</title>
+    <meta name="robots" content="noindex, follow" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+      :root {
+        --primary: #005235;
+        --primary-hover: #003e27;
+        --surface: #f9f8f6;
+        --surface-card: #ffffff;
+        --on-surface: #191c1a;
+        --on-surface-variant: #5f6e65;
+        --border: #e0ded9;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        background-color: #F8F9FA;
-        color: #111827;
+        font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background-color: var(--surface);
+        color: var(--on-surface);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 100vh;
-        margin: 0;
+        min-height: 100vh;
+        padding: 1.5rem;
         text-align: center;
       }
+      .card {
+        background: var(--surface-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 2.5rem 2rem;
+        max-width: 480px;
+        width: 100%;
+        box-shadow: 0 4px 20px rgba(0, 82, 53, 0.05);
+      }
+      .emblem {
+        width: 48px;
+        height: 48px;
+        background: var(--primary);
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.25rem;
+      }
+      .code-badge {
+        display: inline-block;
+        font-family: monospace;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--primary);
+        background: rgba(0, 82, 53, 0.08);
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        margin-bottom: 0.75rem;
+      }
       h1 {
-        font-size: 4rem;
-        margin-bottom: 0.5rem;
-        color: #0F172A;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--on-surface);
+        margin-bottom: 0.75rem;
+        letter-spacing: -0.02em;
       }
       p {
-        font-size: 1.25rem;
-        color: #475569;
-        margin-bottom: 2rem;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: var(--on-surface-variant);
+        margin-bottom: 1.75rem;
       }
-      a {
-        background-color: #2563EB;
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.5rem;
+      .actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      @media (min-width: 480px) {
+        .actions {
+          flex-direction: row;
+        }
+      }
+      .btn {
+        flex: 1;
+        padding: 0.75rem 1.25rem;
+        border-radius: 6px;
         text-decoration: none;
-        font-weight: 500;
-        transition: background-color 0.2s;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
       }
-      a:hover {
-        background-color: #1D4ED8;
+      .btn-primary {
+        background-color: var(--primary);
+        color: #ffffff;
+      }
+      .btn-primary:hover {
+        background-color: var(--primary-hover);
+      }
+      .btn-secondary {
+        background-color: transparent;
+        color: var(--on-surface);
+        border: 1px solid var(--border);
+      }
+      .btn-secondary:hover {
+        background-color: var(--surface);
+      }
+      .footer-note {
+        margin-top: 1.5rem;
+        font-size: 0.75rem;
+        color: var(--on-surface-variant);
       }
     </style>
   </head>
   <body>
-    <h1>404</h1>
-    <p>Oops! The page you're looking for doesn't exist.</p>
-    <a href="/">Return to Dashboard</a>
+    <main class="card" role="main">
+      <div class="emblem" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5">
+          <path d="M12 5v14M5 12h14" stroke-linecap="square" />
+          <path d="M7 15l3-3 3 3 4-6" stroke="#d96414" stroke-width="2" stroke-linecap="square" />
+        </svg>
+      </div>
+      <div>
+        <span class="code-badge">HTTP 404 • RECORD NOT FOUND</span>
+      </div>
+      <h1>Clinical Route Not Found</h1>
+      <p>
+        The clinical ledger view, FHIR encounter bundle, or documentation page you requested does not exist or has been moved.
+      </p>
+      <div class="actions">
+        <a href="/" class="btn btn-primary">Return to Dashboard</a>
+        <a href="/#faq" class="btn btn-secondary">Review System FAQ</a>
+      </div>
+      <div class="footer-note">
+        Kazira Clinical Intelligence • Nairobi West Memorial Hospital (MFL #14920)
+      </div>
+    </main>
   </body>
 </html>

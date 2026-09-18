@@ -443,8 +443,8 @@ const DebtReceivablesList: React.FC<DebtReceivablesListProps> = ({
 
       {/* RESOLUTION MODAL */}
       {activeResolveItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-surface rounded-2xl border border-border2 shadow-2xl max-w-lg w-full p-6 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/60">
+          <div className="bg-surface rounded-md border border-border2 max-w-lg w-full p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div>
                 <h3 className="text-lg font-bold font-serif text-ink">Action Flag: {activeResolveItem.id}</h3>
@@ -453,7 +453,7 @@ const DebtReceivablesList: React.FC<DebtReceivablesListProps> = ({
               <button 
                 type="button" 
                 onClick={() => setActiveResolveItem(null)} 
-                className="text-ink3 hover:text-ink font-bold text-lg"
+                className="text-ink3 hover:text-ink font-bold text-lg cursor-pointer"
               >
                 ✕
               </button>
@@ -583,13 +583,13 @@ const DebtReceivablesList: React.FC<DebtReceivablesListProps> = ({
                 <button
                   type="button"
                   onClick={() => setActiveResolveItem(null)}
-                  className="px-4 py-2 bg-surface2 text-ink text-xs font-semibold rounded-xl hover:bg-surface3"
+                  className="px-4 py-2 bg-surface2 text-ink text-xs font-semibold rounded hover:bg-surface3 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-accent text-white text-xs font-bold rounded-xl hover:bg-accent2 shadow-md shadow-accent/20"
+                  className="px-5 py-2 bg-accent text-white text-xs font-bold rounded hover:bg-accent2 cursor-pointer"
                 >
                   Save Flag Resolution
                 </button>
@@ -601,11 +601,11 @@ const DebtReceivablesList: React.FC<DebtReceivablesListProps> = ({
 
       {/* EDIT CLAIM MODAL */}
       {activeClaimItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-surface rounded-2xl border border-border2 shadow-2xl max-w-md w-full p-6 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/60">
+          <div className="bg-surface rounded-md border border-border2 max-w-md w-full p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <h3 className="text-lg font-bold font-serif text-ink">Insurance Claim Details</h3>
-              <button type="button" onClick={() => setActiveClaimItem(null)} className="text-ink3 hover:text-ink font-bold text-lg">
+              <button type="button" onClick={() => setActiveClaimItem(null)} className="text-ink3 hover:text-ink font-bold text-lg cursor-pointer">
                 ✕
               </button>
             </div>
@@ -619,7 +619,7 @@ const DebtReceivablesList: React.FC<DebtReceivablesListProps> = ({
                   value={claimInsurer}
                   onChange={(e) => setClaimInsurer(e.target.value)}
                   placeholder="e.g. SHA, Jubilee, AAR"
-                  className="w-full px-3 py-1.5 bg-surface border border-border2 rounded-lg text-xs font-semibold text-ink"
+                  className="w-full px-3 py-1.5 bg-surface border border-border2 rounded text-xs font-semibold text-ink"
                 />
               </div>
 
@@ -629,7 +629,7 @@ const DebtReceivablesList: React.FC<DebtReceivablesListProps> = ({
                   type="text"
                   value={claimRefInput}
                   onChange={(e) => setClaimRefInput(e.target.value)}
-                  className="w-full px-3 py-1.5 bg-surface border border-border2 rounded-lg text-xs font-mono text-ink"
+                  className="w-full px-3 py-1.5 bg-surface border border-border2 rounded text-xs font-mono text-ink"
                 />
               </div>
 
@@ -639,7 +639,7 @@ const DebtReceivablesList: React.FC<DebtReceivablesListProps> = ({
                   type="date"
                   value={claimDateInput}
                   onChange={(e) => setClaimDateInput(e.target.value)}
-                  className="w-full px-3 py-1.5 bg-surface border border-border2 rounded-lg text-xs font-mono text-ink"
+                  className="w-full px-3 py-1.5 bg-surface border border-border2 rounded text-xs font-mono text-ink"
                 />
               </div>
 
@@ -648,7 +648,7 @@ const DebtReceivablesList: React.FC<DebtReceivablesListProps> = ({
                 <select
                   value={claimStatusInput}
                   onChange={(e) => setClaimStatusInput(e.target.value as ClaimStatus)}
-                  className="w-full px-3 py-1.5 bg-surface border border-border2 rounded-lg text-xs font-semibold text-ink"
+                  className="w-full px-3 py-1.5 bg-surface border border-border2 rounded text-xs font-semibold text-ink"
                 >
                   <option value="unsubmitted">Unsubmitted / Draft</option>
                   <option value="submitted">Submitted</option>
@@ -662,13 +662,13 @@ const DebtReceivablesList: React.FC<DebtReceivablesListProps> = ({
                 <button
                   type="button"
                   onClick={() => setActiveClaimItem(null)}
-                  className="px-4 py-2 bg-surface2 text-ink text-xs font-semibold rounded-xl hover:bg-surface3"
+                  className="px-4 py-2 bg-surface2 text-ink text-xs font-semibold rounded hover:bg-surface3 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-accent text-white text-xs font-bold rounded-xl hover:bg-accent2 shadow-md shadow-accent/20"
+                  className="px-5 py-2 bg-accent text-white text-xs font-bold rounded hover:bg-accent2 cursor-pointer"
                 >
                   Update Claim Status
                 </button>
@@ -680,14 +680,14 @@ const DebtReceivablesList: React.FC<DebtReceivablesListProps> = ({
 
       {/* LOG MANUAL GAP MODAL */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-surface rounded-2xl border border-border2 shadow-2xl max-w-md w-full p-6 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/60">
+          <div className="bg-surface rounded-md border border-border2 max-w-md w-full p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div>
                 <h3 className="text-lg font-bold font-serif text-ink">Log Manual Billing Gap</h3>
                 <p className="text-xs text-ink3">Items logged manually will receive a "Manual Log" attribution badge.</p>
               </div>
-              <button type="button" onClick={() => setIsAddModalOpen(false)} className="text-ink3 hover:text-ink font-bold text-lg">
+              <button type="button" onClick={() => setIsAddModalOpen(false)} className="text-ink3 hover:text-ink font-bold text-lg cursor-pointer">
                 ✕
               </button>
             </div>
@@ -757,13 +757,13 @@ const DebtReceivablesList: React.FC<DebtReceivablesListProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 bg-surface2 text-ink text-xs font-semibold rounded-xl hover:bg-surface3"
+                  className="px-4 py-2 bg-surface2 text-ink text-xs font-semibold rounded hover:bg-surface3 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-accent text-white text-xs font-bold rounded-xl hover:bg-accent2 shadow-md shadow-accent/20"
+                  className="px-5 py-2 bg-accent text-white text-xs font-bold rounded hover:bg-accent2 cursor-pointer"
                 >
                   Save Manual Gap
                 </button>

@@ -21,10 +21,10 @@ const Button: React.FC<ButtonProps> = ({
   disabled, 
   ...props 
 }) => {
-  const baseStyles = "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
+  const baseStyles = "inline-flex items-center justify-center rounded font-medium transition-colors focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-50 disabled:pointer-events-none";
   
   const variants = {
-    primary: "bg-accent text-white hover:bg-accent/90 shadow-sm",
+    primary: "bg-accent text-white hover:bg-accent/90",
     secondary: "bg-surface2 text-ink2 hover:bg-surface3 border border-border2",
     ghost: "bg-transparent text-ink3 hover:bg-surface2 hover:text-ink2"
   };

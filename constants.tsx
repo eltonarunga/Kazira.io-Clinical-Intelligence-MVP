@@ -108,7 +108,7 @@ export const PRIVATE_CLINIC_DATA = `# PRIVATE CLINIC DATA - Nairobi West Medical
 - Room Utilization Rate: 72.5% (↓ from 84.0%)
 - Dr. Wanjiru (ObsGyn): 58 patients seen | Unbilled consultations: 4
 - Dr. Ochieng (Pediatrics): 62 patients seen | Unbilled lab tests: 12
-- Dr. Kiprop (General Surgery): 48 patients seen | Unbilled procedure items: 8
+- Dr. Kevin Omondi (General Surgery): 48 patients seen | Unbilled procedure items: 8
 
 ## Procedure Mix
 - Outpatient Consultations: 85 @ KES 3,000 = KES 255,000

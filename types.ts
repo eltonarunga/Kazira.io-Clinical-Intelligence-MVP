@@ -2,9 +2,34 @@ export interface ClinicData {
   raw: string;
 }
 
-export type UserRole = 'facility_admin' | 'county_health' | 'moh';
+export type UserRole = 'facility_admin' | 'county_health' | 'moh' | 'guest';
 
 export type FacilityType = 'private' | 'public_faith';
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  title: string;
+  email: string;
+  role: UserRole;
+  facilityName: string;
+  facilityCode: string;
+  facilityType: FacilityType;
+  avatarMonogram: string;
+  avatarColor?: string;
+  isGuest?: boolean;
+  department?: string;
+  phone?: string;
+  permissions: string[];
+}
+
+export type NavTab = 
+  | 'overview' 
+  | 'debts' 
+  | 'sha_claims' 
+  | 'ai_audit' 
+  | 'integrations' 
+  | 'profile';
 
 export interface ReportOutput {
   narrative: string;
@@ -103,6 +128,10 @@ export interface DebtItem {
   amountCollectedKes?: number;
   invoiceRef?: string;
   escalatedTo?: string;
+  department?: string;
+  doctorName?: string;
+  icd10Code?: string;
+  notes?: string;
 }
 
 export interface RecoveryLogEntry {
@@ -125,4 +154,91 @@ export interface BaselineConfig {
   endDate: string;
   baselineWeeks: number; // default 12 weeks
   preKaziraLeakageRateKes: number; // estimated pre-Kazira weekly leakage rate
+  hospitalName?: string;
 }
+
+// =========================================
+// SOCIAL HEALTH AUTHORITY (SHA) CLAIMS
+// =========================================
+
+export interface ShaClaim {
+  id: string;
+  memberId: string;
+  diagnosis: string;
+  icdCode: string;
+  tariffCode: string;
+  tariffName: string;
+  originalAmount: number;
+  cappedAmount: number;
+  status: 'Ready' | 'Action Required' | 'Disputed';
+  issueType?: 'tariff_cap' | 'missing_icd' | 'preauth_missing';
+  issueDescription?: string;
+  recommendedFix?: string;
+}
+
+export const INITIAL_SHA_CLAIMS: ShaClaim[] = [
+  {
+    id: 'SHA-CLM-9811',
+    memberId: 'SHA-90821-K',
+    diagnosis: 'Single delivery by caesarean section',
+    icdCode: 'O82.0',
+    tariffCode: 'MAT-CS-SPEC-01',
+    tariffName: 'Inpatient Surgical Maternity',
+    originalAmount: 49500,
+    cappedAmount: 45000,
+    status: 'Action Required',
+    issueType: 'tariff_cap',
+    issueDescription: 'Itemized total exceeds SHA tariff cap by KES 4,500.',
+    recommendedFix: 'Cap at standard KES 45,000 tariff'
+  },
+  {
+    id: 'SHA-CLM-9815',
+    memberId: 'SHA-43102-L',
+    diagnosis: 'Infectious gastroenteritis and colitis',
+    icdCode: 'A09',
+    tariffCode: 'PED-IP-02',
+    tariffName: 'Inpatient Pediatrics',
+    originalAmount: 22000,
+    cappedAmount: 22000,
+    status: 'Action Required',
+    issueType: 'missing_icd',
+    issueDescription: 'Missing mandatory secondary dehydration code E86.0 for inpatient claim.',
+    recommendedFix: 'Add E86.0 (Dehydration)'
+  },
+  {
+    id: 'SHA-CLM-9824',
+    memberId: 'SHA-77190-M',
+    diagnosis: 'Hemodialysis maintenance cycle',
+    icdCode: 'Z49.1',
+    tariffCode: 'REN-DIAL-04',
+    tariffName: 'Renal Dialysis Session',
+    originalAmount: 78500,
+    cappedAmount: 78500,
+    status: 'Action Required',
+    issueType: 'preauth_missing',
+    issueDescription: 'Biometric authorization token missing from emergency intake.',
+    recommendedFix: 'Send pre-auth SMS request to patient'
+  },
+  {
+    id: 'SHA-CLM-9790',
+    memberId: 'SHA-11029-P',
+    diagnosis: 'General gynecological examination',
+    icdCode: 'Z01.419',
+    tariffCode: 'GYN-OP-01',
+    tariffName: 'Outpatient Specialist Clinic',
+    originalAmount: 12000,
+    cappedAmount: 12000,
+    status: 'Ready'
+  },
+  {
+    id: 'SHA-CLM-9784',
+    memberId: 'SHA-66410-Q',
+    diagnosis: 'Type 2 diabetes with ophthalmic complications',
+    icdCode: 'E11.3',
+    tariffCode: 'MED-OP-03',
+    tariffName: 'Chronic Care Clinic',
+    originalAmount: 8500,
+    cappedAmount: 8500,
+    status: 'Ready'
+  }
+];

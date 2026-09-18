@@ -7,7 +7,6 @@ import {
 import { 
   TrendingUp, 
   DollarSign, 
-  Sparkles, 
   Download, 
   CheckCircle2, 
   BarChart3, 
@@ -118,7 +117,7 @@ const RecoveryLogbook: React.FC<RecoveryLogbookProps> = ({
           <button
             type="button"
             onClick={() => exportRecoveryLogbookToCSV(filteredEntries, baselineConfig)}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-surface border border-border2 hover:border-accent text-ink rounded-xl text-xs font-bold transition-all shadow-sm"
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-surface border border-border2 hover:border-accent text-ink rounded text-xs font-bold transition-colors"
           >
             <Download size={15} className="text-accent" /> Export Logbook CSV
           </button>
@@ -128,11 +127,10 @@ const RecoveryLogbook: React.FC<RecoveryLogbookProps> = ({
       {/* THREE COLUMN RUNNING TOTALS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* DETECTED */}
-        <div className="bg-surface p-5 rounded-2xl border border-border2 shadow-sm space-y-2 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-xl pointer-events-none" />
+        <div className="bg-surface p-5 rounded-md border border-border2 space-y-2">
           <div className="flex items-center justify-between text-xs font-bold text-ink3 uppercase tracking-wider">
             <span>1. Detected Revenue Leakage</span>
-            <span className="p-1 bg-amber-50 text-amber-700 rounded-lg">
+            <span className="p-1 bg-surface2 text-secondary rounded">
               <Info size={16} />
             </span>
           </div>
@@ -143,11 +141,10 @@ const RecoveryLogbook: React.FC<RecoveryLogbookProps> = ({
         </div>
 
         {/* ACTIONED */}
-        <div className="bg-surface p-5 rounded-2xl border border-border2 shadow-sm space-y-2 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-xl pointer-events-none" />
+        <div className="bg-surface p-5 rounded-md border border-border2 space-y-2">
           <div className="flex items-center justify-between text-xs font-bold text-ink3 uppercase tracking-wider">
-            <span>2. Actioned & Escalated</span>
-            <span className="p-1 bg-blue-50 text-blue-700 rounded-lg">
+            <span>2. Actioned &amp; Escalated</span>
+            <span className="p-1 bg-surface2 text-on-surface rounded">
               <BarChart3 size={16} />
             </span>
           </div>
@@ -158,18 +155,17 @@ const RecoveryLogbook: React.FC<RecoveryLogbookProps> = ({
         </div>
 
         {/* COLLECTED */}
-        <div className="bg-surface p-5 rounded-2xl border-2 border-emerald-500/30 bg-emerald-50/20 shadow-sm space-y-2 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl pointer-events-none" />
-          <div className="flex items-center justify-between text-xs font-bold text-emerald-800 uppercase tracking-wider">
+        <div className="bg-surface p-5 rounded-md border border-primary/40 bg-accent-light/30 space-y-2">
+          <div className="flex items-center justify-between text-xs font-bold text-primary uppercase tracking-wider">
             <span>3. Verified Collected Funds</span>
-            <span className="p-1 bg-emerald-100 text-emerald-800 rounded-lg">
+            <span className="p-1 bg-accent-light text-primary rounded">
               <CheckCircle2 size={16} />
             </span>
           </div>
-          <p className="text-3xl font-bold font-mono text-emerald-800">
+          <p className="text-3xl font-bold font-mono text-primary">
             KES {totalCollected.toLocaleString()}
           </p>
-          <div className="flex items-center justify-between text-xs text-emerald-700 font-semibold pt-1">
+          <div className="flex items-center justify-between text-xs text-primary font-semibold pt-1">
             <span>Kazira Attributed:</span>
             <span className="font-mono font-bold">KES {kaziraAttributedCollected.toLocaleString()}</span>
           </div>
@@ -177,10 +173,10 @@ const RecoveryLogbook: React.FC<RecoveryLogbookProps> = ({
       </div>
 
       {/* NET RECOVERY & ROI LINE (ROBUST PROOF FOR CLINIC OWNER AT MONTH 3) */}
-      <div className="bg-gradient-to-r from-accent/10 via-surface to-accent/10 p-5 rounded-2xl border border-accent/20 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-surface2 p-5 rounded-md border border-border2 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 bg-accent text-white rounded-full text-[10px] font-bold uppercase tracking-wider">
+            <span className="px-2.5 py-0.5 bg-accent text-white rounded text-[10px] font-bold uppercase tracking-wider">
               Net ROI Proof Line
             </span>
             <span className="text-xs font-bold text-ink3">Subscription Since: {baselineConfig.startDate}</span>
@@ -193,9 +189,9 @@ const RecoveryLogbook: React.FC<RecoveryLogbookProps> = ({
           </p>
         </div>
 
-        <div className="text-right bg-surface p-3.5 rounded-xl border border-border2 min-w-[200px] shadow-sm">
+        <div className="text-right bg-surface p-3.5 rounded-md border border-border2 min-w-[200px]">
           <div className="text-[10px] font-bold uppercase tracking-wider text-ink3">Demonstrated ROI</div>
-          <div className="text-3xl font-mono font-black text-emerald-600 flex items-center justify-end gap-1">
+          <div className="text-3xl font-mono font-black text-primary flex items-center justify-end gap-1">
             <TrendingUp size={24} /> {roiMultiplier}x
           </div>
           <div className="text-[11px] text-ink3 font-medium">Return on Kazira Platform</div>
@@ -205,7 +201,7 @@ const RecoveryLogbook: React.FC<RecoveryLogbookProps> = ({
       {/* ATTRIBUTION & BASELINE COMPARISON PANEL */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Baseline Period Comparison Card */}
-        <div className="bg-surface p-5 rounded-2xl border border-border2 shadow-sm space-y-4">
+        <div className="bg-surface p-5 rounded-md border border-border2 space-y-4">
           <div className="flex items-center justify-between border-b border-border pb-3">
             <div className="flex items-center gap-2">
               <Calendar className="text-accent" size={18} />
@@ -221,7 +217,7 @@ const RecoveryLogbook: React.FC<RecoveryLogbookProps> = ({
           </div>
 
           {isEditingBaseline ? (
-            <form onSubmit={handleSaveBaseline} className="space-y-3 bg-surface2 p-3.5 rounded-xl border border-border2">
+            <form onSubmit={handleSaveBaseline} className="space-y-3 bg-surface2 p-3.5 rounded-md border border-border2">
               <div>
                 <label className="text-xs font-bold text-ink block mb-1">Baseline Start Date</label>
                 <input
@@ -281,22 +277,22 @@ const RecoveryLogbook: React.FC<RecoveryLogbookProps> = ({
         </div>
 
         {/* Strict Attribution Rules Card */}
-        <div className="bg-surface p-5 rounded-2xl border border-border2 shadow-sm space-y-4">
+        <div className="bg-surface p-5 rounded-md border border-border2 space-y-4">
           <div className="flex items-center gap-2 border-b border-border pb-3">
             <ShieldCheck className="text-accent" size={18} />
-            <h3 className="font-bold text-ink text-sm font-serif">Attribution & Verification Rules</h3>
+            <h3 className="font-bold text-ink text-sm font-serif">Attribution &amp; Verification Rules</h3>
           </div>
           <div className="space-y-2.5 text-xs text-ink2 leading-relaxed">
-            <div className="p-2.5 bg-accent-light/50 border border-accent/20 rounded-xl space-y-1">
+            <div className="p-2.5 bg-accent-light/50 border border-accent/20 rounded space-y-1">
               <span className="font-bold text-accent inline-flex items-center gap-1">
-                <Sparkles size={12} /> kazira_flagged (Auto-Detected)
+                kazira_flagged (Auto-Detected)
               </span>
               <p className="text-[11px] text-ink3">
                 Flags generated directly by Kazira audit engine. Only these items count toward Kazira-attributed recovery totals.
               </p>
             </div>
 
-            <div className="p-2.5 bg-surface2 border border-border2 rounded-xl space-y-1">
+            <div className="p-2.5 bg-surface2 border border-border2 rounded space-y-1">
               <span className="font-bold text-ink3 inline-flex items-center gap-1">
                 <Building2 size={12} /> manually_identified (Self-Logged)
               </span>
@@ -313,12 +309,12 @@ const RecoveryLogbook: React.FC<RecoveryLogbookProps> = ({
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <h3 className="font-bold text-ink font-serif text-lg">Logbook Entries</h3>
 
-          <div className="flex items-center gap-2 bg-surface2 p-1 rounded-xl border border-border2 text-xs">
+          <div className="flex items-center gap-2 bg-surface2 p-1 rounded-md border border-border2 text-xs">
             <button
               type="button"
               onClick={() => setFilterAttribution('all')}
-              className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                filterAttribution === 'all' ? 'bg-surface text-ink shadow-sm' : 'text-ink3 hover:text-ink'
+              className={`px-3 py-1 rounded font-bold transition-colors ${
+                filterAttribution === 'all' ? 'bg-surface text-ink' : 'text-ink3 hover:text-ink'
               }`}
             >
               All Sources
@@ -326,8 +322,8 @@ const RecoveryLogbook: React.FC<RecoveryLogbookProps> = ({
             <button
               type="button"
               onClick={() => setFilterAttribution('kazira_flagged')}
-              className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                filterAttribution === 'kazira_flagged' ? 'bg-accent text-white shadow-sm' : 'text-ink3 hover:text-ink'
+              className={`px-3 py-1 rounded font-bold transition-colors ${
+                filterAttribution === 'kazira_flagged' ? 'bg-accent text-white' : 'text-ink3 hover:text-ink'
               }`}
             >
               Kazira Flagged Only
@@ -335,8 +331,8 @@ const RecoveryLogbook: React.FC<RecoveryLogbookProps> = ({
             <button
               type="button"
               onClick={() => setFilterAttribution('manually_identified')}
-              className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                filterAttribution === 'manually_identified' ? 'bg-surface text-ink shadow-sm' : 'text-ink3 hover:text-ink'
+              className={`px-3 py-1 rounded font-bold transition-colors ${
+                filterAttribution === 'manually_identified' ? 'bg-surface text-ink' : 'text-ink3 hover:text-ink'
               }`}
             >
               Manual Logs
@@ -344,7 +340,7 @@ const RecoveryLogbook: React.FC<RecoveryLogbookProps> = ({
           </div>
         </div>
 
-        <div className="bg-surface border border-border2 rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-surface border border-border2 rounded-md overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-xs text-left">
               <thead className="bg-surface2/80 text-ink3 uppercase font-bold text-[10px] tracking-wider border-b border-border2">
@@ -382,44 +378,44 @@ const RecoveryLogbook: React.FC<RecoveryLogbookProps> = ({
                         {entry.procedureName}
                       </td>
 
-                      <td className="px-4 py-3 font-mono font-bold text-amber-700 whitespace-nowrap">
+                      <td className="px-4 py-3 font-mono font-bold text-secondary whitespace-nowrap">
                         KES {entry.detectedKes.toLocaleString()}
                       </td>
 
-                      <td className="px-4 py-3 font-mono font-bold text-blue-700 whitespace-nowrap">
+                      <td className="px-4 py-3 font-mono font-bold text-on-surface whitespace-nowrap">
                         KES {entry.actionedKes.toLocaleString()}
                       </td>
 
-                      <td className="px-4 py-3 font-mono font-bold text-emerald-700 whitespace-nowrap">
+                      <td className="px-4 py-3 font-mono font-bold text-primary whitespace-nowrap">
                         KES {entry.collectedKes.toLocaleString()}
                       </td>
 
                       <td className="px-4 py-3">
                         {entry.attribution === 'kazira_flagged' ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent-light text-accent rounded-full text-[10px] font-bold">
-                            <Sparkles size={10} /> Kazira
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent-light text-accent rounded text-[10px] font-bold">
+                            Kazira
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-surface2 text-ink3 rounded-full text-[10px] font-bold">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-surface2 text-ink3 rounded text-[10px] font-bold">
                             Manual
                           </span>
                         )}
                       </td>
 
                       <td className="px-4 py-3">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                          entry.status === 'collected' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                          entry.status === 'dismissed' ? 'bg-gray-100 text-gray-600 border border-gray-200' :
-                          entry.status === 'escalated' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                          'bg-rose-50 text-rose-700 border border-rose-200'
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                          entry.status === 'collected' ? 'bg-primary/10 text-primary border border-primary/20' :
+                          entry.status === 'dismissed' ? 'bg-surface2 text-ink3 border border-border2' :
+                          entry.status === 'escalated' ? 'bg-secondary/15 text-secondary border border-secondary/30' :
+                          'bg-secondary/10 text-secondary border border-secondary/20'
                         }`}>
                           {entry.status}
                         </span>
                       </td>
 
                       <td className="px-4 py-3 text-ink2 text-[11px] max-w-[200px] truncate">
-                        {entry.invoiceRef && <span className="font-mono font-bold text-emerald-700 mr-1.5">[{entry.invoiceRef}]</span>}
-                        {entry.resolutionNote || '—'}
+                        {entry.invoiceRef && <span className="font-mono font-bold text-primary mr-1.5">[{entry.invoiceRef}]</span>}
+                        {entry.resolutionNote || '-'}
                       </td>
                     </tr>
                   ))
