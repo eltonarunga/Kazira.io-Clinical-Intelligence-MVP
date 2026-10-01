@@ -6,32 +6,24 @@ import {
   Cpu, 
   Network, 
   X,
-  HelpCircle,
-  Building,
-  User,
   History,
-  Share2,
-  Check,
   Settings as SettingsIcon,
-  Compass,
-  Database,
-  Sparkles,
-  Activity,
   LogOut,
-  UserCheck,
-  ArrowRight,
-  ChevronDown
+  ChevronDown,
+  Sun,
+  Moon,
+  Building,
+  Check
 } from 'lucide-react';
 import { NavTab, UserProfile } from '../types';
-import { KaziraEmblem } from './KaziraLogo';
+import { KaziraMonogram, KaziraEmblem } from './KaziraLogo';
 
-export interface SidebarProps {
+interface SidebarProps {
   activeTab: NavTab;
   onTabChange: (tab: NavTab) => void;
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
   isDesktopOpen?: boolean;
-  onOpenFaq?: () => void;
   activeProfile: UserProfile;
   profiles?: UserProfile[];
   onSwitchProfile?: (profile: UserProfile) => void;
@@ -43,6 +35,7 @@ export interface SidebarProps {
   onOpenServerStatus?: () => void;
   onOpenSettings?: () => void;
   onToggleHistory?: () => void;
+  onOpenFaq?: () => void;
   onOpenDataVault?: () => void;
   onOpenCsvIngestion?: () => void;
   onTriggerAudit?: () => void;
@@ -50,6 +43,8 @@ export interface SidebarProps {
   onShowToast?: (title: string, msg: string, type?: 'success' | 'warn' | 'info' | 'sms' | 'audit') => void;
   historyCount?: number;
   recoveredTotal?: string;
+  theme?: 'light' | 'dark';
+  onToggleTheme?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -58,29 +53,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpenMobile = false,
   onCloseMobile,
   isDesktopOpen = true,
-  onOpenFaq,
   activeProfile,
   profiles = [],
   onSwitchProfile,
-  onSignInAsGuest,
   onSignOut,
   onNavigateToProfile,
-  onRestartOnboarding,
-  serverOnline = true,
-  onOpenServerStatus,
   onOpenSettings,
   onToggleHistory,
-  onOpenDataVault,
   onOpenCsvIngestion,
-  onTriggerAudit,
-  isAuditing = false,
-  onShowToast,
   historyCount = 0,
-  recoveredTotal = 'KES 3,420,000'
+  theme = 'light',
+  onToggleTheme
 }) => {
-  const [isCopied, setIsCopied] = useState(false);
   const [showProfileSwitcher, setShowProfileSwitcher] = useState(false);
 
+  // Minimalist Core Navigation
   const navItems: { id: NavTab; label: string; icon: React.ReactNode }[] = [
     { id: 'overview', label: 'Dashboard', icon: <TrendingUp size={18} /> },
     { id: 'debts', label: 'Unbilled Gaps', icon: <FileSpreadsheet size={18} /> },
@@ -94,61 +81,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
     if (onCloseMobile) onCloseMobile();
   };
 
-  const handleActionClick = (action?: () => void) => {
+  const handleAction = (action?: () => void) => {
     if (action) action();
     if (onCloseMobile) onCloseMobile();
   };
 
-  const handleShareBriefing = async () => {
-    const shareData = {
-      title: 'Kazira Clinical Intelligence Briefing',
-      text: `${activeProfile.facilityName}: KES ${recoveredTotal} recovered with 100% KDPA compliance.`,
-      url: window.location.href
-    };
-
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-        if (onShowToast) {
-          onShowToast('Briefing Shared', 'Clinical intelligence dossier shared successfully.', 'success');
-        }
-        return;
-      } catch (err) {
-        // Fallback to clipboard
-      }
-    }
-
-    try {
-      await navigator.clipboard.writeText(
-        `Kazira Clinical Intelligence Dossier - ${activeProfile.facilityName}\nRecovered: ${recoveredTotal} | KDPA 2019 Sovereign Verified\n${window.location.href}`
-      );
-      setIsCopied(true);
-      if (onShowToast) {
-        onShowToast('Link Copied', 'Executive briefing link copied to clipboard.', 'success');
-      }
-      setTimeout(() => setIsCopied(false), 2500);
-    } catch (err) {
-      if (onShowToast) {
-        onShowToast('Share Notice', 'Direct share unavailable in iframe; link ready.', 'info');
-      }
-    }
-  };
-
-  const getRoleBadge = (role: string) => {
-    switch (role) {
-      case 'guest':
-        return { label: 'Guest Sandbox', color: 'bg-amber-100 text-amber-900 border-amber-300' };
-      case 'county_health':
-        return { label: 'County Health', color: 'bg-indigo-100 text-indigo-900 border-indigo-300' };
-      case 'moh':
-        return { label: 'MoH Oversight', color: 'bg-emerald-100 text-emerald-900 border-emerald-300' };
-      case 'facility_admin':
-      default:
-        return { label: 'Facility Admin', color: 'bg-emerald-100 text-emerald-950 border-emerald-300' };
-    }
-  };
-
-  const roleBadge = getRoleBadge(activeProfile.role);
   const facilityShort = activeProfile 
     ? activeProfile.facilityName.split(' ')[0] + ' ' + (activeProfile.facilityName.split(' ')[1] || '')
     : 'Nairobi West';
@@ -158,60 +95,75 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Mobile / Tablet Backdrop */}
       {isOpenMobile && (
         <div 
-          className="fixed inset-0 bg-ink/60 z-40 lg:hidden backdrop-blur-xs"
+          className="fixed inset-0 bg-ink/60 z-40 lg:hidden backdrop-blur-xs transition-opacity"
           onClick={onCloseMobile}
           aria-hidden="true"
         />
       )}
 
-      {/* Sovereign Sidebar Navigation Drawer & Shortcuts Menu */}
+      {/* Minimalist Sidebar Drawer */}
       <aside 
         id="app-sidebar-drawer"
-        className={`fixed left-0 top-0 h-screen w-sidebar-width bg-surface-container-low border-r border-outline-variant/30 z-50 flex flex-col justify-between transition-transform duration-300 ease-in-out ${
+        className={`fixed left-0 top-0 h-screen w-sidebar-width bg-white dark:bg-[#111111] border-r border-gray-200 dark:border-zinc-800 z-50 flex flex-col justify-between transition-transform duration-300 ease-in-out ${
           isOpenMobile ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
         } ${isDesktopOpen ? 'lg:translate-x-0' : 'lg:-translate-x-full'}`}
         role="navigation"
-        aria-label="Main Navigation and System Shortcuts"
+        aria-label="Main Navigation"
       >
-        {/* Top Brand & Facility Header */}
-        <div className="h-16 px-space-base flex items-center justify-between border-b border-outline-variant/20 shrink-0">
+        {/* Top Header: Brand Mark & Facility Context */}
+        <div className="h-16 px-4 flex items-center justify-between border-b border-gray-100 dark:border-zinc-800/80 shrink-0">
           <button 
             onClick={() => handleSelect('overview')}
             className="flex items-center gap-2.5 text-left cursor-pointer hover:opacity-85 transition-opacity min-w-0"
-            title="Kazira Clinical Intelligence - Return to Dashboard"
+            title="Kazira Clinical Intelligence"
           >
-            <div className="w-8 h-8 rounded-lg bg-surface-container-lowest border border-outline-variant/30 flex items-center justify-center p-1 shadow-2xs shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-surface border border-line flex items-center justify-center p-0.5 shadow-2xs shrink-0">
               <KaziraEmblem size={24} className="w-full h-full" />
             </div>
             <div className="flex items-baseline gap-1.5 min-w-0">
-              <span className="font-headline-sm text-base text-on-surface font-bold tracking-tight">
+              <span className="font-head text-base text-ink dark:text-zinc-100 font-bold tracking-tight">
                 Kazira
               </span>
-              <span className="text-outline-variant text-xs">/</span>
-              <span className="text-xs text-on-surface-variant font-medium truncate max-w-[120px]" title={activeProfile?.facilityName || 'Nairobi West Memorial'}>
+              <span className="text-gray-300 dark:text-zinc-600 text-xs">/</span>
+              <span className="text-xs text-ink2 dark:text-zinc-400 font-medium truncate max-w-[120px]" title={activeProfile?.facilityName}>
                 {facilityShort}
               </span>
             </div>
           </button>
           
-          {onCloseMobile && (
-            <button 
-              onClick={onCloseMobile}
-              className="lg:hidden p-1.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md cursor-pointer transition-colors"
-              aria-label="Close menu"
-              title="Close menu"
-            >
-              <X size={18} />
-            </button>
-          )}
+          <div className="flex items-center gap-1">
+            {onToggleTheme && (
+              <button
+                id="sidebar-theme-toggle"
+                type="button"
+                onClick={onToggleTheme}
+                className="p-1.5 text-gray-500 hover:text-ink dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-md cursor-pointer transition-colors"
+                aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                title={theme === 'dark' ? 'Switch to light mode (primarily white)' : 'Switch to dark mode'}
+              >
+                {theme === 'dark' ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} className="text-zinc-600" />}
+              </button>
+            )}
+            
+            {onCloseMobile && (
+              <button 
+                onClick={onCloseMobile}
+                className="lg:hidden p-1.5 text-gray-500 hover:text-ink dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-md cursor-pointer transition-colors"
+                aria-label="Close menu"
+                title="Close menu"
+              >
+                <X size={18} />
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Scrollable Content: Navigation, AI Engine, Shortcuts, Profile */}
-        <div className="flex-1 overflow-y-auto min-h-0 px-space-sm py-space-sm space-y-4">
+        {/* Minimalist Body Content */}
+        <div className="flex-1 overflow-y-auto min-h-0 px-3 py-4 space-y-6">
           
-          {/* SECTION 1: Primary Navigation Links */}
+          {/* Workspaces Section */}
           <div>
-            <div className="text-[10px] font-bold text-outline uppercase tracking-wider px-2 pb-1.5 font-label-mono">
+            <div className="text-[10px] font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-wider px-2 pb-2 font-mono">
               Workspaces
             </div>
             <nav className="space-y-1">
@@ -221,10 +173,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     key={item.id}
                     onClick={() => handleSelect(item.id)}
-                    className={`w-full flex items-center gap-space-sm px-3 py-2 rounded-lg transition-all text-left font-body-sm text-sm cursor-pointer ${
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all text-left text-xs font-semibold cursor-pointer ${
                       isActive
-                        ? 'bg-primary text-white font-semibold shadow-xs'
-                        : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+                        ? 'bg-[#005235] text-white shadow-xs'
+                        : 'text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800/60 hover:text-ink dark:hover:text-white'
                     }`}
                     aria-current={isActive ? 'page' : undefined}
                   >
@@ -236,404 +188,130 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </nav>
           </div>
 
-          {/* SECTION 2: Clinical Control & AI Engine (Moved from Shortcut Menu) */}
-          <div className="pt-2 border-t border-outline-variant/15 space-y-2">
-            <div className="text-[10px] font-bold text-outline uppercase tracking-wider px-2 font-label-mono">
-              Clinical Control &amp; AI Engine
+          {/* Quick Actions (Minimalist 3 items) */}
+          <div className="space-y-1">
+            <div className="text-[10px] font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-wider px-2 pb-1 font-mono">
+              Quick Tools
             </div>
-
-            {/* Run Dual-Loop AI Audit Button */}
-            {onTriggerAudit && (
+            
+            {onOpenCsvIngestion && (
               <button
-                id="shortcut-run-audit"
                 type="button"
-                onClick={() => handleActionClick(onTriggerAudit)}
-                disabled={isAuditing}
-                className="w-full min-h-[42px] py-2.5 px-3 bg-[#005235] hover:bg-[#004029] text-white rounded-lg text-xs font-semibold transition-all flex items-center justify-between shadow-xs disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden select-none"
-                title="Trigger automated clinical narrative and arithmetic audit"
-                aria-label="Trigger automated clinical narrative and arithmetic audit"
+                onClick={() => handleAction(onOpenCsvIngestion)}
+                className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-zinc-400 hover:text-ink dark:hover:text-white hover:bg-gray-50 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer text-left"
               >
-                <div className="flex items-center gap-2 min-w-0">
-                  {isAuditing ? (
-                    <Cpu size={15} className="animate-spin text-amber-300 shrink-0" />
-                  ) : (
-                    <Sparkles size={15} className="text-amber-300 shrink-0" />
-                  )}
-                  <span className="truncate">{isAuditing ? 'Auditing Encounters...' : 'Run AI Audit'}</span>
-                </div>
-                <span className="text-[10px] font-mono opacity-80 bg-black/20 px-1.5 py-0.5 rounded shrink-0">
-                  Gemini
-                </span>
+                <FileSpreadsheet size={15} className="shrink-0 text-gray-400 dark:text-zinc-500" />
+                <span className="truncate">Ingest CSV / Records</span>
               </button>
             )}
 
-            {/* Recovered Total Metric Capsule */}
-            <div id="sidebar-metric-recovered" className="min-h-[42px] px-3 py-2 rounded-lg bg-surface-container border border-outline-variant/20 flex items-center justify-between text-xs select-none">
-              <div className="flex items-center gap-2 min-w-0">
-                <Activity size={15} className="text-primary shrink-0" />
-                <div className="min-w-0 truncate">
-                  <span className="text-on-surface-variant text-[10px] block leading-none">Total Recovered</span>
-                  <span className="font-bold text-primary font-mono text-xs leading-tight block truncate">{recoveredTotal}</span>
-                </div>
-              </div>
-              <span className="text-[9px] font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded-full border border-emerald-200 shrink-0">
-                {activeProfile.isGuest ? '81% Rate' : 'Verified'}
-              </span>
-            </div>
-
-            {/* Server & Sovereign Status */}
-            {onOpenServerStatus && (
+            {onToggleHistory && (
               <button
-                id="shortcut-server-status"
                 type="button"
-                onClick={() => handleActionClick(onOpenServerStatus)}
-                className="w-full min-h-[42px] px-3 py-2 rounded-lg hover:bg-surface-container text-left transition-colors flex items-center justify-between text-xs cursor-pointer border border-outline-variant/15 hover:border-outline-variant/30 bg-surface/60 select-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
-                title="View sovereign server node telemetry"
-                aria-label="View sovereign server node telemetry"
+                onClick={() => handleAction(onToggleHistory)}
+                className="w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-zinc-400 hover:text-ink dark:hover:text-white hover:bg-gray-50 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer text-left"
               >
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className={`w-2 h-2 rounded-full shrink-0 ${serverOnline ? 'bg-primary animate-pulse' : 'bg-amber-500'}`} />
-                  <div className="min-w-0 truncate">
-                    <span className="font-medium text-on-surface block text-xs truncate">
-                      {serverOnline ? 'Sovereign Node Online' : 'Offline Vault Synced'}
-                    </span>
-                    <span className="text-[10px] text-on-surface-variant block truncate">Nairobi DC • KDPA 2019</span>
-                  </div>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <History size={15} className="shrink-0 text-gray-400 dark:text-zinc-500" />
+                  <span className="truncate">Audit History</span>
                 </div>
-                <ChevronDown size={13} className="-rotate-90 text-outline shrink-0" />
-              </button>
-            )}
-          </div>
-
-          {/* SECTION 3: Shortcuts & Operational Tools (Moved from Shortcut Menu) */}
-          <div className="pt-2 border-t border-outline-variant/15 space-y-2">
-            <div className="text-[10px] font-bold text-outline uppercase tracking-wider px-2 font-label-mono">
-              Shortcuts &amp; Tools
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              {/* Audit History */}
-              {onToggleHistory && (
-                <button
-                  id="shortcut-history"
-                  type="button"
-                  onClick={() => handleActionClick(onToggleHistory)}
-                  className="h-10 min-h-[40px] px-2.5 flex items-center justify-between rounded-lg border border-outline-variant/25 bg-surface hover:bg-surface-container hover:border-outline-variant/50 text-on-surface transition-all duration-150 cursor-pointer shadow-2xs group text-left w-full select-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
-                  title="View previous AI audit logs"
-                  aria-label="View previous AI audit logs"
-                >
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <div className="w-6 h-6 rounded-md bg-surface-container-high/80 border border-outline-variant/20 flex items-center justify-center shrink-0 text-primary group-hover:text-primary-container transition-colors">
-                      <History size={13} />
-                    </div>
-                    <span className="text-xs font-medium text-on-surface truncate">History</span>
-                  </div>
-                  {historyCount > 0 && (
-                    <span className="bg-primary text-white text-[10px] px-1.5 py-0.5 rounded-full font-mono font-bold shrink-0 ml-1 leading-none">
-                      {historyCount}
-                    </span>
-                  )}
-                </button>
-              )}
-
-              {/* Ingest CSV */}
-              {onOpenCsvIngestion && (
-                <button
-                  id="shortcut-ingest-csv"
-                  type="button"
-                  onClick={() => handleActionClick(onOpenCsvIngestion)}
-                  className="h-10 min-h-[40px] px-2.5 flex items-center justify-between rounded-lg border border-outline-variant/25 bg-surface hover:bg-surface-container hover:border-outline-variant/50 text-on-surface transition-all duration-150 cursor-pointer shadow-2xs group text-left w-full select-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
-                  title="Ingest hospital encounter CSV records"
-                  aria-label="Ingest hospital encounter CSV records"
-                >
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <div className="w-6 h-6 rounded-md bg-surface-container-high/80 border border-outline-variant/20 flex items-center justify-center shrink-0 text-primary group-hover:text-primary-container transition-colors">
-                      <FileSpreadsheet size={13} />
-                    </div>
-                    <span className="text-xs font-medium text-on-surface truncate">Ingest CSV</span>
-                  </div>
-                </button>
-              )}
-
-              {/* Data Vault */}
-              {onOpenDataVault && (
-                <button
-                  id="shortcut-data-vault"
-                  type="button"
-                  onClick={() => handleActionClick(onOpenDataVault)}
-                  className="h-10 min-h-[40px] px-2.5 flex items-center justify-between rounded-lg border border-outline-variant/25 bg-surface hover:bg-surface-container hover:border-outline-variant/50 text-on-surface transition-all duration-150 cursor-pointer shadow-2xs group text-left w-full select-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
-                  title="KDPA Sovereign Data Vault"
-                  aria-label="Open KDPA Sovereign Data Vault"
-                >
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <div className="w-6 h-6 rounded-md bg-surface-container-high/80 border border-outline-variant/20 flex items-center justify-center shrink-0 text-primary group-hover:text-primary-container transition-colors">
-                      <Database size={13} />
-                    </div>
-                    <span className="text-xs font-medium text-on-surface truncate">Data Vault</span>
-                  </div>
-                </button>
-              )}
-
-              {/* Settings */}
-              {onOpenSettings && (
-                <button
-                  id="shortcut-settings"
-                  type="button"
-                  onClick={() => handleActionClick(onOpenSettings)}
-                  className="h-10 min-h-[40px] px-2.5 flex items-center justify-between rounded-lg border border-outline-variant/25 bg-surface hover:bg-surface-container hover:border-outline-variant/50 text-on-surface transition-all duration-150 cursor-pointer shadow-2xs group text-left w-full select-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
-                  title="Facility configuration and tariffs"
-                  aria-label="Open Facility Configuration and Settings"
-                >
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <div className="w-6 h-6 rounded-md bg-surface-container-high/80 border border-outline-variant/20 flex items-center justify-center shrink-0 text-primary group-hover:text-primary-container transition-colors">
-                      <SettingsIcon size={13} />
-                    </div>
-                    <span className="text-xs font-medium text-on-surface truncate">Settings</span>
-                  </div>
-                </button>
-              )}
-
-              {/* Take Tour */}
-              {onRestartOnboarding && (
-                <button
-                  id="shortcut-take-tour"
-                  type="button"
-                  onClick={() => handleActionClick(onRestartOnboarding)}
-                  className="h-10 min-h-[40px] px-2.5 flex items-center justify-between rounded-lg border border-outline-variant/25 bg-surface hover:bg-surface-container hover:border-outline-variant/50 text-on-surface transition-all duration-150 cursor-pointer shadow-2xs group text-left w-full select-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
-                  title="Restart onboarding walkthrough"
-                  aria-label="Restart Onboarding Guided Tour"
-                >
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <div className="w-6 h-6 rounded-md bg-surface-container-high/80 border border-outline-variant/20 flex items-center justify-center shrink-0 text-primary group-hover:text-primary-container transition-colors">
-                      <Compass size={13} />
-                    </div>
-                    <span className="text-xs font-medium text-on-surface truncate">Take Tour</span>
-                  </div>
-                </button>
-              )}
-
-              {/* Knowledge Base & FAQ */}
-              {onOpenFaq && (
-                <button
-                  id="shortcut-faq"
-                  type="button"
-                  onClick={() => handleActionClick(onOpenFaq)}
-                  className="h-10 min-h-[40px] px-2.5 flex items-center justify-between rounded-lg border border-outline-variant/25 bg-surface hover:bg-surface-container hover:border-outline-variant/50 text-on-surface transition-all duration-150 cursor-pointer shadow-2xs group text-left w-full select-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
-                  title="KDPA and SHA Claims FAQ"
-                  aria-label="Open System FAQ and Clinical Knowledge Base"
-                >
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <div className="w-6 h-6 rounded-md bg-surface-container-high/80 border border-outline-variant/20 flex items-center justify-center shrink-0 text-primary group-hover:text-primary-container transition-colors">
-                      <HelpCircle size={13} />
-                    </div>
-                    <span className="text-xs font-medium text-on-surface truncate">FAQ &amp; Help</span>
-                  </div>
-                </button>
-              )}
-
-              {/* Share Briefing (Span 2) */}
-              <button
-                id="shortcut-share-briefing"
-                type="button"
-                onClick={handleShareBriefing}
-                className="col-span-2 h-10 min-h-[40px] px-2.5 flex items-center justify-between rounded-lg border border-outline-variant/25 bg-surface hover:bg-surface-container hover:border-outline-variant/50 text-on-surface transition-all duration-150 cursor-pointer shadow-2xs group text-left w-full select-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
-                title="Share or copy executive dossier link"
-                aria-label="Share or copy executive dossier link"
-              >
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <div className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 border transition-colors ${
-                    isCopied 
-                      ? 'bg-emerald-100 text-emerald-800 border-emerald-300' 
-                      : 'bg-surface-container-high/80 text-primary border-outline-variant/20 group-hover:text-primary-container'
-                  }`}>
-                    {isCopied ? <Check size={13} /> : <Share2 size={13} />}
-                  </div>
-                  <span className={`text-xs font-medium truncate ${isCopied ? 'text-emerald-800 font-semibold' : 'text-on-surface'}`}>
-                    {isCopied ? 'Link Copied to Clipboard!' : 'Share Briefing Dossier'}
+                {historyCount > 0 && (
+                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-gray-200 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 font-semibold">
+                    {historyCount}
                   </span>
-                </div>
-                <span className={`text-[10px] font-mono shrink-0 ml-1.5 px-1.5 py-0.5 rounded border transition-colors ${
-                  isCopied
-                    ? 'bg-emerald-100 text-emerald-900 border-emerald-300 font-bold'
-                    : 'text-outline bg-surface-container-high/60 border-outline-variant/20'
-                }`}>
-                  {isCopied ? 'COPIED' : 'KDPA'}
-                </span>
-              </button>
-            </div>
-          </div>
-
-          {/* SECTION 4: Session, Evaluator Switcher & Profile (Moved from Shortcut Menu) */}
-          <div className="pt-2 border-t border-outline-variant/15 space-y-2">
-            <div className="flex items-center justify-between px-2">
-              <span className="text-[10px] font-bold text-outline uppercase tracking-wider font-label-mono">
-                Session &amp; Account
-              </span>
-              {onSignOut && (
-                <button
-                  onClick={() => handleActionClick(onSignOut)}
-                  className="text-[11px] text-rose-700 hover:text-rose-800 font-semibold flex items-center gap-1 hover:underline cursor-pointer"
-                  title="Sign out of facility session"
-                >
-                  <LogOut size={12} />
-                  <span>Sign Out</span>
-                </button>
-              )}
-            </div>
-
-            {/* Profile Overview Card */}
-            <div 
-              onClick={() => {
-                if (onNavigateToProfile) onNavigateToProfile();
-                else handleSelect('profile');
-              }}
-              className="p-2.5 rounded-xl bg-surface border border-outline-variant/20 hover:border-primary/40 transition-all cursor-pointer group"
-              title="Click to view full practitioner profile"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <div 
-                    className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 shadow-xs ${
-                      activeProfile.avatarColor || 'bg-primary text-white'
-                    }`}
-                  >
-                    {activeProfile.avatarMonogram}
-                  </div>
-                  <div className="min-w-0 truncate">
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs font-bold text-on-surface truncate group-hover:text-primary transition-colors">
-                        {activeProfile.name}
-                      </span>
-                      <ArrowRight size={11} className="text-primary opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                    </div>
-                    <span className="text-[10px] text-on-surface-variant block truncate">
-                      {activeProfile.title}
-                    </span>
-                  </div>
-                </div>
-
-                <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full border shrink-0 ${roleBadge.color}`}>
-                  {roleBadge.label}
-                </span>
-              </div>
-
-              {/* Facility & KDPA MFL tag */}
-              <div className="mt-2 pt-1.5 border-t border-outline-variant/15 flex items-center justify-between text-[11px] text-on-surface-variant">
-                <div className="flex items-center gap-1.5 truncate">
-                  <Building size={12} className="text-primary shrink-0" />
-                  <span className="truncate text-[10px] font-medium">{activeProfile.facilityName}</span>
-                </div>
-                <span className="font-mono text-[9px] text-primary shrink-0 font-bold bg-primary/10 px-1.5 py-0.5 rounded">
-                  {activeProfile.facilityCode}
-                </span>
-              </div>
-            </div>
-
-            {/* Guest Sandbox Mode Fast Toggle */}
-            {activeProfile.isGuest ? (
-              <div id="shortcut-guest-toggle" className="p-2 bg-amber-500/10 border border-amber-500/25 rounded-lg text-xs space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-amber-950 text-[11px]">Guest Sandbox Active</span>
-                  <span className="text-[9px] bg-amber-200 text-amber-900 font-bold px-1 rounded">Simulation</span>
-                </div>
-                {profiles.length > 0 && onSwitchProfile && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onSwitchProfile(profiles[0]);
-                      if (onCloseMobile) onCloseMobile();
-                    }}
-                    className="w-full py-1 px-2 bg-amber-600 hover:bg-amber-700 text-white rounded font-medium text-[11px] transition-colors flex items-center justify-center gap-1 cursor-pointer"
-                  >
-                    <UserCheck size={12} />
-                    <span>Switch to Facility Admin</span>
-                  </button>
                 )}
-              </div>
-            ) : (
-              onSignInAsGuest && (
-                <div id="shortcut-guest-toggle" className="px-2 py-1.5 bg-surface rounded-lg border border-outline-variant/15 flex items-center justify-between text-xs">
-                  <span className="text-on-surface-variant text-[11px]">Want sandbox mode?</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onSignInAsGuest();
-                      if (onCloseMobile) onCloseMobile();
-                    }}
-                    className="text-primary font-semibold hover:underline flex items-center gap-1 text-[11px] cursor-pointer"
-                  >
-                    <span>Guest Mode</span>
-                    <ArrowRight size={11} />
-                  </button>
-                </div>
-              )
+              </button>
             )}
 
-            {/* Profile Switcher Toggle & List */}
-            {profiles.length > 1 && onSwitchProfile && (
-              <div className="pt-1">
-                <button
-                  type="button"
-                  onClick={() => setShowProfileSwitcher(!showProfileSwitcher)}
-                  className="w-full flex items-center justify-between px-2 py-1 text-[11px] font-medium text-on-surface-variant hover:text-on-surface rounded hover:bg-surface-container transition-colors cursor-pointer"
-                >
-                  <span>Switch Role / Facility ({profiles.length})</span>
-                  <ChevronDown size={12} className={`transition-transform ${showProfileSwitcher ? 'rotate-180' : ''}`} />
-                </button>
-
-                {showProfileSwitcher && (
-                  <div className="mt-1 space-y-1 max-h-[120px] overflow-y-auto pr-1">
-                    {profiles.map((p) => {
-                      const isCurrent = p.id === activeProfile.id;
-                      return (
-                        <button
-                          key={p.id}
-                          type="button"
-                          onClick={() => {
-                            onSwitchProfile(p);
-                            if (onCloseMobile) onCloseMobile();
-                          }}
-                          className={`w-full flex items-center justify-between p-1.5 rounded-lg text-xs transition-colors cursor-pointer text-left ${
-                            isCurrent 
-                              ? 'bg-primary/10 border border-primary/30 text-on-surface font-semibold' 
-                              : 'hover:bg-surface-container text-on-surface-variant hover:text-on-surface'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2 min-w-0">
-                            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0 ${p.avatarColor || 'bg-primary text-white'}`}>
-                              {p.avatarMonogram}
-                            </div>
-                            <div className="truncate">
-                              <span className="block truncate text-[11px] leading-tight font-medium text-on-surface">
-                                {p.name}
-                              </span>
-                              <span className="block text-[9px] text-outline truncate leading-tight">
-                                {p.title}
-                              </span>
-                            </div>
-                          </div>
-                          {isCurrent && (
-                            <Check size={12} className="text-primary shrink-0 ml-1" />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+            {onOpenSettings && (
+              <button
+                type="button"
+                onClick={() => handleAction(onOpenSettings)}
+                className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-zinc-400 hover:text-ink dark:hover:text-white hover:bg-gray-50 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer text-left"
+              >
+                <SettingsIcon size={15} className="shrink-0 text-gray-400 dark:text-zinc-500" />
+                <span className="truncate">Facility Settings</span>
+              </button>
             )}
           </div>
         </div>
 
-        {/* Pinned Sovereign Footer */}
-        <div className="p-space-sm border-t border-outline-variant/20 bg-surface-container-low shrink-0 flex items-center justify-between text-[11px] text-on-surface-variant">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="font-medium text-on-surface text-[10px]">
-              {activeProfile?.isGuest ? 'Sandbox Active' : 'KDPA Protected'}
-            </span>
+        {/* Minimalist Pinned Profile & Sign Out Footer */}
+        <div className="p-3 border-t border-gray-100 dark:border-zinc-800/80 bg-gray-50/50 dark:bg-[#141414] shrink-0 space-y-2">
+          {/* Profile Row */}
+          <div className="flex items-center justify-between gap-2">
+            <button
+              type="button"
+              onClick={() => handleAction(onNavigateToProfile)}
+              className="flex items-center gap-2.5 min-w-0 text-left cursor-pointer group flex-1"
+              title="View practitioner profile"
+            >
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs ${activeProfile?.avatarColor || 'bg-[#005235] text-white'}`}>
+                {activeProfile?.avatarMonogram || 'AM'}
+              </div>
+              <div className="min-w-0 truncate">
+                <span className="text-xs font-bold text-ink dark:text-zinc-100 block truncate group-hover:text-[#005235] dark:group-hover:text-emerald-400 transition-colors">
+                  {activeProfile?.name || 'Practitioner'}
+                </span>
+                <span className="text-[10px] text-gray-500 dark:text-zinc-400 block truncate font-mono">
+                  {activeProfile?.facilityCode || 'MFL #14920'}
+                </span>
+              </div>
+            </button>
+
+            {onSignOut && (
+              <button
+                type="button"
+                onClick={() => handleAction(onSignOut)}
+                className="p-1.5 text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-md transition-colors cursor-pointer shrink-0"
+                title="Sign out of facility session"
+                aria-label="Sign out"
+              >
+                <LogOut size={16} />
+              </button>
+            )}
           </div>
-          <span className="font-label-mono text-[10px] text-outline">v2.8.3</span>
+
+          {/* Optional Profile Switcher (Compact Dropdown) */}
+          {profiles.length > 1 && onSwitchProfile && (
+            <div className="pt-1 border-t border-gray-200/50 dark:border-zinc-800">
+              <button
+                type="button"
+                onClick={() => setShowProfileSwitcher(!showProfileSwitcher)}
+                className="w-full flex items-center justify-between py-1 text-[10px] font-medium text-gray-500 dark:text-zinc-400 hover:text-ink dark:hover:text-zinc-200 cursor-pointer"
+              >
+                <span>Switch Facility / Account ({profiles.length})</span>
+                <ChevronDown size={11} className={`transition-transform ${showProfileSwitcher ? 'rotate-180' : ''}`} />
+              </button>
+
+              {showProfileSwitcher && (
+                <div className="mt-1 space-y-0.5 max-h-[110px] overflow-y-auto">
+                  {profiles.map((p) => {
+                    const isCurrent = p.id === activeProfile.id;
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => {
+                          onSwitchProfile(p);
+                          setShowProfileSwitcher(false);
+                          if (onCloseMobile) onCloseMobile();
+                        }}
+                        className={`w-full flex items-center justify-between p-1.5 rounded text-xs transition-colors cursor-pointer text-left ${
+                          isCurrent 
+                            ? 'bg-[#005235]/10 text-[#005235] dark:text-emerald-400 font-semibold' 
+                            : 'hover:bg-gray-100 dark:hover:bg-zinc-800 text-gray-600 dark:text-zinc-400'
+                        }`}
+                      >
+                        <span className="truncate text-[11px]">{p.facilityName}</span>
+                        {isCurrent && <Check size={11} className="shrink-0 ml-1 text-[#005235] dark:text-emerald-400" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </aside>
     </>
@@ -641,4 +319,3 @@ export const Sidebar: React.FC<SidebarProps> = ({
 };
 
 export default Sidebar;
-

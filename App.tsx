@@ -15,7 +15,15 @@ import { processClinicData } from './utils/dataPipeline';
 import { trackEvent, trackPageView } from './utils/analytics';
 import { translations, Language } from './utils/translations';
 import { safeStorage } from './utils/storage';
+import { getInitialTheme, applyTheme, Theme } from './utils/theme';
 import { apiService } from './services/apiService';
+import { 
+  signOutFirebase, 
+  saveDebtToFirestore, 
+  fetchDebtsFromFirestore,
+  auth
+} from './services/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import ErrorBoundary from './components/ErrorBoundary';
 import CookieConsent from './components/CookieConsent';
 import Onboarding from './components/Onboarding';
@@ -69,13 +77,42 @@ export const App: React.FC = () => {
     return (safeStorage.getItem('kazira_lang') as Language) || 'en';
   });
   const t = translations[lang];
+
+  // Theme Management (Primarily White default with Dark Mode option)
+  const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
+
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
+
+  const handleToggleTheme = () => {
+    const nextTheme: Theme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    applyTheme(nextTheme);
+    showCustomToast(
+      nextTheme === 'dark' ? 'Dark Mode' : 'Light Mode (Primarily White)',
+      nextTheme === 'dark' ? 'Switched to low-light graphite palette.' : 'Switched to primarily white canvas.',
+      'info'
+    );
+  };
+
   const [report, setReport] = useState<ReportOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     const stored = safeStorage.getItem('kazira_authenticated');
-    return stored !== null ? stored === 'true' : true;
+    if (stored === 'true') return true;
+    if (stored === 'false') return false;
+    // Check if an active profile was previously explicitly saved
+    const activeStored = safeStorage.getItem('kazira_active_profile');
+    if (activeStored) {
+      try {
+        const parsed = JSON.parse(activeStored);
+        if (parsed?.id && parsed?.email) return true;
+      } catch (e) {}
+    }
+    return false;
   });
 
   // Active User Profile State & Registered Profiles Registry
@@ -276,6 +313,7 @@ export const App: React.FC = () => {
   };
 
   const handleSignOut = () => {
+    signOutFirebase().catch(() => {});
     setIsAuthenticated(false);
     safeStorage.setItem('kazira_authenticated', 'false');
     showCustomToast(
@@ -359,6 +397,11 @@ export const App: React.FC = () => {
     // Sync to full-stack server store with sovereign tenant context
     apiService.updateDebtItem(updatedItem.id, updatedItem, isCurrentGuest, currentFacilityCode);
 
+    // Sync to cloud Firestore database
+    if (!isCurrentGuest) {
+      saveDebtToFirestore(currentFacilityCode, updatedItem).catch(e => console.warn('Firestore sync note:', e));
+    }
+
     if (updatedItem.status === 'collected' || updatedItem.status === 'dismissed' || updatedItem.status === 'escalated') {
       const newEntry: RecoveryLogEntry = {
         id: `REC-${Date.now()}-${updatedItem.id}`,
@@ -389,6 +432,11 @@ export const App: React.FC = () => {
     const storageKey = isCurrentGuest ? 'kazira_debt_items_guest' : `kazira_debt_items_${currentFacilityCode}`;
     safeStorage.setItem(storageKey, JSON.stringify(updatedList));
     apiService.saveDebtItem(newItem, isCurrentGuest, currentFacilityCode);
+
+    // Sync to cloud Firestore database
+    if (!isCurrentGuest) {
+      saveDebtToFirestore(currentFacilityCode, newItem).catch(e => console.warn('Firestore sync note:', e));
+    }
   };
 
   const handleBatchAddDebts = async (newItems: DebtItem[]) => {
@@ -398,6 +446,14 @@ export const App: React.FC = () => {
     const storageKey = isCurrentGuest ? 'kazira_debt_items_guest' : `kazira_debt_items_${currentFacilityCode}`;
     safeStorage.setItem(storageKey, JSON.stringify(updatedList));
     await apiService.saveDebtItemsBatch(newItems, isCurrentGuest, currentFacilityCode);
+
+    // Sync to cloud Firestore database
+    if (!isCurrentGuest) {
+      newItems.forEach(item => {
+        saveDebtToFirestore(currentFacilityCode, item).catch(e => console.warn('Firestore batch sync note:', e));
+      });
+    }
+
     showCustomToast(
       'CSV Records Ingested',
       `Successfully loaded ${newItems.length} procedural records into your unbilled ledger under KDPA pseudonymisation.`,
@@ -537,7 +593,7 @@ export const App: React.FC = () => {
   if (!isAuthenticated) {
     return (
       <ErrorBoundary>
-        <div className="min-h-screen bg-surface font-body text-on-surface antialiased">
+        <div className="min-h-screen bg-white dark:bg-[#0E0E0E] font-body text-on-surface antialiased transition-colors duration-200">
           <Toaster position="top-right" richColors />
           <SignInView 
             onSignIn={handleSignIn}
@@ -545,6 +601,8 @@ export const App: React.FC = () => {
             onSignInAsGuest={handleSignInAsGuest}
             onShowToast={showCustomToast}
             registeredProfiles={registeredProfiles}
+            theme={theme}
+            onToggleTheme={handleToggleTheme}
           />
           <ToastBanner 
             toast={currentToast} 
@@ -557,7 +615,7 @@ export const App: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen flex flex-col bg-surface text-on-surface antialiased font-body-md">
+      <div className="min-h-screen flex flex-col bg-white dark:bg-[#0E0E0E] text-on-surface antialiased font-body-md transition-colors duration-200">
         <Toaster position="top-right" richColors />
 
         {/* Global Floating Toast Banner */}
@@ -596,6 +654,8 @@ export const App: React.FC = () => {
               ? "KES 3,420,000" 
               : `KES ${debts.filter(d => d.status === 'collected').reduce((sum, d) => sum + (d.amountCollectedKes || d.estimatedKes), 0).toLocaleString()}`
           }
+          theme={theme}
+          onToggleTheme={handleToggleTheme}
         />
 
         {/* Top Header */}
@@ -606,10 +666,13 @@ export const App: React.FC = () => {
           onNavigateHome={() => setActiveTab('overview')}
           activeTab={activeTab}
           isDesktopSidebarOpen={isDesktopSidebarOpen}
+          theme={theme}
+          onToggleTheme={handleToggleTheme}
+          onSignOut={handleSignOut}
         />
 
         {/* Main Content Workspace */}
-        <main className={`${isDesktopSidebarOpen ? 'lg:pl-sidebar-width' : 'lg:pl-0'} pt-16 flex-1 flex flex-col min-w-0 transition-[padding] duration-300`}>
+        <main className={`${isDesktopSidebarOpen ? 'lg:pl-sidebar-width' : 'lg:pl-0'} pt-16 flex-1 flex flex-col min-w-0 transition-[padding,background-color] duration-200 bg-white dark:bg-[#0E0E0E]`}>
           <div className="w-full max-w-[1520px] mx-auto px-4 sm:px-gutter-desktop py-space-lg sm:py-space-xl flex-1 flex flex-col">
             {activeTab === 'overview' && (
               <OverviewRecoveryView 
@@ -694,6 +757,7 @@ export const App: React.FC = () => {
             onOpenPrivacy={() => setIsPrivacyOpen(true)}
             onOpenFeedback={() => setIsFeedbackOpen(true)}
             onOpenDataManagement={() => setIsDataManagementOpen(true)}
+            onOpenDesignSystem={() => setIsDesignSystemOpen(true)}
           />
         </main>
 
@@ -809,7 +873,7 @@ export const App: React.FC = () => {
           </Modal>
 
           <Modal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} title="System Settings">
-            <Settings onClose={() => setIsSettingsOpen(false)} />
+            <Settings onClose={() => setIsSettingsOpen(false)} onThemeChanged={setTheme} />
           </Modal>
 
           <ServerStatusModal 

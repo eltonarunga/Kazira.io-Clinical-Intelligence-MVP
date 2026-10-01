@@ -2,6 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg: #FFFFFF;
+  --surface: #F4F4F2;
+  --surface2: #ECECE9;
+  --surface-container: #F4F4F2;
+  --surface-container-low: #FAFAFA;
+  --surface-container-lowest: #FFFFFF;
+  --surface-container-high: #EBEBE8;
+  --ink: #0E0E0E;
+  --ink2: #5C5C5C;
+  --line: #DEDEDA;
+  --btn-bg: #0E0E0E;
+  --btn-fg: #FFFFFF;
+  --recover: #E5A11C;
+  --leak: #C4372A;
+  --leak-bg: #FBEAE7;
+  --ok: #1F7A4F;
+  --ok-bg: #E4F2EB;
+  --focus: #1B6FD1;
+  --head: 'Sora', 'Trebuchet MS', sans-serif;
+  --body: 'Source Sans 3', 'Segoe UI', Arial, sans-serif;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+:root[data-theme="dark"],
+.dark {
+  --bg: #0E0E0E;
+  --surface: #171717;
+  --surface2: #1E1E1E;
+  --surface-container: #1E1E1E;
+  --surface-container-low: #141414;
+  --surface-container-lowest: #0E0E0E;
+  --surface-container-high: #262626;
+  --ink: #F5F5F3;
+  --ink2: #A0A0A0;
+  --line: #2A2A2A;
+  --btn-bg: #FFFFFF;
+  --btn-fg: #0E0E0E;
+  --recover: #E5A11C;
+  --leak: #F0705F;
+  --leak-bg: #331B18;
+  --ok: #5FC496;
+  --ok-bg: #15291F;
+  --focus: #7DB4F5;
+}
+
+@keyframes d {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dash {
+    stroke-dasharray: 6 5;
+    animation: d 1.2s .3s ease-out both;
+  }
+}
+
 @layer base {
   html, body, #root {
     overflow-x: hidden;
@@ -9,7 +69,18 @@
     width: 100%;
     margin: 0;
     padding: 0;
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.55;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--head);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
   }
 
   /* Prevent table and pre formatting blowouts on mobile */
@@ -17,26 +88,95 @@
     max-width: 100%;
   }
 
-  .markdown-body h2 {
-    @apply text-2xl font-bold text-ink mt-8 mb-4 pb-2 border-b border-border2 font-serif;
-  }
-  .markdown-body h3 {
-    @apply text-xl font-bold text-ink2 mt-6 mb-3 font-serif;
-  }
-  .markdown-body p {
-    @apply text-ink3 leading-relaxed mb-4;
-  }
-  .markdown-body ul {
-    @apply list-disc ml-6 mb-4 space-y-2;
-  }
-  .markdown-body li {
-    @apply text-ink3;
-  }
-  .markdown-body blockquote {
-    @apply bg-surface2/60 border border-border2 p-4 my-6 italic text-ink2 rounded;
-  }
-  .markdown-body strong {
-    @apply font-bold text-ink;
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
   }
 }
 
+/* Kazira Design System Patterns */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.btn-kazira {
+  font-family: var(--body);
+  font-weight: 600;
+  font-size: 16px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 11px 18px;
+  min-height: 44px;
+  cursor: pointer;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-kazira.sec {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--ink2);
+}
+
+.chip {
+  display: inline-block;
+  font-family: var(--body);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  line-height: 1.4;
+}
+
+.chip.leak {
+  background: var(--leak-bg);
+  color: var(--leak);
+}
+
+.chip.ok {
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+
+.chip.rec {
+  background: var(--recover);
+  color: #0E0E0E;
+}
+
+.gapc {
+  border-left: 6px solid var(--leak) !important;
+  border-radius: 6px 14px 14px 6px;
+}
+
+.big {
+  font-family: var(--head);
+  font-weight: 700;
+  font-size: 38px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  margin: 12px 0 6px;
+}
+
+.say {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.say em {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--ink2);
+  display: block;
+  font-size: 14px;
+  margin-bottom: 4px;
+}

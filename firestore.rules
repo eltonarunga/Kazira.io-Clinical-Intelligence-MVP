@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-\\.\\#]+$');
+    }
+
+    // User Profiles
+    match /users/{userId} {
+      allow get: if isSignedIn() && (isOwner(userId) || resource.data.email == request.auth.token.email);
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && (isOwner(userId) || request.resource.data.email == request.auth.token.email);
+      allow update: if isSignedIn() && (isOwner(userId) || resource.data.email == request.auth.token.email);
+      allow delete: if isOwner(userId);
+    }
+
+    // Registered Hospital Facilities
+    match /facilities/{facilityId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+
+      // Tenant-Partitioned Unbilled Procedures & Debts
+      match /debts/{debtId} {
+        allow read, write: if isSignedIn();
+      }
+
+      // Tenant-Partitioned Social Health Authority (SHA) Claims
+      match /claims/{claimId} {
+        allow read, write: if isSignedIn();
+      }
+    }
+
+    // Connection testing doc
+    match /test/connection {
+      allow read, write: if true;
+    }
+  }
+}

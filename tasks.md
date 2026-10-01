@@ -1,6 +1,25 @@
 # Kazira Clinical Intelligence - Task Tracker
 
 ## High Priority
+- [x] **Remove Compliance Card from Overview Recovery Dashboard (`components/views/OverviewRecoveryView.tsx`):**
+  - Removed the targeted KDPA compliance badge element (`section:nth-of-type(4) > div:nth-of-type(2) > div:nth-of-type(3)`) from the right action column of the overview dashboard.
+  - Keeps the right column focused on actionable clinical findings (AI Audit Findings and Priority Recovery Queue). (Completed)
+- [x] **Remove Design System UI Trigger from App (`components/AppFooter.tsx`, `App.tsx`, `components/Sidebar.tsx`):**
+  - Removed the targeted "Design System" button (`button#footer-nav-design-system`) from the institutional footer navigation (`AppFooter.tsx`).
+  - Removed `onOpenDesignSystem` prop and the runtime modal component `DesignSystemModal.tsx`, keeping design system documentation strictly in the codebase at `/design_language.md`. (Completed)
+- [x] **Restore Official Healthcare Shield Emblem & Harmonize Design System (`design_language.md`, `components/KaziraLogo.tsx`, `components/BrandLogo.tsx`, `public/favicon.svg`, `components/AppHeader.tsx`, `components/Sidebar.tsx`, `components/auth/SignInView.tsx`, `components/DesignSystemModal.tsx`):**
+  - Restored the official Kazira Clinical Intelligence Healthcare Shield Emblem featuring the dual-tone medical shield (Forest Green `#0d5d3a` & Warm Ochre Gold `#c58c2b`), central clinical staff with ring terminal, Caduceus serpents, and upward golden recovery trend arrow across all brand surfaces.
+  - Returned the emblem to `public/favicon.svg`, navigation headers (`AppHeader.tsx`), sidebar drawer header (`Sidebar.tsx`), authentication card badge (`SignInView.tsx`), and default `BrandLogo` components.
+  - Updated `design_language.md` Section 2 to fully document the official Healthcare Shield Emblem geometry, vector definition, and clinical governance symbolism alongside the wordmark.
+  - Aligned `DesignSystemModal.tsx` showcase to prominently display the healthcare emblem and wordmarks. (Completed)
+- [x] **Design Language Audit & System Harmonization (`design_language.md`, `index.css`, `KaziraLogo.tsx`, `BrandLogo.tsx`, `public/favicon.svg`, `DesignSystemModal.tsx`, `AppHeader.tsx`, `Sidebar.tsx`, `SignInView.tsx`):**
+  - Audited codebase against the Kazira Design System v2.0 specification ("The A has no crossbar. Kazira shows the gap.") and Universal Frontend Design constitution.
+  - Implemented the official `KaziraMonogram` component (solid open 'A' shape with the animated dashed gap line in `#C4372A` / `#F0705F`) which was previously missing / aliased to the caduceus emblem.
+  - Aligned CSS color tokens in `index.css` with `design_language.md` (`--surface: #F4F4F2` paper, `--ink2: #5C5C5C` ash, `--line: #DEDEDA`, dark mode `--surface: #171717` graphite, `--recover: #E5A11C`).
+  - Enforced strict Marigold rule: `#E5A11C` carries `#0E0E0E` black text (`.chip.rec`).
+  - Updated `public/favicon.svg` to the clean official open 'A' monogram showing the red gap line.
+  - Integrated `KaziraMonogram` in `AppHeader`, `Sidebar`, `BrandLogo`, `SignInView`, and `DesignSystemModal`.
+  - Verified 44px minimum touch targets, WCAG AA contrast compliance in light & dark modes, tabular numerals for KES currency, and zero-pill typography. (Completed)
 - [x] **Add Manual CSV & PMS Ingestion to Dashboard (`components/views/OverviewRecoveryView.tsx`, `App.tsx`):**
   - Added a dedicated "Manual CSV & Hospital PMS Ingestion" action bento section (`#dashboard-csv-pms-ingestion`) directly onto the executive recovery dashboard.
   - Features quick-action upload trigger (`#dashboard-cta-upload-csv`) opening the KDPA 2019 SHA-256 HMAC pseudonymising CSV ingestion modal.

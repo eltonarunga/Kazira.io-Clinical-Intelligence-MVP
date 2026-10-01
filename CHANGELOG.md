@@ -4,6 +4,120 @@ All notable changes to the Kazira.io project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.5] - 2026-09-30
+
+### Removed
+- **Removed Compliance Card from Overview Recovery Dashboard (`components/views/OverviewRecoveryView.tsx`):**
+  - Removed the targeted KDPA compliance badge card from the right-hand column of the recovery workspace.
+  - Streamlined the column to focus strictly on actionable items (AI Audit Findings and the Priority Recovery Queue).
+
+## [2.10.4] - 2026-09-30
+
+### Removed
+- **Design System UI Trigger Removed from App Navigation (`components/AppFooter.tsx`, `App.tsx`, `components/Sidebar.tsx`):**
+  - Removed the targeted "Design System" button (`button#footer-nav-design-system`) from the institutional footer navigation (`AppFooter.tsx`).
+  - Removed `onOpenDesignSystem` prop and the runtime modal component `DesignSystemModal.tsx`.
+  - Design system specifications, tokens, and geometric rules remain documented exclusively in the codebase (`/design_language.md`).
+
+## [2.10.3] - 2026-09-30
+
+### Changed
+- **Logo Restoration & Design System Documentation (`design_language.md`, `components/KaziraLogo.tsx`, `components/BrandLogo.tsx`, `public/favicon.svg`, `components/AppHeader.tsx`, `components/Sidebar.tsx`, `components/auth/SignInView.tsx`, `components/DesignSystemModal.tsx`):**
+  - **Returned Official Healthcare Shield Emblem**: Restored the previous two-tone medical shield emblem (`KaziraEmblem`) with forest green (`#0d5d3a`) and warm ochre gold (`#c58c2b`) frame, central clinical staff, Caduceus coils, and upward recovery trend arrow as the primary brand identifier.
+  - **Favicon & Headers Restored**: Replaced the monogram with the official shield emblem in `public/favicon.svg`, navigation headers (`AppHeader.tsx`), sidebar drawer (`Sidebar.tsx`), and the authentication gateway badge (`SignInView.tsx`).
+  - **BrandLogo Defaults**: Set default variant to `'emblem'` across `BrandIcon`, `BrandEmblem`, and `ExecutiveLogo`.
+  - **`design_language.md` Updated**: Added detailed documentation of the Healthcare Shield Emblem in Section 2, including full vector SVG specification, two-tone color symbolism (clinical sovereignty & revenue recovery), and healthcare authority alignment.
+
+## [2.10.2] - 2026-09-30
+
+### Changed
+- **Design Language Harmonization & Official Monogram Implementation (`design_language.md`, `components/KaziraLogo.tsx`, `components/BrandLogo.tsx`, `index.css`, `public/favicon.svg`, `components/AppHeader.tsx`, `components/Sidebar.tsx`, `components/auth/SignInView.tsx`, `components/DesignSystemModal.tsx`):**
+  - **Official Monogram ("The A has no crossbar. Kazira shows the gap.")**: Implemented the true `KaziraMonogram` SVG component representing the solid open 'A' geometry with the dashed red gap line (`#C4372A` / `#F0705F`) marking unbilled clinical revenue gaps. Previously `KaziraMonogram` was incorrectly aliased to `KaziraEmblem`.
+  - **Color Tokens Alignment**: Synced `index.css` CSS variables with `design_language.md` v2.0 specification (`--surface: #F4F4F2` Paper in light mode, `--ink2: #5C5C5C` Ash, `--line: #DEDEDA`, `--surface: #171717` Graphite in dark mode, and added missing `--recover: #E5A11C` in dark mode).
+  - **Marigold Rule**: Strictly enforced WCAG AA accessibility rule that Marigold (`#E5A11C`) carries `#0E0E0E` black text (`.chip.rec`).
+  - **Favicon Synchronization**: Updated `public/favicon.svg` with the official open 'A' monogram showing the dashed red gap bar.
+  - **Header & Navigation Consistency**: Integrated the official monogram into `AppHeader.tsx`, `Sidebar.tsx`, and `BrandLogo.tsx`, maintaining instant visual brand recognition.
+  - **Design System Guide**: Expanded the Logo & Monogram showcase in `DesignSystemModal.tsx` to display wordmark and monogram across both dark and light contexts.
+
+## [2.10.1] - 2026-09-30
+
+### Fixed
+- **Resolved Blank Screen on Applet Load (`server/security.ts`, `components/Sidebar.tsx`, `components/AppHeader.tsx`):**
+  - **IFrame Embedding Restriction**: Removed `X-Frame-Options: SAMEORIGIN` header from `applySecurityHeaders` which was blocking the preview from rendering inside the Google AI Studio development iframe.
+  - **Vite JSON Import Interception**: Fixed statutory route guard in `server/security.ts` that erroneously returned `403 Forbidden` for `.json` files, preventing Vite from loading `firebase-applet-config.json` module imports needed by `services/firebase.ts`.
+  - **Frame Ancestors CSP Policy**: Configured `Content-Security-Policy` with `frame-ancestors 'self' https://*.google.com https://*.run.app https://aistudio.google.com https://ai.studio;` ensuring compliant, secure embedding.
+  - **Defensive Rendering Guards**: Added optional chaining and safe fallback defaults for `activeProfile` references across `Sidebar.tsx` and `AppHeader.tsx` preventing runtime crashes when session states initialize.
+
+## [2.10.0] - 2026-09-30
+
+### Added
+- **Firebase Firestore Database & Cloud Integration (`firebase-blueprint.json`, `firestore.rules`, `services/firebase.ts`, `server/security.ts`, `App.tsx`):**
+  - Provisioned and integrated Firebase Firestore for real-time cloud data storage (`kazira-io`).
+  - Added intermediate representation blueprint `firebase-blueprint.json` modeling `UserProfile`, `Facility`, `DebtItem`, and `ShaClaim`.
+  - Authored and deployed secure Firestore security rules (`firestore.rules`) enforcing user-scoped read/write boundaries and tenant-partitioned access.
+  - Implemented cloud synchronization for unbilled debts, patient procedures, and clinical recovery ledgers.
+  - Hardened server Content-Security-Policy (`server/security.ts`) to permit Firebase Auth, Google APIs, and Firestore sockets (`identitytoolkit.googleapis.com`, `firestore.googleapis.com`, `accounts.google.com`).
+  - Hardened database connection handling and guarded against unhandled promise rejections during initial network readiness checks.
+- **Google Sign-In with Automated Facility Binding (`components/auth/SignInView.tsx`, `services/firebase.ts`):**
+  - Integrated 1-click **Continue with Google** via Firebase Auth popup across both Sign In and Sign Up tabs.
+  - Implemented automatic Firestore user profile lookup and synchronization upon Google authentication.
+  - Added streamlined first-time Google onboarding modal enabling doctors and clinic admins to bind their Google accounts directly to their Kenyan hospital name and KMHFL code.
+
+### Changed
+- **Minimalist Hamburger Menu Overhaul (`components/Sidebar.tsx`):**
+  - Stripped away visual clutter, redundant metric cards, and duplicate launchers.
+  - Focused strictly on 5 core workspaces: **Dashboard**, **Unbilled Gaps**, **Insurance & SHA**, **AI Audit**, and **Integrations**.
+  - Retained a compact, single-row Quick Tools menu (**Ingest CSV**, **Audit History**, and **Facility Settings**).
+  - Pinned a clean, ergonomic session footer with user avatar, name, facility code, and direct one-click Sign Out.
+
+## [2.9.1] - 2026-09-29
+
+### Changed
+- **Logo Restoration (`components/KaziraLogo.tsx`, `components/BrandLogo.tsx`, `components/AppFooter.tsx`):**
+  - Restored the official Kazira Clinical Intelligence shield emblem featuring the caduceus serpents, central medical staff with ring terminal, and upward golden recovery trend arrow.
+  - Retained `KaziraEmblem` across `AppHeader`, `Sidebar`, `BrandLogo`, `AppFooter`, and institutional branding.
+- **Primarily White Canvas & Dark Mode Toggle (`index.html`, `index.css`, `tailwind.config.js`, `App.tsx`, `AppHeader.tsx`, `Sidebar.tsx`, `Settings.tsx`, `utils/theme.ts`, `components/auth/SignInView.tsx`):**
+  - Set the default background across the application canvas, body, and cards to crisp, high-contrast white (`#FFFFFF`) in light mode.
+  - Implemented full dark mode option with low-light graphite (`#171717`) and deep black (`#0E0E0E`) surfaces with high-contrast typography (`#F5F5F3`).
+  - Added dedicated theme toggle controls in:
+    - **App Header (`#theme-mode-toggle`)**: Quick one-click Sun/Moon toggle next to practitioner profile.
+    - **Sidebar Drawer (`#sidebar-theme-toggle` & `#sidebar-theme-row`)**: Fast switch in the top header and Session & Account section.
+    - **Sign In / Sign Up Gate (`SignInView.tsx`)**: Prominent theme toggle in the top bar for testing both themes immediately.
+    - **Facility Settings (`components/Settings.tsx`)**: Visual theme selection cards ("Primarily White" and "Dark Mode").
+  - Persisted user theme preference in `safeStorage` (`kazira_theme`) with synchronous document attribute (`data-theme`) and `.dark` class synchronization.
+- **Sign Up & Sign In Handling Overhaul (`components/auth/SignInView.tsx`, `App.tsx`, `components/AppHeader.tsx`):**
+  - Structured facility onboarding into three intuitive clinical sections: Facility Identification, Administrator & Clinical Lead, and Security & Statutory KDPA Compliance.
+  - Added complete 47-county registry of Kenya for precise facility jurisdiction mapping.
+  - Improved credential handling with dual support for Master Health Facility List (KMHFL) codes and official emails.
+  - Added live password match indicator, password length policy verification, and show/hide password toggle.
+  - Enhanced 1-click Quick-Fill accounts with instant direct-login capability.
+  - Added device workstation registry with 1-click session resume and profile removal.
+  - Added discrete Header Sign Out / Switch Facility action (`#header-signout-btn`).
+
+## [2.9.0] - 2026-09-29
+
+### Added
+- **Official Kazira Design System Specification (`design_language.md`):**
+  - Documented the design system: *"The A has no crossbar. Kazira shows the gap."*
+  - Detailed the 4 core design principles: **Show the Gap** (dashed missing revenue outline), **Black and White First** (monochrome base, color strictly reserved for financial meaning), **Say the Action** (every insight concludes with a next step sentence), and **Calm and Exact** (generous space, tabular numbers, no urgency theatre).
+  - Specified official vector geometry for both the **Kazira Wordmark** (open 'A' glyphs without crossbars) and the **Kazira Monogram** (open 'A' with dashed leak-red bar marking the gap).
+  - Documented semantic color tokens: Black (`#0E0E0E`), White (`#FFFFFF`), Paper (`#F4F4F2`), Graphite (`#171717`), Ash (`#5C5C5C` / `#A0A0A0`), Line (`#DEDEDA` / `#2A2A2A`), Marigold (`#E5A11C` - strictly paired with black text `#0E0E0E`), Leak Red (`#C4372A` / `#F0705F`), Billed Green (`#1F7A4F` / `#5FC496`), and Focus Blue (`#1B6FD1`).
+  - Added comprehensive guidelines for typography (Sora for headings/figures in sentence-case; Source Sans 3 for body/tables), component patterns (`.gapc`, `.btn`, `.chip`, `.say`), and accessibility compliance (WCAG AA).
+- **Interactive Design System Showcase Modal (`components/DesignSystemModal.tsx`):**
+  - Integrated a live visual guide presenting the wordmark on dark/light surfaces, animated monogram, color swatches, typography scales, buttons, chips, and "Say the Action" component patterns.
+  - Linked launcher buttons in the sidebar shortcuts grid (`#shortcut-design-system`) and in the institutional footer (`#footer-nav-design-system`).
+
+### Changed
+- **Typography & Font Integration (`index.html`, `index.css`, `tailwind.config.js`):**
+  - Connected Google Fonts for `Sora` (400, 600, 700) and `Source Sans 3` (400, 600, 700).
+  - Configured `:root` and `:root[data-theme="dark"]` CSS variables and base typography rules with `tabular-nums` for all financial figures.
+- **Brand Marks & Vector Graphics (`components/KaziraLogo.tsx`, `components/BrandLogo.tsx`, `components/AppHeader.tsx`, `components/Sidebar.tsx`):**
+  - Replaced legacy emblems with official `KaziraWordmark` and `KaziraMonogram`.
+  - Added dashed gap animation (`@keyframes d`) conforming to `prefers-reduced-motion`.
+- **Button & Component Tokens (`components/Button.tsx`, `components/views/OverviewRecoveryView.tsx`):**
+  - Standardized `Button` to the 44px min-height ergonomic touch standard with `btn-kazira` variants.
+  - Refreshed KPI cards on the executive recovery dashboard using `.gapc` (dashed border for unbilled gaps), Marigold chips for recovered revenue, and Sora tabular displays.
+
 ## [2.8.4] - 2026-09-18
 
 ### Added

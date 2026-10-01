@@ -209,81 +209,81 @@ export const OverviewRecoveryView: React.FC<OverviewRecoveryViewProps> = ({
       {/* 4 Simple, Readable Key Metric Cards */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1: Total Revenue */}
-        <div className="p-4 rounded-md bg-surface-container-lowest border border-outline-variant/20 flex flex-col justify-between">
+        <div className="p-4 rounded-xl bg-surface border border-line flex flex-col justify-between shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-on-surface-variant">
+            <span className="text-xs font-semibold text-ink2">
               Revenue This Week
             </span>
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded">
-              <ArrowUpRight size={12} />
+            <span className="chip ok text-[11px] font-bold">
+              <ArrowUpRight size={12} className="inline mr-0.5" />
               {isGuest ? '+14%' : (debts.length > 0 ? '+8%' : '0%')}
             </span>
           </div>
           <div className="mt-3">
-            <div className="text-2xl font-bold text-on-surface font-mono">
+            <div className="text-2xl font-bold text-ink font-head tabular-nums">
               {isGuest ? demoMetrics.revenueThisWeek : `KES ${realTotalRevenueKes.toLocaleString()}`}
             </div>
-            <p className="text-xs text-on-surface-variant mt-1">
+            <p className="text-xs text-ink2 mt-1">
               {isGuest ? demoMetrics.revenueEncounters : `Recorded across ${debts.length} patient encounters`}
             </p>
           </div>
         </div>
 
-        {/* Metric 2: Unbilled Gaps */}
-        <div className="p-4 rounded-md bg-surface-container-lowest border border-outline-variant/20 flex flex-col justify-between">
+        {/* Metric 2: Unbilled Gaps (Show the gap!) */}
+        <div className="p-4 rounded-xl bg-surface border border-line gapc flex flex-col justify-between shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-secondary">
+            <span className="text-xs font-semibold text-[var(--leak)]">
               Unbilled Gaps Found
             </span>
-            <span className="text-[11px] font-semibold text-secondary bg-secondary/10 px-2 py-0.5 rounded">
+            <span className="chip leak text-[11px] font-bold">
               {isGuest ? demoMetrics.unbilledItems : `${pendingDebts.length} items`}
             </span>
           </div>
           <div className="mt-3">
-            <div className="text-2xl font-bold text-secondary font-mono">
+            <div className="text-2xl font-bold text-[var(--leak)] font-head tabular-nums">
               {isGuest ? demoMetrics.unbilledKes : `KES ${realUnbilledKes.toLocaleString()}`}
             </div>
-            <p className="text-xs text-on-surface-variant mt-1">
+            <p className="text-xs text-ink2 mt-1">
               Services given but missing from final bills
             </p>
           </div>
         </div>
 
-        {/* Metric 3: Recovered Revenue */}
-        <div className="p-4 rounded-md bg-surface-container-lowest border border-outline-variant/20 flex flex-col justify-between">
+        {/* Metric 3: Recovered Revenue (Marigold with black text) */}
+        <div className="p-4 rounded-xl bg-surface border border-line flex flex-col justify-between shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-primary">
+            <span className="text-xs font-semibold text-ink">
               Recovered Revenue
             </span>
-            <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded">
-              {isGuest ? demoMetrics.recoveryRate : `${realSuccessRate}% success rate`}
+            <span className="chip rec text-[11px] font-bold">
+              {isGuest ? demoMetrics.recoveryRate : `${realSuccessRate}% rate`}
             </span>
           </div>
           <div className="mt-3">
-            <div className="text-2xl font-bold text-primary font-mono">
+            <div className="text-2xl font-bold text-ink font-head tabular-nums">
               {isGuest ? demoMetrics.recoveredKes : `KES ${realRecoveredKes.toLocaleString()}`}
             </div>
-            <p className="text-xs text-on-surface-variant mt-1">
+            <p className="text-xs text-ink2 mt-1">
               {isGuest ? demoMetrics.recoveredItems : `${collectedDebts.length} resolved items invoiced and paid`}
             </p>
           </div>
         </div>
 
         {/* Metric 4: Insurance Claims At Risk */}
-        <div className="p-4 rounded-md bg-surface-container-lowest border border-outline-variant/20 flex flex-col justify-between">
+        <div className="p-4 rounded-xl bg-surface border border-line flex flex-col justify-between shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-on-surface-variant">
+            <span className="text-xs font-semibold text-ink2">
               Insurance Claims At Risk
             </span>
-            <span className="text-[11px] font-semibold text-on-surface-variant bg-surface-container px-2 py-0.5 rounded">
+            <span className="text-[11px] font-semibold text-ink2 bg-surface border border-line px-2 py-0.5 rounded-full">
               {isGuest ? demoMetrics.atRiskItems : `${escalatedDebts.length} need review`}
             </span>
           </div>
           <div className="mt-3">
-            <div className="text-2xl font-bold text-on-surface font-mono">
+            <div className="text-2xl font-bold text-ink font-head tabular-nums">
               {isGuest ? demoMetrics.atRiskKes : `KES ${realAtRiskKes.toLocaleString()}`}
             </div>
-            <p className="text-xs text-on-surface-variant mt-1">
+            <p className="text-xs text-ink2 mt-1">
               Exceeds SHA tariffs or missing secondary codes
             </p>
           </div>
@@ -922,17 +922,6 @@ export const OverviewRecoveryView: React.FC<OverviewRecoveryViewProps> = ({
                 )}
               </div>
             )}
-          </div>
-
-          {/* Clean Compliance Badge */}
-          <div className="p-4 rounded-md bg-surface-container-lowest border border-outline-variant/20 flex items-center justify-between text-xs text-on-surface-variant">
-            <div className="flex items-center gap-2">
-              <ShieldCheck size={16} className="text-primary shrink-0" />
-              <span>KDPA 2019 Protected (All patient records encrypted locally)</span>
-            </div>
-            <span className="font-label-mono text-[11px] text-primary font-semibold">
-              Zero PII Exfiltration
-            </span>
           </div>
         </div>
       </section>

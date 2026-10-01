@@ -5,15 +5,20 @@ interface KaziraLogoProps {
   className?: string;
   showText?: boolean;
   textColor?: string;
-  variant?: 'emblem' | 'full';
+  variant?: 'emblem' | 'full' | 'monogram' | 'wordmark';
 }
 
 /**
  * Kazira Clinical Intelligence Official Logo & Emblem
  * Faithfully re-creates the shield, caduceus serpent coils,
- * upward recovery trend arrow, and authoritative typography.
+ * upward recovery trend arrow, and authoritative healthcare emblem.
  */
-export const KaziraEmblem: React.FC<{ size?: number; className?: string }> = ({ 
+export const KaziraEmblem: React.FC<{ 
+  size?: number; 
+  className?: string;
+  color?: string;
+  gapColor?: string;
+}> = ({ 
   size = 48, 
   className = '' 
 }) => {
@@ -47,7 +52,6 @@ export const KaziraEmblem: React.FC<{ size?: number; className?: string }> = ({
       />
 
       {/* 3. Bottom Recovery Arrow (Warm Gold) */}
-      {/* Starting from lower shield point, forming apex, then angling 45° upward with arrow head */}
       <path 
         d="M 44 126 L 68 140 L 126 90" 
         stroke="#c58c2b" 
@@ -65,7 +69,6 @@ export const KaziraEmblem: React.FC<{ size?: number; className?: string }> = ({
       />
 
       {/* 4. Central Staff with Ring Terminal (Forest Green) */}
-      {/* Terminal Ring */}
       <circle 
         cx="80" 
         cy="24" 
@@ -74,7 +77,6 @@ export const KaziraEmblem: React.FC<{ size?: number; className?: string }> = ({
         strokeWidth="7" 
         fill="none" 
       />
-      {/* Vertical Staff */}
       <path 
         d="M 80 34 L 80 128" 
         stroke="#0d5d3a" 
@@ -120,24 +122,112 @@ export const KaziraEmblem: React.FC<{ size?: number; className?: string }> = ({
   );
 };
 
+/**
+ * Kazira Official Monogram
+ * "The A has no crossbar. Kazira shows the gap."
+ * Solid open 'A' geometry with the dashed red gap line marking unbilled revenue.
+ */
+export const KaziraMonogram: React.FC<{
+  size?: number;
+  className?: string;
+  color?: string;
+  gapColor?: string;
+  animated?: boolean;
+}> = ({
+  size = 40,
+  className = '',
+  color = 'currentColor',
+  gapColor = '#C4372A',
+  animated = true
+}) => {
+  return (
+    <svg 
+      width={size} 
+      height={size} 
+      viewBox="0 0 60 60" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      role="img"
+      aria-label="Kazira Monogram: Open A showing the revenue gap"
+    >
+      {/* Solid Open 'A' Letterform */}
+      <path 
+        d="M24 6H36L56 54H43L30 20L17 54H4Z" 
+        fill={color} 
+      />
+      {/* Dashed Gap Bar in Leak Red */}
+      <path 
+        className={animated ? 'dash' : undefined}
+        d="M18 42H42" 
+        stroke={gapColor} 
+        strokeWidth="3.5" 
+        strokeLinecap="round"
+        fill="none" 
+        strokeDasharray="6 5"
+      />
+    </svg>
+  );
+};
+
+export const KaziraWordmark: React.FC<{
+  width?: number | string;
+  height?: number | string;
+  className?: string;
+  color?: string;
+}> = ({
+  width = 160,
+  height = 'auto',
+  className = '',
+  color = 'currentColor'
+}) => {
+  return (
+    <svg 
+      width={width}
+      height={height}
+      viewBox="60 515 670 140" 
+      role="img" 
+      aria-label="Kazira wordmark" 
+      fill={color}
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      <path d="M68 527H90V640H68Z"/>
+      <path d="M146 527H170L124 580L173 640H146L105 590Q100 582 106 575Z"/>
+      <path d="M226 527H251L299 640H275L237 549L201 640H180Z"/>
+      <path d="M317 527H405V547L341 622H404V640H315V622L380 544L317 546Z"/>
+      <path d="M437 527H459V640H437Z"/>
+      <path d="M494 527H548Q584 527 584 561Q584 585 558 595L590 640H564L532 594H514V578H540Q560 575 560 561Q560 547 545 546H514V640H494Z"/>
+      <path d="M645 527H670L718 640H694L656 549L620 640H599Z"/>
+    </svg>
+  );
+};
+
 export const KaziraLogo: React.FC<KaziraLogoProps> = ({
-  size = 48,
+  size = 32,
   className = '',
   showText = false,
-  textColor = 'text-[#0d5d3a]',
+  textColor = 'text-on-surface',
   variant = 'emblem'
 }) => {
+  if (variant === 'wordmark') {
+    return <KaziraWordmark width={size * 4} className={className} />;
+  }
+
   if (variant === 'full' || showText) {
     return (
-      <div className={`inline-flex items-center gap-3.5 ${className}`}>
+      <div className={`inline-flex items-center gap-2.5 ${className}`}>
         <KaziraEmblem size={size} />
-        <div className={`flex flex-col text-left font-serif leading-none select-none ${textColor}`}>
-          <span className="text-[1.2em] font-bold tracking-tight">Kazira</span>
-          <span className="text-[1.1em] font-semibold tracking-tight my-0.5">Clinical</span>
-          <span className="text-[1.1em] font-semibold tracking-tight">Intelligence</span>
+        <div className={`flex flex-col text-left leading-none select-none ${textColor}`}>
+          <span className="font-head text-base sm:text-lg font-bold tracking-tight text-on-surface">Kazira</span>
+          <span className="text-[9px] font-sans font-semibold tracking-wider text-on-surface-variant uppercase mt-0.5">Clinical Intelligence</span>
         </div>
       </div>
     );
+  }
+
+  if (variant === 'monogram') {
+    return <KaziraMonogram size={size} className={className} />;
   }
 
   return <KaziraEmblem size={size} className={className} />;

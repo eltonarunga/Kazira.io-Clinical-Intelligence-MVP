@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Save, CheckCircle2, ShieldCheck, Building2, Server, Cpu } from 'lucide-react';
+import { Save, CheckCircle2, ShieldCheck, Building2, Server, Cpu, Sun, Moon, Palette } from 'lucide-react';
 import Button from './Button';
 import { safeStorage } from '../utils/storage';
+import { getInitialTheme, applyTheme, Theme } from '../utils/theme';
 
 interface SettingsProps {
   onClose: () => void;
+  onThemeChanged?: (theme: Theme) => void;
 }
 
-const Settings: React.FC<SettingsProps> = ({ onClose }) => {
+const Settings: React.FC<SettingsProps> = ({ onClose, onThemeChanged }) => {
   const [facilityName, setFacilityName] = useState('Nairobi West Medical Centre');
   const [mflCode, setMflCode] = useState('MFL-28341');
   const [county, setCounty] = useState('Nairobi');
   const [dhis2SyncEnabled, setDhis2SyncEnabled] = useState(true);
   const [fhirLiveSync, setFhirLiveSync] = useState(true);
+  const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
   const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
@@ -29,10 +32,17 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
     if (savedCounty) setCounty(savedCounty);
   }, []);
 
+  const handleSelectTheme = (newTheme: Theme) => {
+    setTheme(newTheme);
+    applyTheme(newTheme);
+    if (onThemeChanged) onThemeChanged(newTheme);
+  };
+
   const handleSave = () => {
     safeStorage.setItem('kazira_facility_name', facilityName.trim());
     safeStorage.setItem('kazira_mfl_code', mflCode.trim());
     safeStorage.setItem('kazira_county', county.trim());
+    applyTheme(theme);
     setIsSaved(true);
     setTimeout(() => {
       setIsSaved(false);
@@ -106,6 +116,58 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
               className="w-full px-3 py-2 text-sm border border-border rounded bg-surface text-on-surface focus:outline-none focus:border-accent"
             />
           </div>
+        </div>
+      </div>
+
+      {/* Appearance & Color Mode */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 pb-1 border-b border-border">
+          <Palette size={16} className="text-accent" />
+          <h4 className="text-xs font-bold uppercase tracking-wider text-on-surface">Appearance &amp; Theme Mode</h4>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => handleSelectTheme('light')}
+            className={`p-3.5 rounded-lg border text-left transition-all cursor-pointer flex items-center justify-between ${
+              theme === 'light'
+                ? 'bg-white border-primary ring-2 ring-primary/20 shadow-xs'
+                : 'bg-surface border-border hover:bg-surface-elevated'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
+                <Sun size={17} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-on-surface">Primarily White</p>
+                <p className="text-[11px] text-on-surface-subtle">Clean, high-contrast light canvas</p>
+              </div>
+            </div>
+            {theme === 'light' && <CheckCircle2 size={16} className="text-primary shrink-0" />}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleSelectTheme('dark')}
+            className={`p-3.5 rounded-lg border text-left transition-all cursor-pointer flex items-center justify-between ${
+              theme === 'dark'
+                ? 'bg-[#1e1e1e] border-primary ring-2 ring-primary/20 shadow-xs text-white'
+                : 'bg-surface border-border hover:bg-surface-elevated'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-amber-400">
+                <Moon size={17} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-on-surface">Dark Mode</p>
+                <p className="text-[11px] text-on-surface-subtle">Low-light graphite and black theme</p>
+              </div>
+            </div>
+            {theme === 'dark' && <CheckCircle2 size={16} className="text-primary shrink-0" />}
+          </button>
         </div>
       </div>
 

@@ -14,6 +14,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { UserProfile } from '../types';
+import { KaziraEmblem } from './KaziraLogo';
 
 interface AppFooterProps {
   activeProfile: UserProfile;
@@ -61,16 +62,16 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           {/* Left Column: Brand, Facility Context & KDPA Status */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
-                <ShieldCheck size={16} className="text-primary" />
+              <div className="w-7 h-7 rounded-lg bg-surface border border-outline-variant/30 flex items-center justify-center p-0.5 shrink-0">
+                <KaziraEmblem size={20} className="w-full h-full" />
               </div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
-                  <span className="font-headline-md font-bold text-on-surface text-sm tracking-tight">
+                  <span className="font-headline-md font-bold text-on-surface text-sm tracking-tight font-head">
                     Kazira
                   </span>
                   <span className="text-[10px] font-label-mono font-medium px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant">
-                    v2.6
+                    v2.7
                   </span>
                 </div>
                 <span className="text-[11px] text-on-surface-variant/80 font-body">

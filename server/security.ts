@@ -68,9 +68,6 @@ export function applySecurityHeaders(req: Request, res: Response, next: NextFunc
   // Prevent MIME type sniffing
   res.setHeader('X-Content-Type-Options', 'nosniff');
 
-  // Frame protection for clickjacking
-  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-
   // Referrer Policy
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
 
@@ -82,19 +79,17 @@ export function applySecurityHeaders(req: Request, res: Response, next: NextFunc
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   }
 
-  // Content Security Policy - allowing fonts, scripts, and sovereign styling
+  // Content Security Policy - allowing fonts, scripts, Firebase and Google Auth, and iFrame embedding in AI Studio
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://dhis2.health.go.ke https://kenyaemr.health.go.ke; frame-ancestors 'self' https://ais-pre-*.run.app https://ai.studio https://*.google.com;"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://apis.google.com https://*.firebaseapp.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://dhis2.health.go.ke https://kenyaemr.health.go.ke https://*.googleapis.com https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://*.google.com https://accounts.google.com wss://*.firebaseio.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; frame-ancestors 'self' https://*.google.com https://*.run.app https://aistudio.google.com https://ai.studio;"
   );
 
-  // Block sensitive file traversal & hidden file discovery
+  // Block sensitive file traversal & hidden file discovery (.env, .git, etc.)
   const lowerPath = req.path.toLowerCase();
   if (
     lowerPath.includes('.env') ||
-    lowerPath.includes('.git') ||
-    lowerPath.includes('/data/') ||
-    lowerPath.endsWith('.json') && !req.path.startsWith('/api') && req.path !== '/manifest.json'
+    lowerPath.includes('.git')
   ) {
     res.status(403).json({ error: 'Access forbidden: Protected statutory resource.' });
     return;

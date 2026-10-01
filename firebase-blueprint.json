@@ -1,0 +1,102 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Healthcare practitioner or administrator profile with KDPA 2019 permissions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique user or auth identifier" },
+        "name": { "type": "string", "description": "Full name of practitioner or administrator" },
+        "title": { "type": "string", "description": "Professional clinical title or hospital role" },
+        "email": { "type": "string", "format": "email", "description": "Official healthcare or Google email" },
+        "role": { "type": "string", "enum": ["facility_admin", "county_health", "moh", "guest"], "description": "System role" },
+        "facilityName": { "type": "string", "description": "Name of affiliated Kenyan healthcare facility" },
+        "facilityCode": { "type": "string", "description": "KMHFL Code or MOH identifier" },
+        "facilityType": { "type": "string", "enum": ["private", "public_faith"], "description": "Facility operational model" },
+        "avatarMonogram": { "type": "string", "maxLength": 4, "description": "2-character display initials" },
+        "avatarColor": { "type": "string", "description": "Tailwind color class for avatar badge" },
+        "department": { "type": "string", "description": "Hospital department or clinical ward" },
+        "phone": { "type": "string", "description": "Contact telephone number" },
+        "permissions": { "type": "array", "description": "Array of granted clinical privileges" },
+        "createdAt": { "type": "string", "description": "ISO timestamp of account creation" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of last account update" }
+      },
+      "required": ["id", "name", "email", "role", "facilityName", "facilityCode"]
+    },
+    "Facility": {
+      "title": "Facility",
+      "description": "Registered Kenyan health facility node",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Facility identifier / MFL code" },
+        "facilityName": { "type": "string", "description": "Hospital legal name" },
+        "facilityCode": { "type": "string", "description": "KMHFL 5-digit number" },
+        "facilityType": { "type": "string", "enum": ["private", "public_faith"] },
+        "county": { "type": "string", "description": "Kenyan county jurisdiction" },
+        "adminEmail": { "type": "string", "format": "email" },
+        "adminName": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "facilityName", "facilityCode", "facilityType", "county"]
+    },
+    "DebtItem": {
+      "title": "DebtItem",
+      "description": "Unbilled clinical procedure or outstanding patient receivable record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "patientId": { "type": "string", "description": "KDPA 2019 SHA-256 pseudonymised patient token" },
+        "patientPseudonym": { "type": "string" },
+        "encounterDate": { "type": "string" },
+        "procedureName": { "type": "string" },
+        "category": { "type": "string" },
+        "estimatedKes": { "type": "number" },
+        "doctorName": { "type": "string" },
+        "department": { "type": "string" },
+        "status": { "type": "string", "enum": ["unbilled", "invoiced", "disputed", "collected"] },
+        "paymentMethod": { "type": "string" },
+        "facilityCode": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "patientId", "procedureName", "estimatedKes", "status", "facilityCode"]
+    },
+    "ShaClaim": {
+      "title": "ShaClaim",
+      "description": "Social Health Authority (SHA) statutory insurance claim",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "claimNumber": { "type": "string" },
+        "patientId": { "type": "string" },
+        "encounterDate": { "type": "string" },
+        "procedureCode": { "type": "string" },
+        "procedureDescription": { "type": "string" },
+        "amountClaimedKes": { "type": "number" },
+        "amountApprovedKes": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending_review", "approved", "rejected", "reconciled"] },
+        "facilityCode": { "type": "string" },
+        "rejectionReason": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "claimNumber", "procedureCode", "amountClaimedKes", "status", "facilityCode"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Practitioner profiles indexed by user UID"
+    },
+    "/facilities/{facilityId}": {
+      "schema": "Facility",
+      "description": "Hospital facility metadata and operational nodes"
+    },
+    "/facilities/{facilityId}/debts/{debtId}": {
+      "schema": "DebtItem",
+      "description": "Tenant-partitioned unbilled procedures and receivables"
+    },
+    "/facilities/{facilityId}/claims/{claimId}": {
+      "schema": "ShaClaim",
+      "description": "Tenant-partitioned Social Health Authority (SHA) claims"
+    }
+  }
+}
