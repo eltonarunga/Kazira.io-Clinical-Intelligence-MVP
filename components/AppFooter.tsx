@@ -2,14 +2,12 @@ import React from 'react';
 import { 
   ShieldCheck, 
   HelpCircle, 
-  FileText, 
   Lock, 
   Phone, 
   Mail, 
   Database, 
   MessageSquareQuote,
   Sparkles,
-  GitBranch,
   Building2,
   CheckCircle2
 } from 'lucide-react';
@@ -19,9 +17,7 @@ import { KaziraEmblem } from './KaziraLogo';
 interface AppFooterProps {
   activeProfile: UserProfile;
   serverOnline?: boolean | null;
-  onOpenDocs: () => void;
   onOpenFaq: () => void;
-  onOpenChangelog: () => void;
   onOpenDpa: () => void;
   onOpenTerms: () => void;
   onOpenPrivacy: () => void;
@@ -32,9 +28,7 @@ interface AppFooterProps {
 export const AppFooter: React.FC<AppFooterProps> = ({
   activeProfile,
   serverOnline = true,
-  onOpenDocs,
   onOpenFaq,
-  onOpenChangelog,
   onOpenDpa,
   onOpenTerms,
   onOpenPrivacy,
@@ -103,7 +97,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
 
           {/* Right Column: Grouped Action Links */}
           <nav aria-label="Footer Navigation" className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-body">
-            {/* Resources Group */}
+            {/* Help Group */}
             <div className="flex items-center gap-4">
               <button 
                 id="footer-nav-faq"
@@ -112,22 +106,6 @@ export const AppFooter: React.FC<AppFooterProps> = ({
               >
                 <HelpCircle size={13} />
                 <span>System FAQ</span>
-              </button>
-              <button 
-                id="footer-nav-docs"
-                onClick={onOpenDocs} 
-                className="hover:text-primary transition-colors cursor-pointer flex items-center gap-1"
-              >
-                <FileText size={13} />
-                <span>API &amp; Docs</span>
-              </button>
-              <button 
-                id="footer-nav-changelog"
-                onClick={onOpenChangelog} 
-                className="hover:text-primary transition-colors cursor-pointer flex items-center gap-1"
-              >
-                <GitBranch size={13} />
-                <span>Changelog</span>
               </button>
             </div>
 

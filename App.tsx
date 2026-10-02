@@ -48,8 +48,6 @@ const TermsOfService = lazy(() => import('./components/TermsOfService'));
 const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy'));
 const AcceptableUsePolicy = lazy(() => import('./components/AcceptableUsePolicy'));
 const DataProcessingAgreement = lazy(() => import('./components/DataProcessingAgreement'));
-const Changelog = lazy(() => import('./components/Changelog'));
-const Documentation = lazy(() => import('./components/Documentation'));
 const FeedbackWidget = lazy(() => import('./components/FeedbackWidget'));
 const DataManagement = lazy(() => import('./components/DataManagement'));
 const Settings = lazy(() => import('./components/Settings'));
@@ -163,8 +161,6 @@ export const App: React.FC = () => {
   const [isFaqOpen, setIsFaqOpen] = useState(false);
   const [isAupOpen, setIsAupOpen] = useState(false);
   const [isDpaOpen, setIsDpaOpen] = useState(false);
-  const [isChangelogOpen, setIsChangelogOpen] = useState(false);
-  const [isDocsOpen, setIsDocsOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isDataManagementOpen, setIsDataManagementOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -749,15 +745,12 @@ export const App: React.FC = () => {
           <AppFooter 
             activeProfile={activeProfile}
             serverOnline={serverOnline}
-            onOpenDocs={() => setIsDocsOpen(true)}
             onOpenFaq={() => setIsFaqOpen(true)}
-            onOpenChangelog={() => setIsChangelogOpen(true)}
             onOpenDpa={() => setIsDpaOpen(true)}
             onOpenTerms={() => setIsTermsOpen(true)}
             onOpenPrivacy={() => setIsPrivacyOpen(true)}
             onOpenFeedback={() => setIsFeedbackOpen(true)}
             onOpenDataManagement={() => setIsDataManagementOpen(true)}
-            onOpenDesignSystem={() => setIsDesignSystemOpen(true)}
           />
         </main>
 
@@ -850,14 +843,6 @@ export const App: React.FC = () => {
 
           <Modal isOpen={isDpaOpen} onClose={() => setIsDpaOpen(false)} title="Data Processing Agreement (KDPA 2019)">
             <DataProcessingAgreement />
-          </Modal>
-
-          <Modal isOpen={isChangelogOpen} onClose={() => setIsChangelogOpen(false)} title="System Changelog">
-            <Changelog />
-          </Modal>
-
-          <Modal isOpen={isDocsOpen} onClose={() => setIsDocsOpen(false)} title="Architecture & API Documentation">
-            <Documentation />
           </Modal>
 
           <Modal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} title="Clinical Feedback">

@@ -4,6 +4,35 @@ All notable changes to the Kazira.io project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.8] - 2026-10-02
+
+### Removed
+- **Removed Domain Whitelist Dialog from Authentication Gateway (`components/auth/SignInView.tsx`):**
+  - Removed the targeted "Firebase Domain Whitelist Required" resolution modal (`showUnauthorizedDomainModal`) following confirmation of domain authorization in Firebase Console.
+  - Removed inline whitelist helper link beneath the Google Sign-In button, restoring the clean, uncluttered gateway interface.
+  - Cleaned up obsolete modal state variables, helper methods, and unused icon imports.
+
+## [2.10.7] - 2026-10-01
+
+### Fixed
+- **Firebase Auth Domain Resolution & Error 0/1 Fix (`services/firebase.ts`, `components/auth/SignInView.tsx`, `constants/profiles.ts`):**
+  - Suppressed uncaught `console.error` on Firebase `auth/unauthorized-domain` in `services/firebase.ts` and `SignInView.tsx`, routing domain verification into structured warnings and user-facing resolution flows.
+  - Implemented the "Firebase Domain Whitelist Required" interactive modal with single-click hostname copying, direct link to Firebase Console Authentication Settings, and guidance for registering preview/staging URLs.
+  - Added Elton Arunga (`eltonarunga@gmail.com`) to `PROFILES` with full executive administration rights, enabling instantaneous 1-click verified login while Firebase Console domain authorization propagates.
+  - Added an inline domain whitelist helper link directly under the Google Sign-In button for quick diagnostic access.
+
+## [2.10.6] - 2026-10-01
+
+### Changed
+- **Synchronized Web App Firebase Project Configuration (`firebase-applet-config.json`, `firestore.rules`):**
+  - Updated `appId` to `1:669567718651:web:eef03592c52ebc425ecc5e` for project `kazira-io` matching the user's registered Firebase web app credentials.
+  - Deployed `firestore.rules` enforcing security and access control boundaries.
+
+### Removed
+- **Removed Codebase-Only Artifacts from Website UI (`components/AppFooter.tsx`, `App.tsx`):**
+  - Removed "Changelog" (`button#footer-nav-changelog`) and "API & Docs" (`button#footer-nav-docs`) buttons and modal dialogues from the healthcare application interface.
+  - Retained all release notes, architecture specifications, and API documentation exclusively within the codebase repository (`CHANGELOG.md`, `README.md`, etc.).
+
 ## [2.10.5] - 2026-09-30
 
 ### Removed

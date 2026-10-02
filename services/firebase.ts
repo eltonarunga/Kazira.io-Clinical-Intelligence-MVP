@@ -111,7 +111,19 @@ export async function signInWithGooglePopup(): Promise<User> {
     const result = await signInWithPopup(auth, googleProvider);
     return result.user;
   } catch (error: any) {
-    console.error('[Firebase Auth] Google Sign-In Error:', error);
+    const isUnauthorizedDomain = 
+      error?.code === 'auth/unauthorized-domain' || 
+      (typeof error?.message === 'string' && error.message.includes('auth/unauthorized-domain'));
+
+    if (isUnauthorizedDomain) {
+      const currentHost = typeof window !== 'undefined' ? window.location.hostname : 'current domain';
+      console.warn(
+        `[Firebase Auth] Domain "${currentHost}" is not yet in the Authorized Domains list for Firebase project "${firebaseConfig.projectId}". ` +
+        `To enable direct Google Sign-In, add this domain in Firebase Console > Authentication > Settings > Authorized domains.`
+      );
+    } else if (error?.code !== 'auth/popup-closed-by-user') {
+      console.error('[Firebase Auth] Google Sign-In Error:', error);
+    }
     throw error;
   }
 }
