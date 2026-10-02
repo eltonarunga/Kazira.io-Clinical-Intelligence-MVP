@@ -588,14 +588,14 @@ export const SignInView: React.FC<SignInViewProps> = ({
                 setActiveTab('signup');
                 setSignUpError(null);
               }}
-              className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-2 sm:px-4 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center justify-center gap-1 sm:gap-2 py-2.5 px-1.5 sm:px-4 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === 'signup'
                   ? 'bg-[#005235] text-white shadow-xs'
                   : 'text-gray-600 dark:text-zinc-400 hover:text-ink dark:hover:text-white hover:bg-gray-100 dark:hover:bg-zinc-800'
               }`}
             >
               <UserPlus size={15} className="shrink-0" />
-              <span>Sign Up Facility</span>
+              <span>Sign Up<span className="hidden sm:inline"> Facility</span></span>
             </button>
 
             {/* 3. Guest Access Tab */}
@@ -607,20 +607,20 @@ export const SignInView: React.FC<SignInViewProps> = ({
                 setError(null);
                 setSignUpError(null);
               }}
-              className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-2 sm:px-4 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center justify-center gap-1 sm:gap-2 py-2.5 px-1.5 sm:px-4 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === 'guest'
                   ? 'bg-amber-600 text-white shadow-xs'
                   : 'text-amber-800 dark:text-amber-300 hover:text-amber-950 dark:hover:text-amber-100 hover:bg-amber-50 dark:hover:bg-amber-950/30'
               }`}
             >
               <Compass size={15} className="shrink-0" />
-              <span>Guest Sandbox</span>
+              <span>Guest<span className="hidden sm:inline"> Sandbox</span></span>
             </button>
           </div>
         </div>
 
         {/* Tab Content Panes */}
-        <div className="p-5 sm:p-8 bg-white dark:bg-[#141414]">
+        <div className="p-4 sm:p-8 bg-white dark:bg-[#141414]">
           
           {/* ============================================================ */}
           {/* TAB 1: SIGN IN                                               */}

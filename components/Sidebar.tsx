@@ -104,28 +104,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Minimalist Sidebar Drawer */}
       <aside 
         id="app-sidebar-drawer"
-        className={`fixed left-0 top-0 h-screen w-sidebar-width bg-white dark:bg-[#111111] border-r border-gray-200 dark:border-zinc-800 z-50 flex flex-col justify-between transition-transform duration-300 ease-in-out ${
+        className={`fixed left-0 top-0 h-screen w-sidebar-width max-w-[85vw] sm:max-w-none bg-white dark:bg-[#111111] border-r border-gray-200 dark:border-zinc-800 z-50 flex flex-col justify-between transition-transform duration-300 ease-in-out ${
           isOpenMobile ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
         } ${isDesktopOpen ? 'lg:translate-x-0' : 'lg:-translate-x-full'}`}
         role="navigation"
         aria-label="Main Navigation"
       >
         {/* Top Header: Brand Mark & Facility Context */}
-        <div className="h-16 px-4 flex items-center justify-between border-b border-gray-100 dark:border-zinc-800/80 shrink-0">
+        <div className="h-14 sm:h-16 px-3 sm:px-4 flex items-center justify-between border-b border-gray-100 dark:border-zinc-800/80 shrink-0">
           <button 
             onClick={() => handleSelect('overview')}
-            className="flex items-center gap-2.5 text-left cursor-pointer hover:opacity-85 transition-opacity min-w-0"
+            className="flex items-center gap-2 sm:gap-2.5 text-left cursor-pointer hover:opacity-85 transition-opacity min-w-0"
             title="Kazira Clinical Intelligence"
           >
-            <div className="w-8 h-8 rounded-lg bg-surface border border-line flex items-center justify-center p-0.5 shadow-2xs shrink-0">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-surface border border-line flex items-center justify-center p-0.5 shadow-2xs shrink-0">
               <KaziraEmblem size={24} className="w-full h-full" />
             </div>
             <div className="flex items-baseline gap-1.5 min-w-0">
-              <span className="font-head text-base text-ink dark:text-zinc-100 font-bold tracking-tight">
+              <span className="font-head text-sm sm:text-base text-ink dark:text-zinc-100 font-bold tracking-tight">
                 Kazira
               </span>
               <span className="text-gray-300 dark:text-zinc-600 text-xs">/</span>
-              <span className="text-xs text-ink2 dark:text-zinc-400 font-medium truncate max-w-[120px]" title={activeProfile?.facilityName}>
+              <span className="text-xs text-ink2 dark:text-zinc-400 font-medium truncate max-w-[110px] sm:max-w-[130px]" title={activeProfile?.facilityName}>
                 {facilityShort}
               </span>
             </div>
@@ -137,7 +137,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 id="sidebar-theme-toggle"
                 type="button"
                 onClick={onToggleTheme}
-                className="p-1.5 text-gray-500 hover:text-ink dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-md cursor-pointer transition-colors"
+                className="p-2 text-gray-500 hover:text-ink dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-md cursor-pointer transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
                 aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
                 title={theme === 'dark' ? 'Switch to light mode (primarily white)' : 'Switch to dark mode'}
               >
@@ -148,7 +148,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {onCloseMobile && (
               <button 
                 onClick={onCloseMobile}
-                className="lg:hidden p-1.5 text-gray-500 hover:text-ink dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-md cursor-pointer transition-colors"
+                className="lg:hidden p-2 text-gray-500 hover:text-ink dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-md cursor-pointer transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center"
                 aria-label="Close menu"
                 title="Close menu"
               >
@@ -159,7 +159,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Minimalist Body Content */}
-        <div className="flex-1 overflow-y-auto min-h-0 px-3 py-4 space-y-6">
+        <div className="flex-1 overflow-y-auto min-h-0 px-3 py-3 sm:py-4 space-y-5 sm:space-y-6">
           
           {/* Workspaces Section */}
           <div>
@@ -173,7 +173,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     key={item.id}
                     onClick={() => handleSelect(item.id)}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all text-left text-xs font-semibold cursor-pointer ${
+                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 sm:py-2 rounded-lg transition-all text-left text-xs font-semibold cursor-pointer min-h-[42px] sm:min-h-[38px] ${
                       isActive
                         ? 'bg-[#005235] text-white shadow-xs'
                         : 'text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800/60 hover:text-ink dark:hover:text-white'

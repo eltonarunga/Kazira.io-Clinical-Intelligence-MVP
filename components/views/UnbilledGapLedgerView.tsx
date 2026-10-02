@@ -366,34 +366,34 @@ export const UnbilledGapLedgerView: React.FC<UnbilledGapLedgerViewProps> = ({
       </div>
 
       {/* 4 Clean Metric Cards (Dynamically Computed) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-md bg-surface-container-lowest border border-outline-variant/20">
-          <span className="text-xs font-medium text-secondary">Total Unbilled Gaps</span>
-          <div className="text-2xl font-bold text-secondary font-mono mt-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="p-4 sm:p-5 rounded-xl bg-surface-container-lowest border border-outline-variant/20 shadow-2xs">
+          <span className="text-xs font-semibold text-secondary">Total Unbilled Gaps</span>
+          <div className="text-xl sm:text-2xl font-bold text-secondary font-mono mt-2 truncate tabular-nums">
             KES {totalUnbilled.toLocaleString()}
           </div>
           <p className="text-xs text-on-surface-variant mt-1">{pendingCount} unbilled items</p>
         </div>
 
-        <div className="p-4 rounded-md bg-surface-container-lowest border border-outline-variant/20">
-          <span className="text-xs font-medium text-on-surface-variant">In SHA Review</span>
-          <div className="text-2xl font-bold text-on-surface font-mono mt-2">
+        <div className="p-4 sm:p-5 rounded-xl bg-surface-container-lowest border border-outline-variant/20 shadow-2xs">
+          <span className="text-xs font-semibold text-on-surface-variant">In SHA Review</span>
+          <div className="text-xl sm:text-2xl font-bold text-on-surface font-mono mt-2 truncate tabular-nums">
             KES {inShaReview.toLocaleString()}
           </div>
           <p className="text-xs text-on-surface-variant mt-1">{shaReviewCount} claims under review</p>
         </div>
 
-        <div className="p-4 rounded-md bg-surface-container-lowest border border-outline-variant/20">
-          <span className="text-xs font-medium text-on-surface-variant">SMS Follow-up</span>
-          <div className="text-2xl font-bold text-on-surface font-mono mt-2">
+        <div className="p-4 sm:p-5 rounded-xl bg-surface-container-lowest border border-outline-variant/20 shadow-2xs">
+          <span className="text-xs font-semibold text-on-surface-variant">SMS Follow-up</span>
+          <div className="text-xl sm:text-2xl font-bold text-on-surface font-mono mt-2 truncate tabular-nums">
             KES {smsFollowup.toLocaleString()}
           </div>
           <p className="text-xs text-on-surface-variant mt-1">{smsSentCount} reminders sent</p>
         </div>
 
-        <div className="p-4 rounded-md bg-surface-container-lowest border border-outline-variant/20">
-          <span className="text-xs font-medium text-primary">Recovered Revenue</span>
-          <div className="text-2xl font-bold text-primary font-mono mt-2">
+        <div className="p-4 sm:p-5 rounded-xl bg-surface-container-lowest border border-outline-variant/20 shadow-2xs">
+          <span className="text-xs font-semibold text-primary">Recovered Revenue</span>
+          <div className="text-xl sm:text-2xl font-bold text-primary font-mono mt-2 truncate tabular-nums">
             KES {recoveredAmount.toLocaleString()}
           </div>
           <p className="text-xs text-on-surface-variant mt-1">{resolvedCount} items resolved</p>
@@ -447,12 +447,12 @@ export const UnbilledGapLedgerView: React.FC<UnbilledGapLedgerViewProps> = ({
                 />
               </div>
 
-              <div className="flex items-center gap-1 overflow-x-auto text-xs">
+              <div className="flex items-center gap-1 overflow-x-auto text-xs pb-1 sm:pb-0 scrollbar-none shrink-0">
                 {(['all', 'theatre', 'radiology', 'lab', 'casualty'] as const).map((dept) => (
                   <button
                     key={dept}
                     onClick={() => setDeptFilter(dept)}
-                    className={`px-2.5 py-1 rounded-md capitalize transition-colors font-medium cursor-pointer ${
+                    className={`px-2.5 py-1 rounded-md capitalize transition-colors font-medium cursor-pointer shrink-0 ${
                       deptFilter === dept 
                         ? 'bg-primary text-white' 
                         : 'bg-surface-container text-on-surface-variant hover:text-on-surface'
@@ -471,7 +471,7 @@ export const UnbilledGapLedgerView: React.FC<UnbilledGapLedgerViewProps> = ({
                 <button
                   key={st}
                   onClick={() => setStatusFilter(st)}
-                  className={`px-2.5 py-0.5 rounded-full transition-colors cursor-pointer ${
+                  className={`px-2.5 py-0.5 rounded-full transition-colors cursor-pointer shrink-0 ${
                     statusFilter === st 
                       ? 'bg-on-surface text-white font-medium' 
                       : 'text-on-surface-variant hover:text-on-surface bg-surface-container/60'
@@ -486,9 +486,9 @@ export const UnbilledGapLedgerView: React.FC<UnbilledGapLedgerViewProps> = ({
           {/* Main Grid: Left Table (7 cols) + Right Detail (5 cols) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Table View */}
-            <div className="lg:col-span-7 rounded-md bg-surface-container-lowest border border-outline-variant/20 overflow-hidden">
+            <div className="lg:col-span-7 rounded-md bg-surface-container-lowest border border-outline-variant/20 overflow-hidden shadow-2xs">
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full text-left text-xs min-w-[480px] sm:min-w-full">
                   <thead>
                     <tr className="bg-surface-container/50 text-on-surface-variant border-b border-outline-variant/15 font-semibold">
                       <th className="py-2.5 px-3">Patient ID</th>

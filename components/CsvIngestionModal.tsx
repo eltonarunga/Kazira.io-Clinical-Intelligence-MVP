@@ -218,42 +218,42 @@ export const CsvIngestionModal: React.FC<CsvIngestionModalProps> = ({
           
           {/* Ingestion Source Tabs */}
           <div className="flex items-center justify-between border-b border-outline-variant/20 pb-2">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none max-w-full">
               <button
                 type="button"
                 onClick={() => setActiveTab('upload')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 shrink-0 ${
                   activeTab === 'upload'
                     ? 'bg-primary text-white shadow-xs'
                     : 'bg-surface-container text-on-surface-variant hover:text-on-surface'
                 }`}
               >
                 <UploadCloud size={14} />
-                <span>Upload File (.csv / .tsv)</span>
+                <span>Upload<span className="hidden sm:inline"> File (.csv / .tsv)</span></span>
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab('paste')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 shrink-0 ${
                   activeTab === 'paste'
                     ? 'bg-primary text-white shadow-xs'
                     : 'bg-surface-container text-on-surface-variant hover:text-on-surface'
                 }`}
               >
                 <FileText size={14} />
-                <span>Paste Raw Text / CSV</span>
+                <span>Paste<span className="hidden sm:inline"> Raw Text / CSV</span></span>
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab('templates')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 shrink-0 ${
                   activeTab === 'templates'
                     ? 'bg-primary text-white shadow-xs'
                     : 'bg-surface-container text-on-surface-variant hover:text-on-surface'
                 }`}
               >
                 <Layers size={14} />
-                <span>Sample Presets &amp; Starter Template</span>
+                <span>Templates<span className="hidden sm:inline"> &amp; Presets</span></span>
               </button>
             </div>
 

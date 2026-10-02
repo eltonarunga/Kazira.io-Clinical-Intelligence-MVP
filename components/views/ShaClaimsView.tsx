@@ -348,13 +348,13 @@ export const ShaClaimsView: React.FC<ShaClaimsViewProps> = ({
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="p-3.5 rounded-md bg-surface-container-lowest border border-outline-variant/20 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="flex items-center gap-1 w-full sm:w-auto text-xs">
+      <div className="p-3.5 rounded-md bg-surface-container-lowest border border-outline-variant/20 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
+        <div className="flex items-center gap-1 w-full sm:w-auto text-xs overflow-x-auto pb-1 sm:pb-0 scrollbar-none shrink-0">
           <button
             onClick={() => setFilter('all')}
-            className={`px-3 py-1.5 rounded transition-colors font-medium cursor-pointer ${
+            className={`px-3 py-1.5 rounded transition-colors font-medium cursor-pointer shrink-0 ${
               filter === 'all' 
-                ? 'bg-primary text-on-primary' 
+                ? 'bg-primary text-on-primary font-semibold' 
                 : 'bg-surface-container text-on-surface-variant hover:text-on-surface'
             }`}
           >
@@ -362,9 +362,9 @@ export const ShaClaimsView: React.FC<ShaClaimsViewProps> = ({
           </button>
           <button
             onClick={() => setFilter('action')}
-            className={`px-3 py-1.5 rounded transition-colors font-medium flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3 py-1.5 rounded transition-colors font-medium flex items-center gap-1.5 cursor-pointer shrink-0 ${
               filter === 'action' 
-                ? 'bg-secondary text-on-secondary' 
+                ? 'bg-secondary text-on-secondary font-semibold' 
                 : 'bg-surface-container text-secondary hover:bg-secondary/10'
             }`}
           >
@@ -375,9 +375,9 @@ export const ShaClaimsView: React.FC<ShaClaimsViewProps> = ({
           </button>
           <button
             onClick={() => setFilter('ready')}
-            className={`px-3 py-1.5 rounded transition-colors font-medium cursor-pointer ${
+            className={`px-3 py-1.5 rounded transition-colors font-medium cursor-pointer shrink-0 ${
               filter === 'ready' 
-                ? 'bg-primary text-on-primary' 
+                ? 'bg-primary text-on-primary font-semibold' 
                 : 'bg-surface-container text-on-surface-variant hover:text-on-surface'
             }`}
           >
@@ -392,7 +392,7 @@ export const ShaClaimsView: React.FC<ShaClaimsViewProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search claim, diagnosis, ICD-10..."
-            className="w-full pl-8 pr-3 py-1.5 text-xs bg-surface-container rounded border border-transparent focus:border-primary focus:bg-surface-container-lowest focus:outline-none transition-colors"
+            className="w-full pl-8 pr-3 py-1.5 text-xs bg-surface-container rounded border border-transparent focus:border-primary focus:bg-surface-container-lowest focus:outline-hidden transition-colors"
           />
         </div>
       </div>
@@ -404,20 +404,20 @@ export const ShaClaimsView: React.FC<ShaClaimsViewProps> = ({
           return (
             <div 
               key={claim.id}
-              className={`p-4 rounded-md bg-surface-container-lowest border transition-colors ${
+              className={`p-4 rounded-md bg-surface-container-lowest border transition-colors shadow-2xs ${
                 needsFix 
                   ? 'border-secondary/30 hover:border-secondary/60' 
                   : 'border-outline-variant/20 hover:border-outline-variant/40'
               }`}
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-start sm:items-center gap-3">
-                  <div className={`p-2 rounded ${needsFix ? 'bg-secondary/10 text-secondary' : 'bg-primary/10 text-primary'}`}>
+                <div className="flex items-start sm:items-center gap-3 min-w-0">
+                  <div className={`p-2 rounded shrink-0 ${needsFix ? 'bg-secondary/10 text-secondary' : 'bg-primary/10 text-primary'}`}>
                     {needsFix ? <AlertTriangle size={18} /> : <CheckCircle2 size={18} />}
                   </div>
 
-                  <div>
-                    <div className="flex items-center gap-2">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-mono text-xs font-bold text-on-surface">
                         {claim.id}
                       </span>
@@ -431,17 +431,17 @@ export const ShaClaimsView: React.FC<ShaClaimsViewProps> = ({
                       </span>
                     </div>
 
-                    <p className="text-xs font-medium text-on-surface mt-1">
+                    <p className="text-xs font-medium text-on-surface mt-1 truncate sm:whitespace-normal">
                       {claim.diagnosis} <span className="text-on-surface-variant font-mono">({claim.icdCode})</span>
                     </p>
-                    <p className="text-[11px] text-on-surface-variant">
+                    <p className="text-[11px] text-on-surface-variant truncate">
                       Tariff: {claim.tariffCode} • {claim.tariffName}
                     </p>
                   </div>
                 </div>
 
                 {/* Amount and Action */}
-                <div className="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 pt-2 sm:pt-0 border-outline-variant/10">
+                <div className="flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end gap-3 border-t sm:border-t-0 pt-2 sm:pt-0 border-outline-variant/10 shrink-0">
                   <div className="text-left sm:text-right">
                     <div className="font-mono text-sm font-bold text-on-surface">
                       KES {claim.originalAmount.toLocaleString()}
@@ -467,7 +467,7 @@ export const ShaClaimsView: React.FC<ShaClaimsViewProps> = ({
 
               {/* Issue Description if Needs Fix */}
               {needsFix && claim.issueDescription && (
-                <div className="mt-3 pt-2.5 border-t border-outline-variant/10 text-xs text-secondary flex items-center justify-between">
+                <div className="mt-3 pt-2.5 border-t border-outline-variant/10 text-xs text-secondary flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <span>Reason: {claim.issueDescription}</span>
                   <span className="text-[11px] font-medium text-on-surface-variant">
                     Click the button above to resolve before submission.

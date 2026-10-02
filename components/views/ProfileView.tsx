@@ -120,43 +120,43 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* 1. Header Banner & Identity Card */}
-      <div className="bg-surface rounded-xl border border-outline-variant/30 p-6 sm:p-8 shadow-xs">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-start sm:items-center gap-4 sm:gap-5">
+      <div className="bg-surface rounded-xl border border-outline-variant/30 p-4 sm:p-6 md:p-8 shadow-xs">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-6">
+          <div className="flex items-start sm:items-center gap-3.5 sm:gap-5 min-w-0">
             {/* Avatar Monogram */}
             <div 
-              className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center font-bold text-xl sm:text-2xl shrink-0 shadow-sm border border-outline-variant/20 ${
+              className={`w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center font-bold text-lg sm:text-xl md:text-2xl shrink-0 shadow-sm border border-outline-variant/20 ${
                 activeProfile.avatarColor || 'bg-[#005235] text-white'
               }`}
             >
               {activeProfile.avatarMonogram}
             </div>
 
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                <h1 className="text-xl sm:text-2xl font-bold text-on-surface tracking-tight truncate">
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-on-surface tracking-tight truncate font-head">
                   {activeProfile.name}
                 </h1>
-                <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${roleInfo.badge}`}>
+                <span className={`text-[11px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full border ${roleInfo.badge}`}>
                   {activeProfile.isGuest ? 'Guest Sandbox' : roleInfo.title}
                 </span>
               </div>
 
-              <p className="text-sm font-medium text-on-surface-variant mb-1">
+              <p className="text-xs sm:text-sm font-medium text-on-surface-variant mb-1">
                 {activeProfile.title} • <span className="text-on-surface font-semibold">{activeProfile.facilityName}</span>
               </p>
 
-              <div className="flex flex-wrap items-center gap-3 text-xs text-outline">
-                <span className="font-mono bg-surface-container px-2 py-0.5 rounded border border-outline-variant/20 font-medium">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-outline">
+                <span className="font-mono bg-surface-container px-2 py-0.5 rounded border border-outline-variant/20 font-medium text-[11px]">
                   {activeProfile.facilityCode}
                 </span>
                 <span>•</span>
-                <span className="flex items-center gap-1 text-primary font-medium">
+                <span className="flex items-center gap-1 text-primary font-medium text-[11px]">
                   <ShieldCheck size={14} />
                   KDPA 2019 Sovereign Verified
                 </span>
                 <span>•</span>
-                <span className="truncate">{activeProfile.email}</span>
+                <span className="truncate max-w-[200px] sm:max-w-none text-[11px]">{activeProfile.email}</span>
               </div>
             </div>
           </div>

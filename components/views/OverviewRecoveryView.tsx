@@ -133,25 +133,25 @@ export const OverviewRecoveryView: React.FC<OverviewRecoveryViewProps> = ({
   return (
     <div className="flex flex-col w-full space-y-6 animate-in fade-in duration-200">
       {/* Page Header */}
-      <section className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <section className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-on-surface tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-bold text-on-surface tracking-tight font-head">
             Revenue &amp; Recovery
           </h1>
-          <p className="text-sm text-on-surface-variant mt-0.5">
+          <p className="text-xs sm:text-sm text-on-surface-variant mt-0.5">
             Identify unbilled services, track recovered revenue, and resolve insurance claim issues.
           </p>
         </div>
 
         {/* Action Controls */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
           {/* Pathway Pill */}
-          <div className="inline-flex p-1 rounded bg-surface-container border border-outline-variant/20 text-xs">
+          <div className="inline-flex p-1 rounded-lg bg-surface-container border border-outline-variant/20 text-xs">
             <button 
               onClick={() => handlePathwayChange('private')}
-              className={`px-3 py-1.5 rounded font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-md font-medium transition-colors cursor-pointer min-h-[36px] sm:min-h-[32px] ${
                 pathway === 'private'
-                  ? 'bg-surface-container-lowest text-primary font-semibold'
+                  ? 'bg-surface-container-lowest text-primary font-semibold shadow-2xs'
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
@@ -159,9 +159,9 @@ export const OverviewRecoveryView: React.FC<OverviewRecoveryViewProps> = ({
             </button>
             <button 
               onClick={() => handlePathwayChange('sha')}
-              className={`px-3 py-1.5 rounded font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-md font-medium transition-colors cursor-pointer min-h-[36px] sm:min-h-[32px] ${
                 pathway === 'sha'
-                  ? 'bg-surface-container-lowest text-primary font-semibold'
+                  ? 'bg-surface-container-lowest text-primary font-semibold shadow-2xs'
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
@@ -175,11 +175,11 @@ export const OverviewRecoveryView: React.FC<OverviewRecoveryViewProps> = ({
               id="dashboard-header-csv-ingest"
               type="button"
               onClick={onOpenCsvIngestion}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-lowest hover:bg-surface-container text-on-surface rounded text-xs font-semibold border border-outline-variant/30 hover:border-primary/50 transition-all cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:py-2 bg-surface-container-lowest hover:bg-surface-container text-on-surface rounded-lg text-xs font-semibold border border-outline-variant/30 hover:border-primary/50 transition-all cursor-pointer shadow-2xs min-h-[40px] sm:min-h-[36px] active:scale-98"
               title="Upload or paste hospital PMS & CSV records"
               aria-label="Manual CSV & PMS Ingestion"
             >
-              <FileSpreadsheet size={14} className="text-primary shrink-0" />
+              <FileSpreadsheet size={15} className="text-primary shrink-0" />
               <span>Manual CSV / PMS</span>
             </button>
           )}
@@ -188,7 +188,7 @@ export const OverviewRecoveryView: React.FC<OverviewRecoveryViewProps> = ({
           <button 
             onClick={onTriggerAudit}
             disabled={isAuditing}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-primary hover:bg-primary-container text-on-primary rounded text-xs font-semibold transition-colors disabled:opacity-70"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 sm:py-2 bg-primary hover:bg-primary-container text-on-primary rounded-lg text-xs font-semibold transition-colors disabled:opacity-70 min-h-[40px] sm:min-h-[36px] shadow-xs active:scale-98"
           >
             <Cpu size={15} className={isAuditing ? 'animate-spin' : ''} />
             <span>{isAuditing ? 'Scanning Records...' : 'Run AI Audit'}</span>
@@ -197,7 +197,7 @@ export const OverviewRecoveryView: React.FC<OverviewRecoveryViewProps> = ({
           {/* Export Button */}
           <button 
             onClick={handleExportCsv}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-lowest hover:bg-surface-container text-on-surface rounded text-xs font-medium border border-outline-variant/20 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:py-2 bg-surface-container-lowest hover:bg-surface-container text-on-surface rounded-lg text-xs font-medium border border-outline-variant/20 transition-colors min-h-[40px] sm:min-h-[36px] cursor-pointer shadow-2xs active:scale-98"
             title="Download CSV"
           >
             <Download size={14} />
@@ -207,9 +207,9 @@ export const OverviewRecoveryView: React.FC<OverviewRecoveryViewProps> = ({
       </section>
 
       {/* 4 Simple, Readable Key Metric Cards */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Metric 1: Total Revenue */}
-        <div className="p-4 rounded-xl bg-surface border border-line flex flex-col justify-between shadow-2xs">
+        <div className="p-4 sm:p-5 rounded-xl bg-surface border border-line flex flex-col justify-between shadow-2xs transition-all hover:border-primary/30">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-ink2">
               Revenue This Week
@@ -220,7 +220,7 @@ export const OverviewRecoveryView: React.FC<OverviewRecoveryViewProps> = ({
             </span>
           </div>
           <div className="mt-3">
-            <div className="text-2xl font-bold text-ink font-head tabular-nums">
+            <div className="text-xl sm:text-2xl font-bold text-ink font-head tabular-nums tracking-tight truncate">
               {isGuest ? demoMetrics.revenueThisWeek : `KES ${realTotalRevenueKes.toLocaleString()}`}
             </div>
             <p className="text-xs text-ink2 mt-1">
@@ -230,7 +230,7 @@ export const OverviewRecoveryView: React.FC<OverviewRecoveryViewProps> = ({
         </div>
 
         {/* Metric 2: Unbilled Gaps (Show the gap!) */}
-        <div className="p-4 rounded-xl bg-surface border border-line gapc flex flex-col justify-between shadow-2xs">
+        <div className="p-4 sm:p-5 rounded-xl bg-surface border border-line gapc flex flex-col justify-between shadow-2xs transition-all hover:border-[var(--leak)]/50">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-[var(--leak)]">
               Unbilled Gaps Found
@@ -240,7 +240,7 @@ export const OverviewRecoveryView: React.FC<OverviewRecoveryViewProps> = ({
             </span>
           </div>
           <div className="mt-3">
-            <div className="text-2xl font-bold text-[var(--leak)] font-head tabular-nums">
+            <div className="text-xl sm:text-2xl font-bold text-[var(--leak)] font-head tabular-nums tracking-tight truncate">
               {isGuest ? demoMetrics.unbilledKes : `KES ${realUnbilledKes.toLocaleString()}`}
             </div>
             <p className="text-xs text-ink2 mt-1">
@@ -250,7 +250,7 @@ export const OverviewRecoveryView: React.FC<OverviewRecoveryViewProps> = ({
         </div>
 
         {/* Metric 3: Recovered Revenue (Marigold with black text) */}
-        <div className="p-4 rounded-xl bg-surface border border-line flex flex-col justify-between shadow-2xs">
+        <div className="p-4 sm:p-5 rounded-xl bg-surface border border-line flex flex-col justify-between shadow-2xs transition-all hover:border-[var(--recover)]/50">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-ink">
               Recovered Revenue
@@ -260,7 +260,7 @@ export const OverviewRecoveryView: React.FC<OverviewRecoveryViewProps> = ({
             </span>
           </div>
           <div className="mt-3">
-            <div className="text-2xl font-bold text-ink font-head tabular-nums">
+            <div className="text-xl sm:text-2xl font-bold text-ink font-head tabular-nums tracking-tight truncate">
               {isGuest ? demoMetrics.recoveredKes : `KES ${realRecoveredKes.toLocaleString()}`}
             </div>
             <p className="text-xs text-ink2 mt-1">
@@ -270,7 +270,7 @@ export const OverviewRecoveryView: React.FC<OverviewRecoveryViewProps> = ({
         </div>
 
         {/* Metric 4: Insurance Claims At Risk */}
-        <div className="p-4 rounded-xl bg-surface border border-line flex flex-col justify-between shadow-2xs">
+        <div className="p-4 sm:p-5 rounded-xl bg-surface border border-line flex flex-col justify-between shadow-2xs transition-all hover:border-outline-variant/60">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-ink2">
               Insurance Claims At Risk
@@ -280,7 +280,7 @@ export const OverviewRecoveryView: React.FC<OverviewRecoveryViewProps> = ({
             </span>
           </div>
           <div className="mt-3">
-            <div className="text-2xl font-bold text-ink font-head tabular-nums">
+            <div className="text-xl sm:text-2xl font-bold text-ink font-head tabular-nums tracking-tight truncate">
               {isGuest ? demoMetrics.atRiskKes : `KES ${realAtRiskKes.toLocaleString()}`}
             </div>
             <p className="text-xs text-ink2 mt-1">
@@ -477,7 +477,10 @@ export const OverviewRecoveryView: React.FC<OverviewRecoveryViewProps> = ({
                   <span>Tue</span>
                   <span>Wed</span>
                   <span>Thu</span>
-                  <span className="font-semibold text-primary">Fri (Highest Gaps)</span>
+                  <span className="font-semibold text-primary">
+                    <span className="sm:hidden">Fri (Peak)</span>
+                    <span className="hidden sm:inline">Fri (Highest Gaps)</span>
+                  </span>
                   <span>Sat</span>
                   <span>Sun</span>
                 </div>
@@ -653,8 +656,8 @@ export const OverviewRecoveryView: React.FC<OverviewRecoveryViewProps> = ({
                 All clinician documentation is reconciled. Zero pending reminders.
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+              <div className="overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0">
+                <table className="w-full text-left text-xs min-w-[500px] sm:min-w-full">
                   <thead>
                     <tr className="border-b border-outline-variant/20 text-on-surface-variant font-medium">
                       <th className="pb-2 font-semibold">Doctor</th>

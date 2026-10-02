@@ -669,7 +669,7 @@ export const App: React.FC = () => {
 
         {/* Main Content Workspace */}
         <main className={`${isDesktopSidebarOpen ? 'lg:pl-sidebar-width' : 'lg:pl-0'} pt-16 flex-1 flex flex-col min-w-0 transition-[padding,background-color] duration-200 bg-white dark:bg-[#0E0E0E]`}>
-          <div className="w-full max-w-[1520px] mx-auto px-4 sm:px-gutter-desktop py-space-lg sm:py-space-xl flex-1 flex flex-col">
+          <div className="w-full max-w-[1520px] mx-auto px-3 sm:px-gutter-desktop py-4 sm:py-space-xl flex-1 flex flex-col min-w-0">
             {activeTab === 'overview' && (
               <OverviewRecoveryView 
                 onTriggerAudit={handleTriggerAudit}

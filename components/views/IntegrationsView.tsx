@@ -57,19 +57,19 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ onShowToast,
         </div>
 
         <div className="flex flex-col gap-1 max-w-4xl">
-          <h1 className="font-display-md text-2xl sm:text-3xl lg:text-4xl text-on-surface tracking-tight font-semibold">
+          <h1 className="font-display-md text-xl sm:text-2xl lg:text-3xl text-on-surface tracking-tight font-semibold font-head">
             FHIR &amp; MoH DHIS2 National Ecosystem Connectors
           </h1>
-          <p className="font-body-md text-body-md text-on-surface-variant">
+          <p className="font-body-md text-xs sm:text-sm text-on-surface-variant leading-relaxed">
             Zero-friction integrations connecting Nairobi West Memorial (MFL #14920) with KenyaEMR, the Social Health Authority, MoH DHIS2, Safaricom Daraja, and Africa's Talking.
           </p>
         </div>
       </section>
 
       {/* Integration Connectors Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-base">
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-space-base">
         {/* Connector 1: OpenMRS / KenyaEMR */}
-        <div className="p-space-base rounded-md bg-surface-container-lowest border border-outline-variant/20 flex flex-col justify-between space-y-space-md">
+        <div className="p-space-base rounded-md bg-surface-container-lowest border border-outline-variant/20 flex flex-col justify-between space-y-space-md shadow-2xs">
           <div className="space-y-space-xs">
             <div className="flex items-start justify-between">
               <div className="w-10 h-10 rounded bg-surface-container flex items-center justify-center text-primary">
@@ -79,14 +79,14 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ onShowToast,
                 Connected
               </span>
             </div>
-            <h3 className="font-headline-md text-lg text-on-surface font-semibold pt-1">
+            <h3 className="font-headline-md text-base sm:text-lg text-on-surface font-semibold pt-1 font-head">
               KenyaEMR (OpenMRS FHIR R4)
             </h3>
             <p className="font-body-sm text-body-sm text-on-surface-variant">
               Continuous listener pulling DiagnosticReport, Observation, and Encounter resources from local facility EHR.
             </p>
             <div className="pt-1 font-label-mono text-[11px] text-on-surface-variant space-y-1">
-              <div>Endpoint: <code className="text-on-surface">http://localhost:8080/openmrs/ws/fhir2/R4</code></div>
+              <div>Endpoint: <code className="text-on-surface break-all">http://localhost:8080/openmrs/ws/fhir2/R4</code></div>
               <div>Ingestion: <span className="text-primary font-semibold">142 bundles this week</span></div>
             </div>
           </div>
@@ -107,7 +107,7 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ onShowToast,
         </div>
 
         {/* Connector 2: MoH DHIS2 National Data Warehouse */}
-        <div className="p-space-base rounded-md bg-surface-container-lowest border border-outline-variant/20 flex flex-col justify-between space-y-space-md">
+        <div className="p-space-base rounded-md bg-surface-container-lowest border border-outline-variant/20 flex flex-col justify-between space-y-space-md shadow-2xs">
           <div className="space-y-space-xs">
             <div className="flex items-start justify-between">
               <div className="w-10 h-10 rounded bg-surface-container flex items-center justify-center text-secondary">
@@ -117,14 +117,14 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ onShowToast,
                 Nominal
               </span>
             </div>
-            <h3 className="font-headline-md text-lg text-on-surface font-semibold pt-1">
+            <h3 className="font-headline-md text-base sm:text-lg text-on-surface font-semibold pt-1 font-head">
               MoH DHIS2 National Warehouse
             </h3>
             <p className="font-body-sm text-body-sm text-on-surface-variant">
               Aggregate data push for Ministry of Health national health reporting (MOH 711 Inpatient &amp; Outpatient Summary).
             </p>
             <div className="pt-1 font-label-mono text-[11px] text-on-surface-variant space-y-1">
-              <div>Endpoint: <code className="text-on-surface">https://dhis.health.go.ke/api</code></div>
+              <div>Endpoint: <code className="text-on-surface break-all">https://dhis.health.go.ke/api</code></div>
               <div>Last Sync: <span className="text-on-surface font-medium">24 mins ago (0 errors)</span></div>
             </div>
           </div>
@@ -145,7 +145,7 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ onShowToast,
         </div>
 
         {/* Connector 3: Social Health Authority Clearing API */}
-        <div className="p-space-base rounded-md bg-surface-container-lowest border border-outline-variant/20 flex flex-col justify-between space-y-space-md">
+        <div className="p-space-base rounded-md bg-surface-container-lowest border border-outline-variant/20 flex flex-col justify-between space-y-space-md shadow-2xs">
           <div className="space-y-space-xs">
             <div className="flex items-start justify-between">
               <div className="w-10 h-10 rounded bg-surface-container flex items-center justify-center text-primary">
@@ -155,14 +155,14 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ onShowToast,
                 Active v3.4
               </span>
             </div>
-            <h3 className="font-headline-md text-lg text-on-surface font-semibold pt-1">
+            <h3 className="font-headline-md text-base sm:text-lg text-on-surface font-semibold pt-1 font-head">
               SHA National Claims Clearinghouse
             </h3>
             <p className="font-body-sm text-body-sm text-on-surface-variant">
               Direct e-claims submission engine with real-time tariff adjudication, biometric pre-auth, and rejection avoidance.
             </p>
             <div className="pt-1 font-label-mono text-[11px] text-on-surface-variant space-y-1">
-              <div>Gateway: <code className="text-on-surface">https://claims.sha.go.ke/api/v1</code></div>
+              <div>Gateway: <code className="text-on-surface break-all">https://claims.sha.go.ke/api/v1</code></div>
               <div>Batch Capacity: <span className="text-primary font-semibold">184 claims ready</span></div>
             </div>
           </div>
@@ -183,7 +183,7 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ onShowToast,
         </div>
 
         {/* Connector 4: Africa's Talking Telecom API */}
-        <div className="p-space-base rounded-md bg-surface-container-lowest border border-outline-variant/20 flex flex-col justify-between space-y-space-md">
+        <div className="p-space-base rounded-md bg-surface-container-lowest border border-outline-variant/20 flex flex-col justify-between space-y-space-md shadow-2xs">
           <div className="space-y-space-xs">
             <div className="flex items-start justify-between">
               <div className="w-10 h-10 rounded bg-surface-container flex items-center justify-center text-secondary">
@@ -193,14 +193,14 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ onShowToast,
                 Online
               </span>
             </div>
-            <h3 className="font-headline-md text-lg text-on-surface font-semibold pt-1">
+            <h3 className="font-headline-md text-base sm:text-lg text-on-surface font-semibold pt-1 font-head">
               Africa's Talking SMS Gateway
             </h3>
             <p className="font-body-sm text-body-sm text-on-surface-variant">
               High-throughput transactional SMS gateway for clinician documentation alerts and patient debt reminders.
             </p>
             <div className="pt-1 font-label-mono text-[11px] text-on-surface-variant space-y-1">
-              <div>Sender ID: <code className="text-on-surface">KAZIRA_MED</code></div>
+              <div>Sender ID: <code className="text-on-surface break-all">KAZIRA_MED</code></div>
               <div>Latency: <span className="text-primary font-semibold">180ms delivery SLA</span></div>
             </div>
           </div>
@@ -220,7 +220,7 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ onShowToast,
         </div>
 
         {/* Connector 5: Safaricom Daraja M-Pesa STK Push */}
-        <div className="p-space-base rounded-md bg-surface-container-lowest border border-outline-variant/20 flex flex-col justify-between space-y-space-md">
+        <div className="p-space-base rounded-md bg-surface-container-lowest border border-outline-variant/20 flex flex-col justify-between space-y-space-md shadow-2xs">
           <div className="space-y-space-xs">
             <div className="flex items-start justify-between">
               <div className="w-10 h-10 rounded bg-surface-container flex items-center justify-center text-primary">
@@ -230,14 +230,14 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ onShowToast,
                 Online
               </span>
             </div>
-            <h3 className="font-headline-md text-lg text-on-surface font-semibold pt-1">
+            <h3 className="font-headline-md text-base sm:text-lg text-on-surface font-semibold pt-1 font-head">
               Safaricom Daraja M-Pesa STK Push
             </h3>
             <p className="font-body-sm text-body-sm text-on-surface-variant">
               Automated prompt dispatch directly to patient handsets for copays and unbilled outpatient fees.
             </p>
             <div className="pt-1 font-label-mono text-[11px] text-on-surface-variant space-y-1">
-              <div>Shortcode: <code className="text-on-surface">222111 (Paybill)</code></div>
+              <div>Shortcode: <code className="text-on-surface break-all">222111 (Paybill)</code></div>
               <div>STK Conversion: <span className="text-primary font-semibold">78.5% same-day</span></div>
             </div>
           </div>
@@ -258,7 +258,7 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ onShowToast,
         </div>
 
         {/* Connector 6: Offline CSV & PMS Ingestion Gateway */}
-        <div className="p-space-base rounded-md bg-surface-container-lowest border border-outline-variant/20 flex flex-col justify-between space-y-space-md">
+        <div className="p-space-base rounded-md bg-surface-container-lowest border border-outline-variant/20 flex flex-col justify-between space-y-space-md shadow-2xs">
           <div className="space-y-space-xs">
             <div className="flex items-start justify-between">
               <div className="w-10 h-10 rounded bg-surface-container flex items-center justify-center text-primary">
@@ -268,14 +268,14 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ onShowToast,
                 Offline-Ready
               </span>
             </div>
-            <h3 className="font-headline-md text-lg text-on-surface font-semibold pt-1">
+            <h3 className="font-headline-md text-base sm:text-lg text-on-surface font-semibold pt-1 font-head">
               Manual CSV &amp; PMS Ingestion
             </h3>
             <p className="font-body-sm text-body-sm text-on-surface-variant">
               Batch upload theatre logs, outpatient billing extracts, and SHA claim manifests directly from Excel or EHR CSV exports.
             </p>
             <div className="pt-1 font-label-mono text-[11px] text-on-surface-variant space-y-1">
-              <div>Format: <code className="text-on-surface">RFC 4180 CSV / TSV</code></div>
+              <div>Format: <code className="text-on-surface break-all">RFC 4180 CSV / TSV</code></div>
               <div>Protection: <span className="text-emerald-800 font-semibold">KDPA 2019 Pseudonymisation</span></div>
             </div>
           </div>

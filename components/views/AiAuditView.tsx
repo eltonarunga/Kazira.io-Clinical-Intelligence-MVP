@@ -110,17 +110,17 @@ During the Week 11 auditing cycle, Kazira Clinical Intelligence evaluated all in
         </div>
 
         <div className="flex flex-col gap-1 max-w-4xl">
-          <h1 className="font-display-md text-2xl sm:text-3xl lg:text-4xl text-on-surface tracking-tight font-semibold">
+          <h1 className="font-display-md text-xl sm:text-2xl lg:text-3xl text-on-surface tracking-tight font-semibold font-head">
             AI Audit Loop: Narrative / Audit / Metric Extraction
           </h1>
-          <p className="font-body-md text-body-md text-on-surface-variant">
+          <p className="font-body-md text-xs sm:text-sm text-on-surface-variant leading-relaxed">
             Strict audited clinical intelligence pattern for Kenyan hospitals. Step 1 generates qualitative clinical context; Step 2 conducts deterministic math and tariff reconciliation; Step 3 extracts structured numerical ledger metrics.
           </p>
         </div>
       </section>
 
       {/* 3 Architecture Step Pillars */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-space-base">
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-space-base">
         <div className="p-space-base rounded-md bg-surface-container-lowest border border-outline-variant/20 space-y-2">
           <div className="flex items-center justify-between">
             <span className="font-label-caps text-label-caps uppercase text-primary font-bold">
@@ -177,15 +177,15 @@ During the Week 11 auditing cycle, Kazira Clinical Intelligence evaluated all in
       </section>
 
       {/* Main Terminal View */}
-      <section className="bg-surface-container-lowest rounded-md border border-outline-variant/20 overflow-hidden">
+      <section className="bg-surface-container-lowest rounded-md border border-outline-variant/20 overflow-hidden shadow-2xs">
         {/* Sub-tab Navigation */}
-        <div className="px-space-base py-space-sm bg-surface-container-low border-b border-outline-variant/20 flex flex-wrap items-center justify-between gap-space-sm">
-          <div className="flex items-center gap-1">
+        <div className="px-3 sm:px-space-base py-space-sm bg-surface-container-low border-b border-outline-variant/20 flex flex-wrap items-center justify-between gap-space-sm">
+          <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none max-w-full">
             <button
               onClick={() => setActiveSubTab('narrative')}
-              className={`px-3 py-1.5 rounded font-body-sm text-body-sm transition-colors flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded font-body-sm text-xs sm:text-body-sm transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer ${
                 activeSubTab === 'narrative'
-                  ? 'bg-surface-container-lowest text-primary font-semibold'
+                  ? 'bg-surface-container-lowest text-primary font-semibold shadow-2xs'
                   : 'text-on-surface-variant hover:bg-surface-container'
               }`}
             >
@@ -195,9 +195,9 @@ During the Week 11 auditing cycle, Kazira Clinical Intelligence evaluated all in
 
             <button
               onClick={() => setActiveSubTab('audit')}
-              className={`px-3 py-1.5 rounded font-body-sm text-body-sm transition-colors flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded font-body-sm text-xs sm:text-body-sm transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer ${
                 activeSubTab === 'audit'
-                  ? 'bg-surface-container-lowest text-secondary font-semibold'
+                  ? 'bg-surface-container-lowest text-secondary font-semibold shadow-2xs'
                   : 'text-on-surface-variant hover:bg-surface-container'
               }`}
             >
@@ -207,9 +207,9 @@ During the Week 11 auditing cycle, Kazira Clinical Intelligence evaluated all in
 
             <button
               onClick={() => setActiveSubTab('metrics')}
-              className={`px-3 py-1.5 rounded font-body-sm text-body-sm transition-colors flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded font-body-sm text-xs sm:text-body-sm transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer ${
                 activeSubTab === 'metrics'
-                  ? 'bg-surface-container-lowest text-tertiary font-semibold'
+                  ? 'bg-surface-container-lowest text-tertiary font-semibold shadow-2xs'
                   : 'text-on-surface-variant hover:bg-surface-container'
               }`}
             >
@@ -219,9 +219,9 @@ During the Week 11 auditing cycle, Kazira Clinical Intelligence evaluated all in
 
             <button
               onClick={() => setActiveSubTab('raw')}
-              className={`px-3 py-1.5 rounded font-body-sm text-body-sm transition-colors flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded font-body-sm text-xs sm:text-body-sm transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer ${
                 activeSubTab === 'raw'
-                  ? 'bg-surface-container-lowest text-on-surface font-semibold'
+                  ? 'bg-surface-container-lowest text-on-surface font-semibold shadow-2xs'
                   : 'text-on-surface-variant hover:bg-surface-container'
               }`}
             >
@@ -236,7 +236,7 @@ During the Week 11 auditing cycle, Kazira Clinical Intelligence evaluated all in
         </div>
 
         {/* Tab Content Display */}
-        <div className="p-space-xl">
+        <div className="p-4 sm:p-6 lg:p-space-xl">
           {activeSubTab === 'narrative' && (
             narrativeText ? (
               <div className="prose max-w-none text-on-surface leading-relaxed whitespace-pre-wrap font-body-md">

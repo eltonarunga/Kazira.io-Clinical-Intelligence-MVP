@@ -4,6 +4,17 @@ All notable changes to the Kazira.io project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.9] - 2026-10-02
+
+### Optimized
+- **Cross-Screen Responsive Architecture Across All Pages (`App.tsx`, `OverviewRecoveryView.tsx`, `UnbilledGapLedgerView.tsx`, `ShaClaimsView.tsx`, `AiAuditView.tsx`, `IntegrationsView.tsx`, `ProfileView.tsx`, `SignInView.tsx`, `CsvIngestionModal.tsx`):**
+  - **Dynamic Layout & Workspace Padding (`App.tsx`):** Adjusted main workspace padding to `px-3 sm:px-gutter-desktop py-4 sm:py-space-xl min-w-0`, maximizing usable data real estate on small smartphone screens (320px–480px) while maintaining comfortable gutters on desktop (1440px+).
+  - **Weekly Billing Trend Chart (`OverviewRecoveryView.tsx`):** Made SVG day labels responsive (`Fri (Peak)` on small mobile vs `Fri (Highest Gaps)` on tablet/desktop) preventing label overlap on narrow viewports.
+  - **Clinical Data Tables (`UnbilledGapLedgerView.tsx`, `OverviewRecoveryView.tsx`):** Enforced responsive minimum table width (`min-w-[480px] sm:min-w-full`) inside horizontal scroll wrappers with momentum touch scrolling, ensuring doctor names, procedure codes, amounts, and action buttons never collapse into cramped single-character columns.
+  - **Filter Bars & Sub-tab Navigators (`AiAuditView.tsx`, `ShaClaimsView.tsx`, `CsvIngestionModal.tsx`):** Made tab bars horizontally scrollable with `overflow-x-auto scrollbar-none shrink-0` across AI Audit steps, SHA claim status pills, and CSV ingestion source tabs.
+  - **Endpoint & Code Text Safety (`IntegrationsView.tsx`):** Applied `break-all` to EMR and FHIR endpoint URIs (`http://localhost:8080/openmrs/ws/fhir2/R4`), eliminating card blowout on mobile.
+  - **Authentication & Identity Gateway (`SignInView.tsx`, `ProfileView.tsx`):** Compacted 3-way navigation tabs with responsive labels (`Sign Up` / `Sign Up Facility`, `Guest` / `Guest Sandbox`) and added fluid avatar monogram scaling (`w-14 h-14` on mobile to `w-20 h-20` on desktop).
+
 ## [2.10.8] - 2026-10-02
 
 ### Removed
