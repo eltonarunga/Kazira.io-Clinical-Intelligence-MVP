@@ -1,6 +1,10 @@
 # Kazira Clinical Intelligence - Task Tracker
 
 ## High Priority
+- [x] **Remove Double Pop Up Notifications (`App.tsx`, `components/ToastBanner.tsx`):**
+  - Consolidated application notifications onto a single, unified toast notification pipeline via Sonner (`Toaster`).
+  - Removed duplicate triggering where both `ToastBanner` (bottom-right custom banner) and Sonner (`toast.success` / `toast.warning` / `toast.info` at top-right) fired simultaneously for every action.
+  - Removed obsolete `ToastBanner.tsx` component and associated state machine, eliminating UI clutter and duplicate overlays. (Completed)
 - [x] **Cross-Screen Responsive Optimization Across All Pages & Breakpoints (`App.tsx`, `OverviewRecoveryView.tsx`, `UnbilledGapLedgerView.tsx`, `ShaClaimsView.tsx`, `AiAuditView.tsx`, `IntegrationsView.tsx`, `ProfileView.tsx`, `SignInView.tsx`, `CsvIngestionModal.tsx`):**
   - Optimized workspace layout padding across mobile (320px–480px), tablet (640px–1024px), desktop (1024px–1440px), and ultrawide screens (1520px+).
   - Enhanced clinical data tables with responsive horizontal scroll containers (`overflow-x-auto min-w-[480px]`) and smooth swipe momentum, eliminating column squashing on phones.

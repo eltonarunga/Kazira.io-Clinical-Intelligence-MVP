@@ -30,8 +30,6 @@ import Onboarding from './components/Onboarding';
 import Sidebar from './components/Sidebar';
 import AppHeader from './components/AppHeader';
 import AppFooter from './components/AppFooter';
-import ToastBanner, { ToastData } from './components/ToastBanner';
-
 // Dedicated Design Views
 import OverviewRecoveryView from './components/views/OverviewRecoveryView';
 import UnbilledGapLedgerView from './components/views/UnbilledGapLedgerView';
@@ -59,7 +57,6 @@ export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<NavTab>('overview');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
-  const [currentToast, setCurrentToast] = useState<ToastData | null>(null);
 
   const handleToggleSidebar = () => {
     if (typeof window !== 'undefined' && window.innerWidth < 1024) {
@@ -224,21 +221,13 @@ export const App: React.FC = () => {
     };
   });
 
-  // Toast Helper
+  // Unified Toast Helper (Single Notification Pipeline)
   const showCustomToast = (
     title: string, 
     message: string, 
     type: 'success' | 'warn' | 'info' | 'sms' | 'audit' = 'success'
   ) => {
-    const newToast: ToastData = {
-      id: String(Date.now()),
-      title,
-      message,
-      type
-    };
-    setCurrentToast(newToast);
-    
-    // Also trigger Sonner for global notification
+    // Single notification pipeline via Sonner (eliminates duplicate popups)
     if (type === 'warn') {
       toast.warning(title, { description: message });
     } else if (type === 'sms') {
@@ -248,11 +237,6 @@ export const App: React.FC = () => {
     } else {
       toast.success(title, { description: message });
     }
-
-    // Auto-dismiss custom banner after 5s
-    setTimeout(() => {
-      setCurrentToast(prev => (prev?.id === newToast.id ? null : prev));
-    }, 5000);
   };
 
   // Refined Authentication & Profile Logic
@@ -600,10 +584,6 @@ export const App: React.FC = () => {
             theme={theme}
             onToggleTheme={handleToggleTheme}
           />
-          <ToastBanner 
-            toast={currentToast} 
-            onDismiss={() => setCurrentToast(null)} 
-          />
         </div>
       </ErrorBoundary>
     );
@@ -613,12 +593,6 @@ export const App: React.FC = () => {
     <ErrorBoundary>
       <div className="min-h-screen flex flex-col bg-white dark:bg-[#0E0E0E] text-on-surface antialiased font-body-md transition-colors duration-200">
         <Toaster position="top-right" richColors />
-
-        {/* Global Floating Toast Banner */}
-        <ToastBanner 
-          toast={currentToast} 
-          onDismiss={() => setCurrentToast(null)} 
-        />
 
         {/* Left Sovereign Sidebar / Hamburger Menu with all shortcuts */}
         <Sidebar 

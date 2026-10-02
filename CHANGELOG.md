@@ -4,6 +4,14 @@ All notable changes to the Kazira.io project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.10] - 2026-10-02
+
+### Removed
+- **Removed Duplicate Pop-Up Notifications (`App.tsx`, `components/ToastBanner.tsx`):**
+  - Consolidated all application notifications onto a single, unified toast pipeline powered by Sonner (`Toaster`).
+  - Removed duplicate triggering where both `ToastBanner` (custom bottom-right card) and Sonner (`toast.success` / `toast.warning` / `toast.info` top-right) fired concurrently for every action.
+  - Removed obsolete `ToastBanner.tsx` component and `currentToast` state machine, eliminating UI overhead and stacked banner redundancy.
+
 ## [2.10.9] - 2026-10-02
 
 ### Optimized
