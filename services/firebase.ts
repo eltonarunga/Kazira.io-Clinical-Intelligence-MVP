@@ -160,9 +160,11 @@ export async function fetchUserProfile(userId: string): Promise<UserProfile | nu
  */
 export async function saveUserProfile(profile: UserProfile): Promise<void> {
   const path = `users/${profile.id}`;
+  const cleanFac = profile.facilityCode ? profile.facilityCode.replace(/[^a-zA-Z0-9_-]/g, '_') : '';
   try {
     await setDoc(doc(db, 'users', profile.id), {
       ...profile,
+      facilityId: cleanFac,
       updatedAt: new Date().toISOString()
     }, { merge: true });
   } catch (error) {

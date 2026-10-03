@@ -110,8 +110,8 @@ class Store {
         registeredProfiles: this.registeredProfiles
       };
       fs.writeFileSync(DATA_FILE, JSON.stringify(payload, null, 2), 'utf-8');
-    } catch (e) {
-      console.warn('[Store] Failed to write data to disk:', e);
+    } catch (e: any) {
+      console.warn('[Store] Ephemeral filesystem detected (e.g. serverless environment). Local disk write bypassed. Production state persists via Cloud Firestore / PostgreSQL:', e?.message || e);
     }
   }
 

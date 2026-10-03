@@ -2,29 +2,6 @@ import { UserProfile } from '../types';
 
 export const PROFILES: UserProfile[] = [
   {
-    id: 'user-elton-arunga',
-    name: 'Elton Arunga',
-    title: 'Chief Technology Officer & Lead Administrator',
-    email: 'eltonarunga@gmail.com',
-    role: 'facility_admin',
-    facilityName: 'Kazira Clinical Health Systems',
-    facilityCode: 'MFL #10001',
-    facilityType: 'private',
-    avatarMonogram: 'EA',
-    avatarColor: 'bg-[#005235] text-white',
-    isGuest: false,
-    department: 'Health Informatics & Revenue Architecture',
-    phone: '+254 700 000 000',
-    permissions: [
-      'Full Revenue Cycle Management',
-      'Unbilled Gap Debt Resolution',
-      'SHA Claim Verification & Submission',
-      'Deterministic AI Dual-Loop Execution',
-      'Facility Gateway & EMR Configuration',
-      'Firestore Cloud Database Synchronization'
-    ]
-  },
-  {
     id: 'user-amina-mutua',
     name: 'Dr. Amina Mutua, MBChB',
     title: 'Chief Medical Officer & Facility Admin',
@@ -112,4 +89,4 @@ export const PROFILES: UserProfile[] = [
 ];
 
 export const DEFAULT_PROFILE: UserProfile = PROFILES[0];
-export const GUEST_PROFILE: UserProfile = PROFILES[2];
+export const GUEST_PROFILE: UserProfile = PROFILES[2]; // user-guest-auditor

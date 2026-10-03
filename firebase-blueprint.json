@@ -12,6 +12,7 @@
         "role": { "type": "string", "enum": ["facility_admin", "county_health", "moh", "guest"], "description": "System role" },
         "facilityName": { "type": "string", "description": "Name of affiliated Kenyan healthcare facility" },
         "facilityCode": { "type": "string", "description": "KMHFL Code or MOH identifier" },
+        "facilityId": { "type": "string", "description": "Normalized facility partition identifier for tenant isolation" },
         "facilityType": { "type": "string", "enum": ["private", "public_faith"], "description": "Facility operational model" },
         "avatarMonogram": { "type": "string", "maxLength": 4, "description": "2-character display initials" },
         "avatarColor": { "type": "string", "description": "Tailwind color class for avatar badge" },

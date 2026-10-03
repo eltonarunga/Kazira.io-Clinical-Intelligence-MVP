@@ -20,34 +20,78 @@ service cloud.firestore {
       return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-\\.\\#]+$');
     }
 
+    function hasUserDoc() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // Regulatory and oversight roles with cross-facility audit mandates (MoH & County Health)
+    function isSupervisory() {
+      return isSignedIn() && hasUserDoc() && (getUserData().role in ['county_health', 'moh']);
+    }
+
+    // Tenant boundary: Member of this specific hospital facility
+    function isFacilityMember(facilityId) {
+      return isSignedIn() && (
+        isSupervisory() ||
+        (hasUserDoc() && (
+          getUserData().facilityId == facilityId ||
+          getUserData().facilityCode == facilityId
+        ))
+      );
+    }
+
+    // Tenant boundary: Administrator of this specific hospital facility
+    function isFacilityAdmin(facilityId) {
+      return isSignedIn() && (
+        isSupervisory() ||
+        (hasUserDoc() &&
+         getUserData().role == 'facility_admin' &&
+         (getUserData().facilityId == facilityId || getUserData().facilityCode == facilityId)
+        )
+      );
+    }
+
     // User Profiles
     match /users/{userId} {
-      allow get: if isSignedIn() && (isOwner(userId) || resource.data.email == request.auth.token.email);
-      allow list: if isSignedIn();
+      allow get: if isSignedIn() && (isOwner(userId) || isSupervisory() || resource.data.email == request.auth.token.email);
+      allow list: if isSignedIn() && isSupervisory();
       allow create: if isSignedIn() && (isOwner(userId) || request.resource.data.email == request.auth.token.email);
       allow update: if isSignedIn() && (isOwner(userId) || resource.data.email == request.auth.token.email);
       allow delete: if isOwner(userId);
     }
 
-    // Registered Hospital Facilities
+    // Registered Hospital Facilities (Multi-Tenant Isolated)
     match /facilities/{facilityId} {
-      allow read: if isSignedIn();
-      allow write: if isSignedIn();
+      allow read: if isFacilityMember(facilityId);
+      allow create: if isSignedIn() && (
+        isSupervisory() ||
+        (hasUserDoc() && getUserData().role == 'facility_admin')
+      );
+      allow update: if isFacilityAdmin(facilityId);
+      allow delete: if isSupervisory();
 
-      // Tenant-Partitioned Unbilled Procedures & Debts
+      // Tenant-Partitioned Unbilled Procedures & Debts (Strict Isolation)
       match /debts/{debtId} {
-        allow read, write: if isSignedIn();
+        allow read: if isFacilityMember(facilityId);
+        allow create, update: if isFacilityAdmin(facilityId);
+        allow delete: if isFacilityAdmin(facilityId);
       }
 
-      // Tenant-Partitioned Social Health Authority (SHA) Claims
+      // Tenant-Partitioned Social Health Authority (SHA) Claims (Strict Isolation)
       match /claims/{claimId} {
-        allow read, write: if isSignedIn();
+        allow read: if isFacilityMember(facilityId);
+        allow create, update: if isFacilityAdmin(facilityId);
+        allow delete: if isFacilityAdmin(facilityId);
       }
     }
 
     // Connection testing doc
     match /test/connection {
-      allow read, write: if true;
+      allow read, write: if isSignedIn();
     }
   }
 }

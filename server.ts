@@ -10,16 +10,27 @@ import {
   sanitizePayload,
   hashPassword,
   generateSessionToken,
-  verifySessionToken
+  verifySessionToken,
+  requireAuth
 } from './server/security';
+import {
+  reconcileProceduresAgainstInvoices,
+  buildVerifiedDeterministicSummary
+} from './utils/deterministicBilling';
 
 function getTenantContext(req: Request) {
+  const user = (req as any).user;
+  if (user) {
+    return {
+      isGuest: user.isGuest,
+      facilityCode: user.isGuest ? 'MFL #DEMO-01' : (user.facilityCode || (req.headers['x-facility-code'] as string) || 'MFL #14920')
+    };
+  }
   const isGuestHeader = req.headers['x-is-guest'];
   const isGuestQuery = req.query.isGuest;
-  // If neither header nor query is set, default to true for guest exploration
   const isGuest = isGuestHeader !== undefined 
     ? isGuestHeader === 'true' 
-    : (isGuestQuery !== undefined ? isGuestQuery === 'true' : true);
+    : (isGuestQuery !== undefined ? isGuestQuery === 'true' : false);
   
   const facilityCode = (req.headers['x-facility-code'] as string) || (req.query.facilityCode as string) || 'MFL #14920';
   return { isGuest, facilityCode };
@@ -65,14 +76,15 @@ async function startServer() {
   // ==========================================
   app.post('/api/auth/login', (req: Request, res: Response) => {
     try {
-      const { emailOrMfl, password, role } = sanitizePayload(req.body);
+      const { emailOrMfl, password, role, facilityCode: bodyFac } = sanitizePayload(req.body);
       if (!emailOrMfl) {
         res.status(400).json({ error: 'Email or MFL facility code is required.' });
         return;
       }
 
       const assignedRole = role || 'facility_admin';
-      const token = generateSessionToken(emailOrMfl, assignedRole);
+      const facCode = bodyFac || (req.headers['x-facility-code'] as string) || undefined;
+      const token = generateSessionToken(emailOrMfl, assignedRole, facCode);
       
       res.json({
         success: true,
@@ -80,6 +92,7 @@ async function startServer() {
         user: {
           identifier: emailOrMfl,
           role: assignedRole,
+          facilityCode: facCode,
           issuedAt: new Date().toISOString()
         }
       });
@@ -114,8 +127,8 @@ async function startServer() {
       }
       // Save profile in persistent server store
       const savedProfile = serverStore.addRegisteredProfile(profile);
-      // Generate sovereign auth token
-      const token = generateSessionToken(profile.email, profile.role || 'facility_admin');
+      // Generate sovereign auth token with facility partition binding
+      const token = generateSessionToken(profile.email, profile.role || 'facility_admin', profile.facilityCode);
       
       // Log audit
       serverStore.logAudit({
@@ -179,7 +192,7 @@ async function startServer() {
       },
       compliance: {
         kdpa2019: 'VERIFIED_ACTIVE',
-        dpiaStatus: 'CERTIFIED',
+        dpiaStatus: 'IN_PROGRESS',
         pseudonymisationMethod: 'SHA-256 One-Way Token Masking',
         dataRetentionLimitDays: 90
       },
@@ -270,15 +283,53 @@ async function startServer() {
   });
 
   // ==========================================
-  // DEBTS & RECEIVABLES LEDGER ENDPOINTS (Multi-Tenant Partitioned)
+  // DETERMINISTIC BILLING RECONCILIATION ENGINE
   // ==========================================
-  app.get('/api/debts', (req: Request, res: Response) => {
+  app.post('/api/reconcile/billing', (req: Request, res: Response) => {
+    try {
+      const { procedures, invoices, syncToDebts } = sanitizePayload(req.body);
+      const { isGuest, facilityCode } = getTenantContext(req);
+
+      if (!Array.isArray(procedures)) {
+        res.status(400).json({ error: 'Expected "procedures" array.' });
+        return;
+      }
+
+      const invoiceList = Array.isArray(invoices) ? invoices : [];
+      const reconciliation = reconcileProceduresAgainstInvoices(procedures, invoiceList, facilityCode);
+
+      // Optionally sync generated debts directly to the facility's ledger
+      if (syncToDebts && reconciliation.generatedDebtItems.length > 0) {
+        serverStore.addDebtsBatch(reconciliation.generatedDebtItems, isGuest, facilityCode);
+      }
+
+      res.json({
+        success: true,
+        reconciliation,
+        summaryText: buildVerifiedDeterministicSummary(reconciliation)
+      });
+    } catch (err: any) {
+      console.error('[API /api/reconcile/billing] Error:', err);
+      res.status(500).json({ error: err.message || 'Deterministic reconciliation failed.' });
+    }
+  });
+
+  // ==========================================
+  // DEBTS & RECEIVABLES LEDGER ENDPOINTS (Multi-Tenant Partitioned & Authenticated)
+  // ==========================================
+  const tenantReadAuth = requireAuth({ allowGuest: true });
+  const tenantWriteAuth = requireAuth({
+    allowGuest: true,
+    requireRoles: ['facility_admin', 'moh', 'county_health', 'guest']
+  });
+
+  app.get('/api/debts', tenantReadAuth, (req: Request, res: Response) => {
     const { isGuest, facilityCode } = getTenantContext(req);
     const debts = serverStore.getDebts(isGuest, facilityCode);
     res.json({ success: true, debts, isGuest, facilityCode });
   });
 
-  app.post('/api/debts', (req: Request, res: Response) => {
+  app.post('/api/debts', tenantWriteAuth, (req: Request, res: Response) => {
     try {
       const { isGuest, facilityCode } = getTenantContext(req);
       const newItem = sanitizePayload(req.body);
@@ -293,7 +344,7 @@ async function startServer() {
     }
   });
 
-  app.post('/api/debts/batch', (req: Request, res: Response) => {
+  app.post('/api/debts/batch', tenantWriteAuth, (req: Request, res: Response) => {
     try {
       const { isGuest, facilityCode } = getTenantContext(req);
       const items = sanitizePayload(req.body?.items);
@@ -308,7 +359,7 @@ async function startServer() {
     }
   });
 
-  app.put('/api/debts/:id', (req: Request, res: Response) => {
+  app.put('/api/debts/:id', tenantWriteAuth, (req: Request, res: Response) => {
     try {
       const { isGuest, facilityCode } = getTenantContext(req);
       const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
@@ -324,7 +375,7 @@ async function startServer() {
     }
   });
 
-  app.delete('/api/debts/:id', (req: Request, res: Response) => {
+  app.delete('/api/debts/:id', tenantWriteAuth, (req: Request, res: Response) => {
     try {
       const { isGuest, facilityCode } = getTenantContext(req);
       const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
@@ -340,15 +391,15 @@ async function startServer() {
   });
 
   // ==========================================
-  // RECOVERY LOGBOOK & BASELINE ENDPOINTS (Multi-Tenant Partitioned)
+  // RECOVERY LOGBOOK & BASELINE ENDPOINTS (Multi-Tenant Partitioned & Authenticated)
   // ==========================================
-  app.get('/api/recovery-log', (req: Request, res: Response) => {
+  app.get('/api/recovery-log', tenantReadAuth, (req: Request, res: Response) => {
     const { isGuest, facilityCode } = getTenantContext(req);
     const entries = serverStore.getRecoveryEntries(isGuest, facilityCode);
     res.json({ success: true, entries, isGuest });
   });
 
-  app.post('/api/recovery-log', (req: Request, res: Response) => {
+  app.post('/api/recovery-log', tenantWriteAuth, (req: Request, res: Response) => {
     try {
       const { isGuest, facilityCode } = getTenantContext(req);
       const newEntry = sanitizePayload(req.body);
@@ -363,13 +414,13 @@ async function startServer() {
     }
   });
 
-  app.get('/api/baseline-config', (req: Request, res: Response) => {
+  app.get('/api/baseline-config', tenantReadAuth, (req: Request, res: Response) => {
     const { isGuest, facilityCode } = getTenantContext(req);
     const config = serverStore.getBaselineConfig(isGuest, facilityCode);
     res.json({ success: true, config });
   });
 
-  app.put('/api/baseline-config', (req: Request, res: Response) => {
+  app.put('/api/baseline-config', tenantWriteAuth, (req: Request, res: Response) => {
     try {
       const { isGuest, facilityCode } = getTenantContext(req);
       const updates = sanitizePayload(req.body);
@@ -381,9 +432,9 @@ async function startServer() {
   });
 
   // ==========================================
-  // SHA CLAIMS ENDPOINTS (Multi-Tenant Partitioned)
+  // SHA CLAIMS ENDPOINTS (Multi-Tenant Partitioned & Authenticated)
   // ==========================================
-  app.get('/api/claims', (req: Request, res: Response) => {
+  app.get('/api/claims', tenantReadAuth, (req: Request, res: Response) => {
     try {
       const { isGuest, facilityCode } = getTenantContext(req);
       const claims = serverStore.getClaims(isGuest, facilityCode);
@@ -393,7 +444,7 @@ async function startServer() {
     }
   });
 
-  app.post('/api/claims', (req: Request, res: Response) => {
+  app.post('/api/claims', tenantWriteAuth, (req: Request, res: Response) => {
     try {
       const { isGuest, facilityCode } = getTenantContext(req);
       const newClaim = sanitizePayload(req.body);
@@ -408,7 +459,7 @@ async function startServer() {
     }
   });
 
-  app.put('/api/claims/:id', (req: Request, res: Response) => {
+  app.put('/api/claims/:id', tenantWriteAuth, (req: Request, res: Response) => {
     try {
       const { isGuest, facilityCode } = getTenantContext(req);
       const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
@@ -424,7 +475,7 @@ async function startServer() {
     }
   });
 
-  app.delete('/api/claims/:id', (req: Request, res: Response) => {
+  app.delete('/api/claims/:id', tenantWriteAuth, (req: Request, res: Response) => {
     try {
       const { isGuest, facilityCode } = getTenantContext(req);
       const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
@@ -440,15 +491,15 @@ async function startServer() {
   });
 
   // ==========================================
-  // REPORTS & AUDIT LOGS ENDPOINTS
+  // REPORTS & AUDIT LOGS ENDPOINTS (Multi-Tenant Partitioned & Authenticated)
   // ==========================================
-  app.get('/api/reports', (req: Request, res: Response) => {
+  app.get('/api/reports', tenantReadAuth, (req: Request, res: Response) => {
     const { isGuest, facilityCode } = getTenantContext(req);
     const reports = serverStore.getReports(isGuest, facilityCode);
     res.json({ success: true, reports });
   });
 
-  app.post('/api/reports', (req: Request, res: Response) => {
+  app.post('/api/reports', tenantWriteAuth, (req: Request, res: Response) => {
     try {
       const { isGuest, facilityCode } = getTenantContext(req);
       const report = sanitizePayload(req.body);
@@ -463,7 +514,7 @@ async function startServer() {
     }
   });
 
-  app.get('/api/audit-logs', (req: Request, res: Response) => {
+  app.get('/api/audit-logs', tenantReadAuth, (req: Request, res: Response) => {
     const { isGuest, facilityCode } = getTenantContext(req);
     const logs = serverStore.getAuditLogs(isGuest, facilityCode);
     res.json({ success: true, logs });

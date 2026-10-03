@@ -4,8 +4,9 @@
 
 [![Stack](https://img.shields.io/badge/Stack-React%2019%20%7C%20TypeScript%20%7C%20Express%205-1d6b4a.svg)](https://github.com/kazira/clinical-intelligence)
 [![AI Engine](https://img.shields.io/badge/AI%20Engine-Gemini%202.5%20Pro%20%26%20Flash-4285f4.svg)](https://deepmind.google/technologies/gemini/)
-[![Compliance](https://img.shields.io/badge/Compliance-KDPA%202019%20%7C%20DPIA%20Certified-emerald.svg)](#data-protection--privacy-kdpa-2019)
+[![Compliance](https://img.shields.io/badge/Compliance-KDPA%202019%20%7C%20DPIA%20In%20Progress-amber.svg)](#data-protection--privacy-kdpa-2019)
 [![Interoperability](https://img.shields.io/badge/Interoperability-HL7%20FHIR%20R4%20%7C%20DHIS2-orange.svg)](#kenyan-health-system-interoperability)
+[![Tests](https://img.shields.io/badge/Tests-Passing%20(Deterministic%20Billing)-emerald.svg)](#verification--automated-tests)
 
 ---
 
@@ -77,31 +78,36 @@ Kazira runs as a full-stack Express + Vite application with strict separation be
                         │                                               │
                         ▼                                               ▼
 ┌───────────────────────────────────────────────┐       ┌───────────────────────────────────────────────┐
-│ Local Disk Persistence Store (JSON Engine)    │       │ External Healthcare & AI Gateways             │
-│ `data/kazira_store.json` (Atomic Read/Write)   │       │ • Google Gemini Generative AI SDK             │
-│ Cached in browser LocalStorage for offline UI │       │ • Kenya Ministry of Health DHIS2 Instance     │
-└───────────────────────────────────────────────┘       │ • KenyaEMR FHIR R4 Endpoints                  │
-                                                        │ • Africa's Talking Telecom Gateway            │
-                                                        └───────────────────────────────────────────────┘
+│ Cloud & Disk Persistence Layer                │       │ External Healthcare & AI Gateways             │
+│ • Production: Firebase Firestore (Tenant-     │       │ • Google Gemini Generative AI SDK             │
+│   Isolated by MFL Code & Security Rules)      │       │ • Kenya Ministry of Health DHIS2 Instance     │
+│ • Dev Fallback: `data/kazira_store.json`      │       │ • KenyaEMR FHIR R4 Endpoints                  │
+│ • Planned: Sovereign PostgreSQL / Cloud SQL   │       │ • Africa's Talking Telecom Gateway            │
+│   (For enterprise hospital migrations)        │       └───────────────────────────────────────────────┘
+└───────────────────────────────────────────────┘
 ```
+
+> **Storage & Ephemerality Note:** Serverless environments (such as Vercel functions) utilize ephemeral, read-only filesystems where local JSON files are non-persistent. For production and multi-tenant clinical operations, Kazira routes all stateful data through tenant-partitioned Cloud Firestore with strict Firestore Security Rules enforcing KMHFL boundary isolation. High-throughput national deployments roadmap to dedicated sovereign PostgreSQL / Cloud SQL instances.
 
 ---
 
-## Deterministic AI Verification Pipeline
+## Deterministic Procedural Reconciliation & AI Audit Pipeline
 
-Kazira enforces a zero-hallucination, 3-stage audit loop before any financial metrics or clinical reports are saved:
+Kazira decouples financial arithmetic from generative language models. The core metric—missed billing and unbilled revenue leakage—is computed by a deterministic algorithmic reconciliation engine that directly compares clinical encounters against billing invoices. Generative models are reserved strictly for narrative synthesis and contextual reporting, audited by a second model pass:
 
-1. **Stage 1: Executive Narrative Generation (`gemini-2.5-flash`)**
-   - Ingests raw clinic inputs (CSV, tabular logs, clinical notes).
-   - Generates an executive summary covering missed billings, practitioner utilization, and SHA submission status.
-2. **Stage 2: Mathematical & Logic Audit (`gemini-2.5-pro`)**
-   - Independent verification pass comparing the narrative claims against the raw ingestion data.
-   - Flags arithmetic inconsistencies, unverified figures, or unsupported assertions.
-3. **Stage 3: Structured Metric Extraction (`gemini-2.5-flash` with JSON Schema)**
-   - Extracts strongly typed KPIs:
+1. **Step 0: Deterministic Billing Comparison Engine (Algorithmic / Exact)**
+   - Directly reconciles procedural clinical encounter records (FHIR / CSV) against invoices and SHA claims.
+   - Computes exact mathematical metrics: `unbilledRevenueKes`, `billedRevenueKes`, and clinician-level leakage without generative estimation or hallucinations.
+2. **Stage 1: Executive Narrative Generation (`gemini-2.5-flash`)**
+   - Synthesizes the deterministic metrics into human-readable clinical narratives, department executive briefings, and operational recommendations.
+3. **Stage 2: Mathematical & Logic Audit Pass (`gemini-2.5-pro`)**
+   - Independent verification pass comparing narrative assertions against the raw encounter ground-truth and deterministic calculations.
+   - Flags arithmetic inconsistencies, unverified claims, or unsupported assertions.
+4. **Stage 3: Structured Metric Schema Alignment (`gemini-2.5-flash`)**
+   - Formats strongly typed KPI data for UI dashboard visualization:
      - `revenueThisWeek` (KES)
      - `revenueLastWeek` (KES)
-     - `unbilledRevenueKes` (KES)
+     - `unbilledRevenueKes` (KES - strictly grounded in deterministic output)
      - `shaReimbursementPendingKes` (KES)
      - `shaClaimVolume` (total claims count)
      - `utilization` (% chair/theatre utilization)
@@ -240,9 +246,12 @@ The user interface is governed by the **Kazira Design Language** (`design_langua
 
 ## Verification & Quality Assurance
 
-Run code verification before committing changes:
+Run code verification and test suite:
 
 ```bash
+# Execute deterministic missed billing and reconciliation test suite
+npm test
+
 # Type check and lint codebase
 npm run lint
 

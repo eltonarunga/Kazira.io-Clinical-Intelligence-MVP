@@ -130,6 +130,7 @@ export function sanitizePayload<T>(input: T): T {
 // 4. PASSWORD & AUTHENTICATION CRYPTOGRAPHY (SHA-256 + Salt)
 // =========================================================================
 const AUTH_SECRET = process.env.AUTH_SECRET || 'kazira-kdpa-sovereign-salt-2026';
+const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours validity
 
 export function hashPassword(password: string, salt: string = AUTH_SECRET): string {
   return crypto.createHmac('sha256', salt).update(password).digest('hex');
@@ -140,28 +141,121 @@ export function verifyPassword(provided: string, expectedHash: string, salt: str
   return crypto.timingSafeEqual(Buffer.from(providedHash), Buffer.from(expectedHash));
 }
 
-export function generateSessionToken(userId: string, role: string): string {
+export function generateSessionToken(userId: string, role: string, facilityCode?: string): string {
   const timestamp = Date.now();
-  const raw = `${userId}:${role}:${timestamp}:${crypto.randomBytes(16).toString('hex')}`;
+  const safeFacility = (facilityCode || '').replace(/:/g, '_');
+  const raw = `${userId}:${role}:${safeFacility}:${timestamp}:${crypto.randomBytes(16).toString('hex')}`;
   const signature = crypto.createHmac('sha256', AUTH_SECRET).update(raw).digest('hex');
   return Buffer.from(`${raw}:${signature}`).toString('base64');
 }
 
-export function verifySessionToken(token: string): { valid: boolean; userId?: string; role?: string } {
+export function verifySessionToken(token: string): {
+  valid: boolean;
+  userId?: string;
+  role?: string;
+  facilityCode?: string;
+  expired?: boolean;
+} {
   try {
     const decoded = Buffer.from(token, 'base64').toString('utf-8');
     const parts = decoded.split(':');
-    if (parts.length < 5) return { valid: false };
+    
+    // Support 6-part token (with facility) and legacy 5-part token (without facility)
+    if (parts.length === 6) {
+      const [userId, role, facilityCode, timestampStr, nonce, signature] = parts;
+      const raw = `${userId}:${role}:${facilityCode}:${timestampStr}:${nonce}`;
+      const expectedSig = crypto.createHmac('sha256', AUTH_SECRET).update(raw).digest('hex');
 
-    const [userId, role, timestamp, nonce, signature] = parts;
-    const raw = `${userId}:${role}:${timestamp}:${nonce}`;
-    const expectedSig = crypto.createHmac('sha256', AUTH_SECRET).update(raw).digest('hex');
+      if (crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))) {
+        const timestamp = parseInt(timestampStr, 10);
+        if (Date.now() - timestamp > SESSION_TTL_MS) {
+          return { valid: false, expired: true };
+        }
+        return { valid: true, userId, role, facilityCode: facilityCode || undefined };
+      }
+    } else if (parts.length === 5) {
+      const [userId, role, timestampStr, nonce, signature] = parts;
+      const raw = `${userId}:${role}:${timestampStr}:${nonce}`;
+      const expectedSig = crypto.createHmac('sha256', AUTH_SECRET).update(raw).digest('hex');
 
-    if (crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))) {
-      return { valid: true, userId, role };
+      if (crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))) {
+        const timestamp = parseInt(timestampStr, 10);
+        if (Date.now() - timestamp > SESSION_TTL_MS) {
+          return { valid: false, expired: true };
+        }
+        return { valid: true, userId, role };
+      }
     }
   } catch {
     // Malformed token
   }
   return { valid: false };
+}
+
+// =========================================================================
+// 5. TENANT AUTHENTICATION & AUTHORIZATION MIDDLEWARE
+// =========================================================================
+export interface AuthenticatedUser {
+  userId: string;
+  role: string;
+  facilityCode?: string;
+  isGuest: boolean;
+}
+
+export function requireAuth(options: { allowGuest?: boolean; requireRoles?: string[] } = { allowGuest: true }) {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const authHeader = req.headers.authorization;
+    const isGuestRequest = req.headers['x-is-guest'] === 'true' || req.query.isGuest === 'true';
+
+    // 1. Bearer Token Verification
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      const verification = verifySessionToken(token);
+      
+      if (verification.valid && verification.userId && verification.role) {
+        if (options.requireRoles && !options.requireRoles.includes(verification.role)) {
+          res.status(403).json({
+            error: 'Access denied: Insufficient privileges for this clinical resource.',
+            code: 'FORBIDDEN'
+          });
+          return;
+        }
+
+        (req as any).user = {
+          userId: verification.userId,
+          role: verification.role,
+          facilityCode: verification.facilityCode || (req.headers['x-facility-code'] as string),
+          isGuest: false
+        };
+        next();
+        return;
+      }
+
+      if (verification.expired) {
+        res.status(401).json({
+          error: 'Session expired. Please log in again to continue.',
+          code: 'SESSION_EXPIRED'
+        });
+        return;
+      }
+    }
+
+    // 2. Guest Sandbox Access
+    if (options.allowGuest && isGuestRequest) {
+      (req as any).user = {
+        userId: 'guest-sandbox',
+        role: 'guest',
+        facilityCode: 'MFL #DEMO-01',
+        isGuest: true
+      };
+      next();
+      return;
+    }
+
+    // 3. Fallback: Reject unauthenticated request
+    res.status(401).json({
+      error: 'Authentication required. Missing, invalid, or expired session token.',
+      code: 'UNAUTHORIZED'
+    });
+  };
 }

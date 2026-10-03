@@ -4,6 +4,39 @@ All notable changes to the Kazira.io project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.0] - 2026-10-03
+
+### Security
+- **Strict Tenant Isolation in Firestore Security Rules (`firestore.rules`, `services/firebase.ts`, `firebase-blueprint.json`):**
+  - Eliminated open read/write access under `/facilities/{facilityId}` in `firestore.rules`.
+  - Added facility-bound tenant boundary validation: practitioners and facility admins are restricted strictly to documents matching their authenticated facility partition (`facilityId` / `facilityCode`).
+  - Cross-tenant data inspection and tampering are explicitly rejected; supervisory oversight roles (`county_health`, `moh`) are granted read access strictly for statutory disease surveillance and public compliance mandates.
+  - Deployed updated security rules to production via `deploy_firebase`.
+- **Server Routes Authentication & Tenant Authorization Middleware (`server.ts`, `server/security.ts`):**
+  - Built and mounted `requireAuth` middleware with cryptographic HMAC SHA-256 session token verification.
+  - Bound session tokens to facility identifiers, preventing facility spoofing.
+  - Protected all ledger and sensitive data routes (`/api/debts`, `/api/claims`, `/api/recovery-log`, `/api/baseline-config`, `/api/reports`, `/api/audit-logs`) with `requireAuth` and role-based guards for destructive mutations (`requireRoles: ['facility_admin', 'moh', 'county_health', 'guest']`).
+- **Removed Hardcoded Admin Profile (`constants/profiles.ts`):**
+  - Removed `user-elton-arunga` and development session bypass from `constants/profiles.ts`.
+  - Re-anchored initial default profile on realistic clinic evaluator profiles (`Dr. Amina Mutua, MBChB` at Nairobi West Memorial Hospital and `Guest Health Auditor` for sandbox exploration).
+
+### Added
+- **Deterministic Procedural Billing Reconciliation Engine & Automated Test Suite (`utils/deterministicBilling.ts`, `tests/deterministicBilling.test.ts`, `server.ts`, `package.json`):**
+  - Created `reconcileProceduresAgainstInvoices` engine executing exact arithmetic comparison between clinical encounter procedures and billed invoices/claims.
+  - Computes `totalPotentialRevenueKes`, `totalBilledRevenueKes`, `totalUnbilledRevenueKes`, `leakagePercentage`, and department/practitioner breakdown without relying on generative model hallucinations.
+  - Created automated test suite with 5 test cases testing completely unbilled procedures, underbilled tariff variances, fully reconciled procedures, multi-department shifts, and empty arrays.
+  - Added `"test": "tsx --test tests/**/*.test.ts"` script to `package.json`; 100% passing.
+  - Mounted `/api/reconcile/billing` endpoint for direct batch procedure reconciliation and automatic receivables ledger population.
+
+### Changed
+- **DPIA Status & Regulatory Phrasing Audit (`README.md`, `server.ts`):**
+  - Updated README compliance badge from "DPIA Certified" to regulator-defensible "DPIA In Progress".
+  - Replaced "zero-hallucination" phrasing with "audited by a second model pass" and "deterministic procedural reconciliation with dual-model verification".
+  - Updated server telemetry compliance status (`dpiaStatus: 'IN_PROGRESS'`).
+- **Storage Architecture & Ephemerality Safeguards (`server/store.ts`, `README.md`):**
+  - Clarified dual-tier storage architecture: multi-tenant Cloud Firestore database (`ai-studio-kaziraioclinicin-ed928fd1-5a41-4c48-ad3d-3be773cab9f4`) for real-time production cloud persistence, local JSON fallback for dev, and PostgreSQL roadmap.
+  - Hardened `server/store.ts` to log and bypass local filesystem writes gracefully in serverless lambda environments (e.g., Vercel) without throwing unhandled exceptions.
+
 ## [2.10.10] - 2026-10-02
 
 ### Removed
