@@ -1,6 +1,11 @@
 # Kazira Clinical Intelligence - Task Tracker
 
 ## High Priority
+- [x] **Exclusive Google Sign In / Sign Up & Guest Sandbox Access (`components/auth/SignInView.tsx`):**
+  - Streamlined authentication gateway to exclusively allow verified Google Authentication and Guest Sandbox access.
+  - Eliminated legacy email/password input fields, password toggles, manual credential submission forms, and synthetic persona bypasses.
+  - Unified Google authentication for both returning clinic accounts and new facility registrations with a clean first-time facility setup flow (KMHFL code, facility model, county).
+  - Maintained isolated sandbox partition (`MFL #DEMO-01`) for instant zero-credential evaluation. (Completed)
 - [x] **Strict Token-Only Authentication & Removal of Header-Based Bypasses (`server/security.ts`, `server.ts`, `services/apiService.ts`):**
   - Removed client-controlled `x-is-guest: true` and `?isGuest=true` bypasses from `requireAuth`. All API callers must present a cryptographically verified Bearer session token.
   - Hardened guest sandbox session generation: guests must authenticate via `/api/auth/login` to receive an immutable token strictly bound to `'MFL #DEMO-01'`.

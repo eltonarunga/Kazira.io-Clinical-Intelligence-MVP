@@ -4,6 +4,16 @@ All notable changes to the Kazira.io project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.2] - 2026-10-03
+
+### Authentication & UX
+- **Exclusive Google Sign In / Sign Up & Guest Access (`components/auth/SignInView.tsx`):**
+  - Streamlined authentication gateway to support strictly two verified entry paths:
+    1. **Google Sign In / Sign Up (Single Sign-On):** Passwordless authentication backed by verified Firebase identity (`signInWithGooglePopup`). Existing facilities restore their cloud Firestore profile instantly; new facilities are onboarded via a clean 1-minute facility profile setup (Hospital Name, KMHFL code, classification, county).
+    2. **Guest Sandbox Access:** Instant zero-credential exploration of the synthetic demo clinic partition (`MFL #DEMO-01`) with pre-loaded Kenyan FHIR encounters and KES 3.42M unbilled gap ledgers.
+  - Eliminated all legacy username/password inputs, password toggles, manual credential submission handlers, and synthetic persona bypasses.
+  - Aligned with statutory KDPA 2019 data protection principles: zero storage or transmission of plaintext passwords.
+
 ## [2.11.1] - 2026-10-03
 
 ### Security
