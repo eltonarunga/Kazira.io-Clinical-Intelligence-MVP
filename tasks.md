@@ -1,6 +1,21 @@
 # Kazira Clinical Intelligence - Task Tracker
 
 ## High Priority
+- [x] **Strict Token-Only Authentication & Removal of Header-Based Bypasses (`server/security.ts`, `server.ts`, `services/apiService.ts`):**
+  - Removed client-controlled `x-is-guest: true` and `?isGuest=true` bypasses from `requireAuth`. All API callers must present a cryptographically verified Bearer session token.
+  - Hardened guest sandbox session generation: guests must authenticate via `/api/auth/login` to receive an immutable token strictly bound to `'MFL #DEMO-01'`.
+  - Locked regular facility admins to their verified token's `facilityCode`; client headers cannot spoof or switch facility partitions.
+  - Refined supervisory target facility inspection: only cryptographically verified `moh` or `county_health` tokens can supply an audit target parameter (`targetFacility` / `x-target-facility`) for statutory oversight. (Completed)
+- [x] **Production `AUTH_SECRET` Guard & Ephemeral Dev Key (`server/security.ts`, `.env.example`):**
+  - Server explicitly throws a fatal startup error if `AUTH_SECRET` is missing, shorter than 16 characters, or matches public repository defaults in production (`process.env.NODE_ENV === 'production'`).
+  - Non-production environments auto-generate an unguessable 256-bit cryptographic key per process run (`crypto.randomBytes(32).toString('hex')`), preventing token forgery with public repository strings.
+  - Documented `AUTH_SECRET` in `.env.example`. (Completed)
+- [x] **Client Session Bootstrapping & Dual-Loop Reconciliation Parity (`App.tsx`, `services/apiService.ts`, `services/geminiService.ts`):**
+  - Added session bootstrap on mount (`apiService.ensureSession()`) and inside guest login handlers, guaranteeing an active Bearer token is always attached to API calls.
+  - Updated `services/geminiService.ts` to attach Authorization Bearer tokens to `/api/ai/*` routes.
+  - Verified deterministic reconciliation wiring in `App.tsx`: `apiService.reconcileBilling` executes exact math first, feeds deterministic summaries to the Gemini narrative generator, and overrides generative metrics. (Completed)
+- [x] **Conservative Phrasing Audit Completed (`AiAuditView.tsx`, `README.md`):**
+  - Updated remaining UI claims from "Zero Hallucination Guaranteed" to "Audited by Second Model Pass" and "Dual-Loop AI Architecture (Gemini 3.8 / 2.5 Flash)". (Completed)
 - [x] **Tenant Isolation in Firestore Security Rules (`firestore.rules`, `services/firebase.ts`, `firebase-blueprint.json`):**
   - Replaced open access (`allow read, write: if isSignedIn();`) under `/facilities/{facilityId}` with strict role-based and facility-bound tenant partitioning.
   - Practitioners and facility administrators are restricted strictly to documents matching their authenticated facility partition (`getUserData().facilityId == facilityId || getUserData().facilityCode == facilityId`).

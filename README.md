@@ -64,15 +64,20 @@ Kazira runs as a full-stack Express + Vite application with strict separation be
 ┌───────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Server-Side Application Layer (Express 5 running on Node.js, Port 3000)                       │
 │                                                                                               │
-│  ├── /api/ai/narrative        ──► Calls Gemini 2.5 Flash (Synthesizes executive clinical data)│
-│  ├── /api/ai/audit            ──► Calls Gemini 2.5 Pro (Audits calculations & eliminates hall.)│
-│  ├── /api/ai/extract-metrics  ──► Calls Gemini 2.5 Flash (Extracts structured JSON schema)   │
-│  ├── /api/debts               ──► Atomic CRUD for clinical receivables & gap items           │
-│  ├── /api/recovery-log        ──► Financial recovery ledger with automated attribution       │
-│  ├── /api/baseline-config     ──► Configurable pre-Kazira baseline recovery & fee rates      │
-│  ├── /api/dhis2/sync          ──► MoH DHIS2 aggregate claims submission gateway             │
-│  ├── /api/fhir/encounters     ──► HL7 FHIR R4 Bundle sync (KenyaEMR / OpenMRS)               │
-│  ├── /api/sms/send            ──► Africa's Talking SMS dispatcher (+254 Kenyan numbers)      │
+│  ├── /api/auth/login          ──► Issues session token bound to verified Firebase ID & DB     │
+│  ├── /api/auth/register       ──► Onboards new hospital facility & administrator profile      │
+│  ├── /api/auth/verify-session ──► Cryptographic HMAC SHA-256 session token verification       │
+│  ├── /api/reconcile/billing   ──► Deterministic procedure vs invoice algorithmic engine       │
+│  ├── /api/ai/narrative        ──► Calls Gemini Flash (Synthesizes executive clinical data)    │
+│  ├── /api/ai/audit            ──► Calls Gemini Flash/Pro (Audits calculations & parity)       │
+│  ├── /api/ai/extract-metrics  ──► Calls Gemini Flash (Extracts structured JSON schema)        │
+│  ├── /api/debts (CRUD)        ──► Tenant-partitioned receivables & clinical gap ledger       │
+│  ├── /api/claims (CRUD)       ──► Tenant-partitioned Social Health Authority (SHA) claims    │
+│  ├── /api/recovery-log        ──► Financial recovery ledger with automated attribution        │
+│  ├── /api/baseline-config     ──► Configurable pre-Kazira baseline recovery & fee rates       │
+│  ├── /api/dhis2/sync          ──► MoH DHIS2 aggregate claims submission gateway              │
+│  ├── /api/fhir/encounters     ──► HL7 FHIR R4 Bundle sync (KenyaEMR / OpenMRS)                │
+│  ├── /api/sms/send            ──► Africa's Talking SMS dispatcher (+254 Kenyan numbers)       │
 │  └── /api/system/status       ──► Real-time full-stack health & KDPA compliance telemetry     │
 └───────────────────────┬───────────────────────────────────────────────┬───────────────────────┘
                         │                                               │
@@ -200,9 +205,24 @@ The user interface is governed by the **Kazira Design Language** (`design_langua
    ```bash
    cp .env.example .env
    ```
-   Add your Gemini API key:
+   Populate credentials in `.env`:
    ```env
+   # Cryptographic Session & Token Signing Secret (Required in production - minimum 32 chars)
+   AUTH_SECRET=your_super_secret_32_char_signing_key_here
+
+   # Gemini API Key (Server-side proxy - never exposed to browser)
    GEMINI_API_KEY=your_gemini_api_key_here
+
+   # Kenya Ministry of Health DHIS2 Integration
+   DHIS2_BASE_URL=https://dhis2.health.go.ke/api/33
+   DHIS2_API_TOKEN=your_dhis2_token
+
+   # KenyaEMR / OpenMRS FHIR R4 Endpoint
+   KENYAEMR_FHIR_BASE_URL=https://kenyaemr.health.go.ke/openmrs/ws/fhir2/R4
+
+   # SMS Alerting Gateway (Africa's Talking)
+   AFRICASTALKING_USERNAME=sandbox
+   AFRICASTALKING_API_KEY=your_africastalking_key
    ```
 
 4. **Start the development server:**
@@ -226,21 +246,30 @@ The user interface is governed by the **Kazira Design Language** (`design_langua
 
 ## API Reference
 
-| Route | Method | Description |
-|---|---|---|
-| `/api/health` | `GET` | Basic server health check |
-| `/api/system/status` | `GET` | Full system telemetry, uptime, KDPA 2019 verification, and store stats |
-| `/api/ai/narrative` | `POST` | Generates executive narrative report (`gemini-2.5-flash`) |
-| `/api/ai/audit` | `POST` | Audits narrative calculations against raw data (`gemini-2.5-pro`) |
-| `/api/ai/extract-metrics` | `POST` | Extracts structured KPIs via JSON schema (`gemini-2.5-flash`) |
-| `/api/debts` | `GET`, `POST` | Retrieves or adds clinical receivables items |
-| `/api/debts/:id` | `PUT`, `DELETE` | Updates status or deletes a receivable item |
-| `/api/recovery-log` | `GET`, `POST` | Reads or writes financial recovery log entries |
-| `/api/baseline-config` | `GET`, `PUT` | Fetches or updates pre-Kazira baseline recovery configs |
-| `/api/reports` | `GET`, `POST` | Retrieves or persists generated report history |
-| `/api/dhis2/sync` | `POST` | Submits aggregate claims payload to MoH DHIS2 |
-| `/api/fhir/encounters` | `GET` | Fetches simulated KenyaEMR HL7 FHIR R4 encounters |
-| `/api/sms/send` | `POST` | Dispatches SMS via Africa's Talking gateway |
+All protected endpoints require an `Authorization: Bearer <sessionToken>` header issued by `/api/auth/login`.
+
+| Route | Method | Access Level | Description |
+|---|---|---|---|
+| `/api/health` | `GET` | Public | Basic server health check, uptime, and Gemini readiness |
+| `/api/system/status` | `GET` | Authenticated / Guest | Real-time full-stack telemetry, KDPA 2019 compliance, and store counts |
+| `/api/auth/login` | `POST` | Public | Validates Firebase ID token & issues tenant-bound cryptographic session token |
+| `/api/auth/register` | `POST` | Public | Registers a new hospital facility and admin profile into Cloud Firestore |
+| `/api/auth/verify-session` | `GET` | Authenticated | Validates session token signature, expiration, role, and facilityCode |
+| `/api/reconcile/billing` | `POST` | Authenticated | Deterministic procedural comparison engine (procedures vs invoices/claims) |
+| `/api/ai/narrative` | `POST` | Authenticated | Generates executive narrative report grounded in deterministic math |
+| `/api/ai/audit` | `POST` | Authenticated | Dual-model verification pass auditing narrative against raw encounter logs |
+| `/api/ai/extract-metrics` | `POST` | Authenticated | Extracts strongly typed KPI JSON schema (`MetricSummary`) |
+| `/api/debts` | `GET`, `POST` | Tenant-Bound | Reads or creates unbilled clinical receivables items for the active facility |
+| `/api/debts/batch` | `POST` | Tenant-Bound | Batch ingests clinical gap items into the facility's receivables ledger |
+| `/api/debts/:id` | `PUT`, `DELETE` | Tenant-Bound | Updates resolution status (`collected`, `dismissed`, `escalated`) or removes item |
+| `/api/claims` | `GET`, `POST` | Tenant-Bound | Reads or creates Social Health Authority (SHA) claims |
+| `/api/claims/:id` | `PUT` | Tenant-Bound | Updates claim status, tariff cap corrections, and pre-auth tokens |
+| `/api/recovery-log` | `GET`, `POST` | Tenant-Bound | Reads or creates financial recovery log entries with automated attribution |
+| `/api/baseline-config` | `GET`, `PUT` | Tenant-Bound | Fetches or updates pre-Kazira baseline recovery and fee comparison rates |
+| `/api/reports` | `GET`, `POST` | Tenant-Bound | Retrieves or persists generated report history |
+| `/api/dhis2/sync` | `POST` | Oversight / Admin | Submits aggregate claims payload to MoH DHIS2 data warehouse |
+| `/api/fhir/encounters` | `GET` | Authenticated | Pulls simulated KenyaEMR / OpenMRS HL7 FHIR R4 clinical encounters |
+| `/api/sms/send` | `POST` | Authenticated | Dispatches transactional SMS via Africa's Talking gateway (+254 numbers) |
 
 ---
 

@@ -4,6 +4,27 @@ All notable changes to the Kazira.io project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.1] - 2026-10-03
+
+### Security
+- **Strict Token-Only Authentication & Removal of Header-Based Bypasses (`server/security.ts`, `server.ts`, `services/apiService.ts`):**
+  - Removed client-controlled `x-is-guest: true` and `?isGuest=true` bypasses in `requireAuth`. All API requests now strictly require a cryptographically signed Bearer session token.
+  - Guest sessions authenticate via `/api/auth/login` to obtain an immutable signed token bound to the demo partition (`'MFL #DEMO-01'`).
+  - Regular clinic users are strictly locked to their verified token's `facilityCode`; client headers cannot spoof or switch facility partitions.
+  - Refined supervisory target facility inspection: only cryptographically verified `moh` or `county_health` tokens can supply an audit target parameter.
+- **Production `AUTH_SECRET` Guard & Ephemeral Dev Key (`server/security.ts`, `.env.example`):**
+  - Server explicitly throws a fatal startup error if `AUTH_SECRET` is missing, shorter than 16 characters, or matches public repository defaults in production (`process.env.NODE_ENV === 'production'`).
+  - Non-production environments auto-generate an unguessable 256-bit cryptographic key per process run, preventing forged tokens with repository strings.
+  - Documented `AUTH_SECRET` in `.env.example`.
+
+### Architecture & Grounding
+- **Client Session Bootstrapping & Dual-Loop Reconciliation Parity (`App.tsx`, `services/apiService.ts`, `services/geminiService.ts`):**
+  - Added session bootstrap on mount (`apiService.ensureSession()`) and inside guest login handlers to ensure an active Bearer token is always attached to API calls.
+  - Updated `services/geminiService.ts` to attach Authorization Bearer tokens to `/api/ai/*` routes.
+  - Re-verified deterministic reconciliation wiring in `App.tsx`: `apiService.reconcileBilling` executes exact math first, feeds deterministic summaries to the Gemini narrative generator, and overrides generative metrics.
+- **Conservative Phrasing Audit (`AiAuditView.tsx`):**
+  - Updated remaining claims from "Zero Hallucination Guaranteed" to "Audited by Second Model Pass" and "Dual-Loop AI Architecture (Gemini 3.8 / 2.5 Flash)".
+
 ## [2.11.0] - 2026-10-03
 
 ### Security

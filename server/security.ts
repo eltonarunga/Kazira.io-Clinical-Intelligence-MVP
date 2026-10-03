@@ -129,7 +129,37 @@ export function sanitizePayload<T>(input: T): T {
 // =========================================================================
 // 4. PASSWORD & AUTHENTICATION CRYPTOGRAPHY (SHA-256 + Salt)
 // =========================================================================
-const AUTH_SECRET = process.env.AUTH_SECRET || 'kazira-kdpa-sovereign-salt-2026';
+function resolveAuthSecret(): string {
+  const envSecret = process.env.AUTH_SECRET;
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  if (isProduction) {
+    if (!envSecret || envSecret.trim().length < 16 || envSecret === 'kazira-kdpa-sovereign-salt-2026') {
+      throw new Error(
+        '[FATAL SECURITY] Refusing to start server: AUTH_SECRET environment variable is missing, too short (< 16 chars), or set to the insecure repository default in production. ' +
+        'Set a strong, cryptographically private AUTH_SECRET key in your deployment environment.'
+      );
+    }
+    return envSecret.trim();
+  }
+  
+  if (envSecret && envSecret.trim().length >= 16 && envSecret !== 'kazira-kdpa-sovereign-salt-2026') {
+    return envSecret.trim();
+  }
+
+  // Non-production fallback: generate an unguessable 256-bit cryptographic secret for this process run.
+  // This guarantees tokens cannot be forged by external callers using public strings from the repository.
+  if (!(global as any).__kazira_ephemeral_dev_secret) {
+    (global as any).__kazira_ephemeral_dev_secret = crypto.randomBytes(32).toString('hex');
+    console.warn(
+      '[SECURITY NOTICE] AUTH_SECRET not configured. Generated ephemeral 256-bit secret for this process. ' +
+      'Tokens forged with public repository strings will be rejected.'
+    );
+  }
+  return (global as any).__kazira_ephemeral_dev_secret;
+}
+
+const AUTH_SECRET = resolveAuthSecret();
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours validity
 
 export function hashPassword(password: string, salt: string = AUTH_SECRET): string {
@@ -205,32 +235,21 @@ export interface AuthenticatedUser {
 export function requireAuth(options: { allowGuest?: boolean; requireRoles?: string[] } = { allowGuest: true }) {
   return (req: Request, res: Response, next: NextFunction): void => {
     const authHeader = req.headers.authorization;
-    const isGuestRequest = req.headers['x-is-guest'] === 'true' || req.query.isGuest === 'true';
 
-    // 1. Bearer Token Verification
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split(' ')[1];
-      const verification = verifySessionToken(token);
-      
-      if (verification.valid && verification.userId && verification.role) {
-        if (options.requireRoles && !options.requireRoles.includes(verification.role)) {
-          res.status(403).json({
-            error: 'Access denied: Insufficient privileges for this clinical resource.',
-            code: 'FORBIDDEN'
-          });
-          return;
-        }
+    // Strict Rule: Every API caller MUST supply a cryptographically signed Bearer session token.
+    // Client-controlled headers (like 'x-is-guest: true' or 'x-facility-code') CANNOT grant access without a valid token.
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(401).json({
+        error: 'Authentication required. Missing Bearer session token.',
+        code: 'MISSING_TOKEN'
+      });
+      return;
+    }
 
-        (req as any).user = {
-          userId: verification.userId,
-          role: verification.role,
-          facilityCode: verification.facilityCode || (req.headers['x-facility-code'] as string),
-          isGuest: false
-        };
-        next();
-        return;
-      }
+    const token = authHeader.split(' ')[1];
+    const verification = verifySessionToken(token);
 
+    if (!verification.valid || !verification.userId || !verification.role) {
       if (verification.expired) {
         res.status(401).json({
           error: 'Session expired. Please log in again to continue.',
@@ -238,24 +257,59 @@ export function requireAuth(options: { allowGuest?: boolean; requireRoles?: stri
         });
         return;
       }
-    }
-
-    // 2. Guest Sandbox Access
-    if (options.allowGuest && isGuestRequest) {
-      (req as any).user = {
-        userId: 'guest-sandbox',
-        role: 'guest',
-        facilityCode: 'MFL #DEMO-01',
-        isGuest: true
-      };
-      next();
+      res.status(401).json({
+        error: 'Authentication failed. Invalid or tampered session token.',
+        code: 'INVALID_TOKEN'
+      });
       return;
     }
 
-    // 3. Fallback: Reject unauthenticated request
-    res.status(401).json({
-      error: 'Authentication required. Missing, invalid, or expired session token.',
-      code: 'UNAUTHORIZED'
-    });
+    const isGuestToken = verification.role === 'guest' || verification.userId === 'guest-sandbox';
+
+    // Verify role permissions if specified
+    if (options.requireRoles && !options.requireRoles.includes(verification.role)) {
+      res.status(403).json({
+        error: 'Access denied: Insufficient privileges for this clinical resource.',
+        code: 'FORBIDDEN'
+      });
+      return;
+    }
+
+    if (!options.allowGuest && isGuestToken) {
+      res.status(403).json({
+        error: 'Access denied: Guest accounts cannot modify live hospital records.',
+        code: 'GUEST_FORBIDDEN'
+      });
+      return;
+    }
+
+    // Strict tenant boundary enforcement:
+    // 1. Guest tokens are IMMUTABLY bound to the synthetic demo clinic partition ('MFL #DEMO-01').
+    // 2. Regular clinic admins and staff are IMMUTABLY bound to the facilityCode inside their verified token.
+    //    They CANNOT spoof another facility by passing an x-facility-code header.
+    // 3. Only verified statutory oversight roles (county_health, moh) may pass a target facility query parameter.
+    let tenantFacility = verification.facilityCode;
+
+    if (isGuestToken) {
+      tenantFacility = 'MFL #DEMO-01';
+    } else if (verification.role === 'county_health' || verification.role === 'moh') {
+      const requestedFacility = (req.query.targetFacility as string) || (req.headers['x-target-facility'] as string);
+      if (requestedFacility && /^[a-zA-Z0-9_\-\s#]+$/.test(requestedFacility)) {
+        tenantFacility = requestedFacility.trim();
+      } else {
+        tenantFacility = verification.facilityCode || 'MOH-OVERSIGHT';
+      }
+    } else {
+      tenantFacility = verification.facilityCode || 'MFL #UNASSIGNED';
+    }
+
+    (req as any).user = {
+      userId: verification.userId,
+      role: verification.role,
+      facilityCode: tenantFacility,
+      isGuest: isGuestToken
+    };
+
+    next();
   };
 }

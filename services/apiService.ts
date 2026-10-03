@@ -33,26 +33,47 @@ export interface SystemStatus {
 }
 
 export class ApiService {
-  private getHeaders(isGuest: boolean = true, facilityCode?: string): Record<string, string> {
+  private getHeaders(isGuest: boolean = true, targetFacilityCode?: string): Record<string, string> {
     const token = safeStorage.getItem('kazira_auth_token');
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'x-is-guest': isGuest ? 'true' : 'false',
-      'x-facility-code': facilityCode || 'MFL #14920'
+      'Content-Type': 'application/json'
     };
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
+    if (targetFacilityCode) {
+      headers['x-target-facility'] = targetFacilityCode;
+    }
     return headers;
   }
 
-  // Authentication
-  public async login(emailOrMfl: string, password?: string, role?: string): Promise<{ success: boolean; token?: string }> {
+  // Authentication via Verified Firebase ID Token
+  public async loginWithFirebaseIdToken(idToken: string): Promise<{ success: boolean; token?: string; user?: any; error?: string }> {
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ emailOrMfl, password, role })
+        body: JSON.stringify({ idToken })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success && data.token) {
+        safeStorage.setItem('kazira_auth_token', data.token);
+        return data;
+      }
+      return { success: false, error: data.error || 'Firebase authentication failed.' };
+    } catch (e: any) {
+      console.warn('[ApiService] Firebase ID token login request notice:', e);
+      return { success: false, error: e.message };
+    }
+  }
+
+  // Guest Sandbox Session
+  public async loginGuest(): Promise<{ success: boolean; token?: string; user?: any }> {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isGuest: true })
       });
       if (res.ok) {
         const data = await res.json();
@@ -62,18 +83,33 @@ export class ApiService {
         return data;
       }
     } catch (e) {
-      console.warn('[ApiService] Server login request failed');
+      console.warn('[ApiService] Guest session request notice:', e);
     }
     return { success: false };
   }
 
+  // Ensure an active session token exists, bootstrapping a signed guest token if unauthenticated
+  public async ensureSession(): Promise<string | null> {
+    const existingToken = safeStorage.getItem('kazira_auth_token');
+    if (existingToken) {
+      return existingToken;
+    }
+    const guestRes = await this.loginGuest();
+    return guestRes.token || null;
+  }
+
+  // Legacy or demo login fallback
+  public async login(emailOrMfl: string, password?: string, role?: string): Promise<{ success: boolean; token?: string }> {
+    return await this.loginGuest();
+  }
+
   // Register New Facility & Admin
-  public async registerFacility(profile: UserProfile, password?: string): Promise<{ success: boolean; profile?: UserProfile; token?: string; error?: string }> {
+  public async registerFacility(profile: UserProfile, password?: string, idToken?: string): Promise<{ success: boolean; profile?: UserProfile; token?: string; error?: string }> {
     try {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profile, password })
+        body: JSON.stringify({ profile, password, idToken })
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.success) {
@@ -87,6 +123,28 @@ export class ApiService {
       console.warn('[ApiService] Server registration request failed:', e);
       return { success: false, error: e.message || 'Network error during facility registration.' };
     }
+  }
+
+  // Deterministic Billing Reconciliation Engine Call
+  public async reconcileBilling(
+    procedures: any[],
+    invoices: any[] = [],
+    isGuest: boolean = true,
+    facilityCode?: string
+  ): Promise<{ success: boolean; reconciliation?: any; summaryText?: string }> {
+    try {
+      const res = await fetch('/api/reconcile/billing', {
+        method: 'POST',
+        headers: this.getHeaders(isGuest, facilityCode),
+        body: JSON.stringify({ procedures, invoices, syncToDebts: false })
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.warn('[ApiService] Reconcile billing request notice:', e);
+    }
+    return { success: false };
   }
 
   // Fetch Registered Profiles from Server

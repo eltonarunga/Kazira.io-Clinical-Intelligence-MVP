@@ -181,6 +181,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
 
     try {
       const user = await signInWithGooglePopup();
+      const idToken = await user.getIdToken();
       
       // Check cloud Firestore database for existing user profile
       let profile = await fetchUserProfile(user.uid);
@@ -196,6 +197,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
             name: user.displayName || match.name
           };
           await saveUserProfile(profile);
+          await apiService.loginWithFirebaseIdToken(idToken).catch(() => {});
           onSignIn(profile);
           if (onShowToast) {
             onShowToast('Google Authentication', `Welcome, ${profile.name}. Facility cloud database synced.`, 'success');
@@ -205,6 +207,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
       }
 
       if (profile) {
+        await apiService.loginWithFirebaseIdToken(idToken).catch(() => {});
         onSignIn(profile);
         if (onShowToast) {
           onShowToast('Google Authentication', `Welcome back, ${profile.name} (${profile.facilityName}).`, 'success');
@@ -271,6 +274,9 @@ export const SignInView: React.FC<SignInViewProps> = ({
 
       // Persist to cloud database
       await saveUserProfile(newProfile);
+
+      const idToken = await googleUserTemp.getIdToken();
+      await apiService.registerFacility(newProfile, undefined, idToken).catch(() => {});
 
       // Register locally & full-stack
       if (onSignUp) {

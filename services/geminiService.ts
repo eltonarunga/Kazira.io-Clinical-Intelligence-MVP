@@ -1,9 +1,15 @@
 import { MetricSummary } from '../types';
+import { safeStorage } from '../utils/storage';
 
-const getClientHeaders = (): HeadersInit => {
-  return {
+const getClientHeaders = (): Record<string, string> => {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json'
   };
+  const token = safeStorage.getItem('kazira_auth_token');
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
 };
 
 export const generateNarrativeReport = async (data: string): Promise<string> => {

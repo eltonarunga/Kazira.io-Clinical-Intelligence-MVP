@@ -45,12 +45,12 @@ During the Week 11 auditing cycle, Kazira Clinical Intelligence evaluated all in
 
   const defaultAudit = `### Deterministic Audit Trail & Verification Logs
 - Stage 1 (Flash Narrative): Processed 142 FHIR bundles in 0.42s. Extracted 23 candidate procedural discrepancies.
-- Stage 2 (Gemini 2.5 Math Determinism):
+- Stage 2 (Gemini Flash Math Determinism):
   - Laparoscopic Consumables: 8 procedures * KES 65,000 = KES 520,000 [VERIFIED]
   - Pelvic Doppler Scans: 12 scans * KES 40,000 = KES 480,000 [VERIFIED]
   - Minor Debridement Suture Packs: 15 encounters * KES 30,680 = KES 460,200 [VERIFIED]
   - Histopathology Biopsy Panels: 5 specimens * KES 77,000 = KES 385,000 [VERIFIED]
-  - Total Detected Unbilled Value: KES 1,845,200.00 (Zero Hallucination Confirmed)
+  - Total Detected Unbilled Value: KES 1,845,200.00 (Audited by Second Model Pass)
 - KDPA Verification: SHA-256 HMAC generated for all patient tokens. No PII crossed sovereign edge boundary.`;
 
   const defaultMetrics = {
@@ -92,10 +92,10 @@ During the Week 11 auditing cycle, Kazira Clinical Intelligence evaluated all in
           <div className="flex items-center gap-space-sm">
             <span className="inline-flex items-center gap-1.5 px-space-sm py-1 rounded bg-surface-container-high text-on-surface-variant font-label-mono text-label-mono uppercase tracking-wider font-semibold">
               <Cpu size={14} className="text-primary" />
-              Dual-Loop AI Architecture (Gemini 2.5)
+              Dual-Loop AI Architecture (Gemini 3.8 / 2.5 Flash)
             </span>
             <span className="font-label-mono text-label-mono text-primary font-medium">
-              Zero Hallucination Guaranteed
+              Audited by Second Model Pass
             </span>
           </div>
 

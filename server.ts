@@ -17,23 +17,23 @@ import {
   reconcileProceduresAgainstInvoices,
   buildVerifiedDeterministicSummary
 } from './utils/deterministicBilling';
+import {
+  verifyFirebaseIdToken,
+  getUserProfileFromFirestore,
+  adminDb
+} from './server/firebaseAdmin';
 
 function getTenantContext(req: Request) {
   const user = (req as any).user;
   if (user) {
     return {
       isGuest: user.isGuest,
-      facilityCode: user.isGuest ? 'MFL #DEMO-01' : (user.facilityCode || (req.headers['x-facility-code'] as string) || 'MFL #14920')
+      facilityCode: user.isGuest ? 'MFL #DEMO-01' : (user.facilityCode || 'MFL #UNASSIGNED')
     };
   }
-  const isGuestHeader = req.headers['x-is-guest'];
-  const isGuestQuery = req.query.isGuest;
-  const isGuest = isGuestHeader !== undefined 
-    ? isGuestHeader === 'true' 
-    : (isGuestQuery !== undefined ? isGuestQuery === 'true' : false);
-  
-  const facilityCode = (req.headers['x-facility-code'] as string) || (req.query.facilityCode as string) || 'MFL #14920';
-  return { isGuest, facilityCode };
+  // Unauthenticated fallback: strictly restricted to guest sandbox partition ('MFL #DEMO-01').
+  // Client-supplied headers cannot override or access real facility partitions without valid token.
+  return { isGuest: true, facilityCode: 'MFL #DEMO-01' };
 }
 
 async function startServer() {
@@ -74,29 +74,91 @@ async function startServer() {
   // ==========================================
   // AUTHENTICATION & SESSION MANAGEMENT
   // ==========================================
-  app.post('/api/auth/login', (req: Request, res: Response) => {
+  app.post('/api/auth/login', async (req: Request, res: Response) => {
     try {
-      const { emailOrMfl, password, role, facilityCode: bodyFac } = sanitizePayload(req.body);
-      if (!emailOrMfl) {
-        res.status(400).json({ error: 'Email or MFL facility code is required.' });
+      const { idToken, isGuest, emailOrMfl } = sanitizePayload(req.body);
+
+      // 1. Guest Sandbox Session
+      // Strictly scoped to the isolated synthetic demo clinic partition ('MFL #DEMO-01')
+      if (isGuest) {
+        const guestToken = generateSessionToken('guest-sandbox', 'guest', 'MFL #DEMO-01');
+        res.json({
+          success: true,
+          token: guestToken,
+          user: {
+            identifier: 'guest.evaluator@kazira.sandbox',
+            name: 'Guest Health Auditor',
+            role: 'guest',
+            facilityCode: 'MFL #DEMO-01',
+            facilityName: 'Kazira Clinical Sandbox (Demo Clinic)',
+            isGuest: true,
+            issuedAt: new Date().toISOString()
+          }
+        });
         return;
       }
 
-      const assignedRole = role || 'facility_admin';
-      const facCode = bodyFac || (req.headers['x-facility-code'] as string) || undefined;
-      const token = generateSessionToken(emailOrMfl, assignedRole, facCode);
-      
+      // 2. Authenticated Firebase User Session
+      const authHeader = req.headers.authorization;
+      const tokenToVerify = idToken || (authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : undefined);
+
+      if (!tokenToVerify) {
+        res.status(401).json({
+          error: 'Authentication failed: A valid Firebase ID token is required.',
+          code: 'MISSING_ID_TOKEN'
+        });
+        return;
+      }
+
+      let decoded;
+      try {
+        decoded = await verifyFirebaseIdToken(tokenToVerify);
+      } catch (authErr: any) {
+        res.status(401).json({
+          error: 'Invalid or expired Firebase ID token.',
+          code: 'INVALID_ID_TOKEN',
+          details: authErr.message
+        });
+        return;
+      }
+
+      const uid = decoded.uid;
+      const email = decoded.email;
+
+      // Authoritative lookup: Read user profile directly from Firestore.
+      // NEVER trust role or facilityCode from the client request body.
+      const profile = await getUserProfileFromFirestore(uid, email || emailOrMfl);
+
+      if (!profile) {
+        res.status(404).json({
+          error: 'User account not found in hospital registry. Please complete facility onboarding registration first.',
+          code: 'PROFILE_NOT_FOUND',
+          uid,
+          email
+        });
+        return;
+      }
+
+      // Extract verified role and facilityCode from Firestore document
+      const verifiedRole = profile.role || 'facility_admin';
+      const verifiedFacilityCode = profile.facilityCode || (profile as any).facilityId || 'MFL #UNASSIGNED';
+
+      const sessionToken = generateSessionToken(uid, verifiedRole, verifiedFacilityCode);
+
       res.json({
         success: true,
-        token,
+        token: sessionToken,
         user: {
-          identifier: emailOrMfl,
-          role: assignedRole,
-          facilityCode: facCode,
+          identifier: email || uid,
+          name: profile.name,
+          role: verifiedRole,
+          facilityCode: verifiedFacilityCode,
+          facilityName: profile.facilityName,
           issuedAt: new Date().toISOString()
         }
       });
     } catch (err: any) {
+      console.error('[API /api/auth/login] Error:', err);
       res.status(500).json({ error: 'Authentication verification failed.' });
     }
   });
@@ -117,18 +179,62 @@ async function startServer() {
   });
 
   // Register new hospital facility & administrator account
-  app.post('/api/auth/register', (req: Request, res: Response) => {
+  app.post('/api/auth/register', async (req: Request, res: Response) => {
     try {
       const payload = sanitizePayload(req.body);
-      const { profile } = payload || {};
+      const { profile, idToken } = payload || {};
       if (!profile || !profile.facilityCode || !profile.email || !profile.name) {
         res.status(400).json({ error: 'Missing required registration profile fields (facilityCode, email, name).' });
         return;
       }
+
+      // If idToken is provided, bind to the verified Firebase identity
+      let verifiedUid = profile.id;
+      if (idToken) {
+        try {
+          const decoded = await verifyFirebaseIdToken(idToken);
+          verifiedUid = decoded.uid;
+          profile.id = verifiedUid;
+          profile.email = decoded.email || profile.email;
+        } catch (idErr: any) {
+          console.warn('[Register] Optional ID token verification notice:', idErr.message);
+        }
+      }
+
+      // Strict role security: Never allow callers to self-register as supervisory roles
+      if (profile.role === 'moh' || profile.role === 'county_health') {
+        profile.role = 'facility_admin';
+      }
+
+      const cleanFac = profile.facilityCode.replace(/[^a-zA-Z0-9_-]/g, '_');
+
+      // Persist in Firestore authoritative database
+      try {
+        await adminDb.collection('users').doc(verifiedUid).set({
+          ...profile,
+          facilityId: cleanFac,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+
+        await adminDb.collection('facilities').doc(cleanFac).set({
+          id: cleanFac,
+          facilityName: profile.facilityName,
+          facilityCode: profile.facilityCode,
+          facilityType: profile.facilityType || 'private',
+          adminEmail: profile.email,
+          adminName: profile.name,
+          adminUserId: verifiedUid,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+      } catch (fsErr: any) {
+        console.warn('[Register] Firestore write notice:', fsErr.message);
+      }
+
       // Save profile in persistent server store
       const savedProfile = serverStore.addRegisteredProfile(profile);
-      // Generate sovereign auth token with facility partition binding
-      const token = generateSessionToken(profile.email, profile.role || 'facility_admin', profile.facilityCode);
+
+      // Generate sovereign auth token with verified facility partition binding
+      const token = generateSessionToken(verifiedUid, profile.role || 'facility_admin', profile.facilityCode);
       
       // Log audit
       serverStore.logAudit({
@@ -323,9 +429,9 @@ async function startServer() {
     requireRoles: ['facility_admin', 'moh', 'county_health', 'guest']
   });
 
-  app.get('/api/debts', tenantReadAuth, (req: Request, res: Response) => {
+  app.get('/api/debts', tenantReadAuth, async (req: Request, res: Response) => {
     const { isGuest, facilityCode } = getTenantContext(req);
-    const debts = serverStore.getDebts(isGuest, facilityCode);
+    const debts = await serverStore.getDebtsAsync(isGuest, facilityCode);
     res.json({ success: true, debts, isGuest, facilityCode });
   });
 
@@ -434,10 +540,10 @@ async function startServer() {
   // ==========================================
   // SHA CLAIMS ENDPOINTS (Multi-Tenant Partitioned & Authenticated)
   // ==========================================
-  app.get('/api/claims', tenantReadAuth, (req: Request, res: Response) => {
+  app.get('/api/claims', tenantReadAuth, async (req: Request, res: Response) => {
     try {
       const { isGuest, facilityCode } = getTenantContext(req);
-      const claims = serverStore.getClaims(isGuest, facilityCode);
+      const claims = await serverStore.getClaimsAsync(isGuest, facilityCode);
       res.json({ success: true, claims, isGuest, facilityCode });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
