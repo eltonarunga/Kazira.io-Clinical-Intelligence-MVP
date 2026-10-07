@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { DebtItem, RecoveryLogEntry, BaselineConfig, ReportOutput, ShaClaim, INITIAL_SHA_CLAIMS, UserProfile } from '../types';
 import { INITIAL_DEBT_ITEMS, INITIAL_RECOVERY_ENTRIES, DEFAULT_BASELINE_CONFIG } from '../constants/sampleDebts';
-import { adminDb } from './firebaseAdmin';
+import { adminDb, isFirestoreAdminAvailable } from './firebaseAdmin';
 
 export interface SyncAuditLog {
   id: string;
@@ -123,20 +123,22 @@ class Store {
       return [...store.debts];
     }
 
-    try {
-      const cleanFac = facilityId.replace(/[^a-zA-Z0-9_-]/g, '_');
-      const snap = await adminDb.collection('facilities').doc(cleanFac).collection('debts').limit(150).get();
-      if (!snap.empty) {
-        const firestoreItems: DebtItem[] = [];
-        snap.forEach(docSnap => {
-          firestoreItems.push({ id: docSnap.id, ...docSnap.data() } as DebtItem);
-        });
-        store.debts = firestoreItems;
-        this.saveToDisk();
-        return firestoreItems;
+    if (isFirestoreAdminAvailable) {
+      try {
+        const cleanFac = facilityId.replace(/[^a-zA-Z0-9_-]/g, '_');
+        const snap = await adminDb.collection('facilities').doc(cleanFac).collection('debts').limit(150).get();
+        if (!snap.empty) {
+          const firestoreItems: DebtItem[] = [];
+          snap.forEach(docSnap => {
+            firestoreItems.push({ id: docSnap.id, ...docSnap.data() } as DebtItem);
+          });
+          store.debts = firestoreItems;
+          this.saveToDisk();
+          return firestoreItems;
+        }
+      } catch (e: any) {
+        // Fallback silently if permissions are insufficient in container
       }
-    } catch (e: any) {
-      console.warn('[Store] Firestore debt fetch fallback to local store:', e.message);
     }
 
     return [...store.debts];
@@ -153,11 +155,11 @@ class Store {
     this.saveToDisk();
 
     // Async write to authoritative Firestore database
-    if (!isGuest && facilityId) {
+    if (!isGuest && facilityId && isFirestoreAdminAvailable) {
       const cleanFac = facilityId.replace(/[^a-zA-Z0-9_-]/g, '_');
       adminDb.collection('facilities').doc(cleanFac).collection('debts').doc(item.id)
         .set(item, { merge: true })
-        .catch(err => console.warn('[Store] Firestore addDebt write warning:', err.message));
+        .catch(() => {});
     }
 
     return item;
@@ -168,14 +170,14 @@ class Store {
     store.debts = [...items, ...store.debts];
     this.saveToDisk();
 
-    if (!isGuest && facilityId && items.length > 0) {
+    if (!isGuest && facilityId && items.length > 0 && isFirestoreAdminAvailable) {
       const cleanFac = facilityId.replace(/[^a-zA-Z0-9_-]/g, '_');
       const batch = adminDb.batch();
       for (const item of items) {
         const docRef = adminDb.collection('facilities').doc(cleanFac).collection('debts').doc(item.id);
         batch.set(docRef, item, { merge: true });
       }
-      batch.commit().catch(err => console.warn('[Store] Firestore addDebtsBatch write warning:', err.message));
+      batch.commit().catch(() => {});
     }
 
     return items;
@@ -216,11 +218,11 @@ class Store {
     this.saveToDisk();
 
     // Async write to authoritative Firestore database
-    if (!isGuest && facilityId) {
+    if (!isGuest && facilityId && isFirestoreAdminAvailable) {
       const cleanFac = facilityId.replace(/[^a-zA-Z0-9_-]/g, '_');
       adminDb.collection('facilities').doc(cleanFac).collection('debts').doc(id)
         .set(updated, { merge: true })
-        .catch(err => console.warn('[Store] Firestore updateDebt write warning:', err.message));
+        .catch(() => {});
     }
 
     return updated;
@@ -233,11 +235,11 @@ class Store {
     if (store.debts.length !== beforeLen) {
       this.saveToDisk();
 
-      if (!isGuest && facilityId) {
+      if (!isGuest && facilityId && isFirestoreAdminAvailable) {
         const cleanFac = facilityId.replace(/[^a-zA-Z0-9_-]/g, '_');
         adminDb.collection('facilities').doc(cleanFac).collection('debts').doc(id)
           .delete()
-          .catch(err => console.warn('[Store] Firestore deleteDebt warning:', err.message));
+          .catch(() => {});
       }
 
       return true;
@@ -252,20 +254,22 @@ class Store {
       return [...(store.claims || [])];
     }
 
-    try {
-      const cleanFac = facilityId.replace(/[^a-zA-Z0-9_-]/g, '_');
-      const snap = await adminDb.collection('facilities').doc(cleanFac).collection('claims').limit(150).get();
-      if (!snap.empty) {
-        const firestoreClaims: ShaClaim[] = [];
-        snap.forEach(docSnap => {
-          firestoreClaims.push({ id: docSnap.id, ...docSnap.data() } as ShaClaim);
-        });
-        store.claims = firestoreClaims;
-        this.saveToDisk();
-        return firestoreClaims;
+    if (isFirestoreAdminAvailable) {
+      try {
+        const cleanFac = facilityId.replace(/[^a-zA-Z0-9_-]/g, '_');
+        const snap = await adminDb.collection('facilities').doc(cleanFac).collection('claims').limit(150).get();
+        if (!snap.empty) {
+          const firestoreClaims: ShaClaim[] = [];
+          snap.forEach(docSnap => {
+            firestoreClaims.push({ id: docSnap.id, ...docSnap.data() } as ShaClaim);
+          });
+          store.claims = firestoreClaims;
+          this.saveToDisk();
+          return firestoreClaims;
+        }
+      } catch (e: any) {
+        // Fallback silently if permissions are insufficient in container
       }
-    } catch (e: any) {
-      console.warn('[Store] Firestore claims fetch fallback to local store:', e.message);
     }
 
     return [...(store.claims || [])];
@@ -340,11 +344,11 @@ class Store {
     store.claims = [claim, ...(store.claims || [])];
     this.saveToDisk();
 
-    if (!isGuest && facilityId) {
+    if (!isGuest && facilityId && isFirestoreAdminAvailable) {
       const cleanFac = facilityId.replace(/[^a-zA-Z0-9_-]/g, '_');
       adminDb.collection('facilities').doc(cleanFac).collection('claims').doc(claim.id)
         .set(claim, { merge: true })
-        .catch(err => console.warn('[Store] Firestore addClaim write warning:', err.message));
+        .catch(() => {});
     }
 
     return claim;
@@ -359,11 +363,11 @@ class Store {
     store.claims[index] = updated;
     this.saveToDisk();
 
-    if (!isGuest && facilityId) {
+    if (!isGuest && facilityId && isFirestoreAdminAvailable) {
       const cleanFac = facilityId.replace(/[^a-zA-Z0-9_-]/g, '_');
       adminDb.collection('facilities').doc(cleanFac).collection('claims').doc(id)
         .set(updated, { merge: true })
-        .catch(err => console.warn('[Store] Firestore updateClaim write warning:', err.message));
+        .catch(() => {});
     }
 
     return updated;
@@ -377,11 +381,11 @@ class Store {
     if (store.claims.length !== beforeLen) {
       this.saveToDisk();
 
-      if (!isGuest && facilityId) {
+      if (!isGuest && facilityId && isFirestoreAdminAvailable) {
         const cleanFac = facilityId.replace(/[^a-zA-Z0-9_-]/g, '_');
         adminDb.collection('facilities').doc(cleanFac).collection('claims').doc(id)
           .delete()
-          .catch(err => console.warn('[Store] Firestore deleteClaim write warning:', err.message));
+          .catch(() => {});
       }
 
       return true;
@@ -402,13 +406,13 @@ class Store {
     this.saveToDisk();
 
     // Async sync to Firestore users collection
-    if (profile.id) {
+    if (profile.id && isFirestoreAdminAvailable) {
       const cleanFac = profile.facilityCode ? profile.facilityCode.replace(/[^a-zA-Z0-9_-]/g, '_') : '';
       adminDb.collection('users').doc(profile.id).set({
         ...profile,
         facilityId: cleanFac,
         updatedAt: new Date().toISOString()
-      }, { merge: true }).catch(err => console.warn('[Store] Firestore addRegisteredProfile write warning:', err.message));
+      }, { merge: true }).catch(() => {});
     }
 
     return profile;

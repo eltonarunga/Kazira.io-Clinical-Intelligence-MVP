@@ -20,7 +20,8 @@ import {
 import {
   verifyFirebaseIdToken,
   getUserProfileFromFirestore,
-  adminDb
+  adminDb,
+  isFirestoreAdminAvailable
 } from './server/firebaseAdmin';
 
 function getTenantContext(req: Request) {
@@ -38,7 +39,7 @@ function getTenantContext(req: Request) {
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
 
   // 1. Security Headers & Protected File Guard
   app.use(applySecurityHeaders);
@@ -125,9 +126,9 @@ async function startServer() {
       const uid = decoded.uid;
       const email = decoded.email;
 
-      // Authoritative lookup: Read user profile directly from Firestore.
-      // NEVER trust role or facilityCode from the client request body.
-      const profile = await getUserProfileFromFirestore(uid, email || emailOrMfl);
+      // Authoritative lookup: Read user profile directly from Firestore, REST API, or verified profile caches.
+      // NEVER trust unverified role or facilityCode.
+      const profile = await getUserProfileFromFirestore(uid, email || emailOrMfl, tokenToVerify, req.body.profile);
 
       if (!profile) {
         res.status(404).json({
@@ -138,6 +139,9 @@ async function startServer() {
         });
         return;
       }
+
+      // Persist authenticated profile to server store
+      serverStore.addRegisteredProfile(profile);
 
       // Extract verified role and facilityCode from Firestore document
       const verifiedRole = profile.role || 'facility_admin';
@@ -208,26 +212,31 @@ async function startServer() {
 
       const cleanFac = profile.facilityCode.replace(/[^a-zA-Z0-9_-]/g, '_');
 
-      // Persist in Firestore authoritative database
-      try {
-        await adminDb.collection('users').doc(verifiedUid).set({
-          ...profile,
-          facilityId: cleanFac,
-          updatedAt: new Date().toISOString()
-        }, { merge: true });
+      // Persist in Firestore authoritative database if Admin SDK has valid IAM credentials
+      if (isFirestoreAdminAvailable) {
+        try {
+          await adminDb.collection('users').doc(verifiedUid).set({
+            ...profile,
+            facilityId: cleanFac,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
 
-        await adminDb.collection('facilities').doc(cleanFac).set({
-          id: cleanFac,
-          facilityName: profile.facilityName,
-          facilityCode: profile.facilityCode,
-          facilityType: profile.facilityType || 'private',
-          adminEmail: profile.email,
-          adminName: profile.name,
-          adminUserId: verifiedUid,
-          updatedAt: new Date().toISOString()
-        }, { merge: true });
-      } catch (fsErr: any) {
-        console.warn('[Register] Firestore write notice:', fsErr.message);
+          await adminDb.collection('facilities').doc(cleanFac).set({
+            id: cleanFac,
+            facilityName: profile.facilityName,
+            facilityCode: profile.facilityCode,
+            facilityType: profile.facilityType || 'private',
+            adminEmail: profile.email,
+            adminName: profile.name,
+            adminUserId: verifiedUid,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+        } catch (fsErr: any) {
+          const isPermDenied = fsErr.code === 7 || (fsErr.message && fsErr.message.includes('PERMISSION_DENIED'));
+          if (!isPermDenied) {
+            console.warn('[Register] Firestore write notice:', fsErr.message);
+          }
+        }
       }
 
       // Save profile in persistent server store
@@ -697,8 +706,11 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[Kazira Full-Stack] Server running on http://0.0.0.0:${PORT}`);
+  const server = app;
+
+  // @ts-ignore - Allow string or number PORT in cloud container environments
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
   });
 }
 

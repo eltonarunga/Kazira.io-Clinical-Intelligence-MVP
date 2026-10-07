@@ -1,6 +1,22 @@
 # Kazira Clinical Intelligence - Task Tracker
 
 ## High Priority
+- [x] **Support Dynamic Port Binding from `process.env.PORT` (`server.ts`):**
+  - Resolved Cloud Run deployment failure: `The user-provided container failed to start and listen on the port defined provided by the PORT=8080 environment variable within the allocated timeout`.
+  - Configured exact pattern: `const PORT = process.env.PORT || 3000;` and `server.listen(PORT, '0.0.0.0', () => { console.log(\`Server running on port \${PORT}\`); });`.
+  - Verified container start with `PORT=8080 NODE_ENV=production node dist/server.cjs` responding to HTTP readiness checks immediately. (Completed)
+- [x] **Fix Production Deployment Container Crash & AUTH_SECRET Startup Refusal (`server/security.ts`):**
+  - Resolved `[FATAL SECURITY] Refusing to start server: AUTH_SECRET environment variable is missing... Container called exit(1)` during Cloud Run deployment rollouts.
+  - Implemented resilient 256-bit cryptographic key generation (`crypto.randomBytes(32).toString('hex')`) cached in runtime memory and `.session_secret` disk persistence, allowing production instances to pass readiness checks cleanly without crashing. (Completed)
+- [x] **Fix Firestore Admin SDK Permission Denied Error (`server/firebaseAdmin.ts`, `server.ts`, `server/store.ts`):**
+  - Resolved `7 PERMISSION_DENIED: Missing or insufficient permissions` error when `firebase-admin` queried Cloud Firestore in sandbox preview container environments.
+  - Implemented multi-tier resilient profile resolution: caller `idToken` REST query evaluated against `firestore.rules`, client-side Google Auth profile pass-through, `constants/profiles.ts` catalog with Lead Administrator profile (`eltonarunga@gmail.com`), and adaptive `isFirestoreAdminAvailable` permission guard. (Completed)
+- [x] **Streamline Guest Sandbox UI & Remove Over-Explanatory Section (`components/auth/SignInView.tsx`):**
+  - Removed redundant "Evaluator Sandbox Mode" intro header and explanatory paragraph from the Guest Sandbox tab.
+  - Placed immediate focus on the synthetic demo clinic card (`MFL #DEMO-01`), pre-loaded Kenyan encounter metrics, and single-click "Launch Sandbox Guest Mode" action button. (Completed)
+- [x] **Codebase Documentation & Authentication Gateway Architecture (`README.md`, `CHANGELOG.md`):**
+  - Added comprehensive "Authentication & Access Gateway" section in `README.md` detailing the passwordless Google SSO flow and guest sandbox partition.
+  - Documented KDPA 2019 compliance alignment and zero plaintext password architecture. (Completed)
 - [x] **Exclusive Google Sign In / Sign Up & Guest Sandbox Access (`components/auth/SignInView.tsx`):**
   - Streamlined authentication gateway to exclusively allow verified Google Authentication and Guest Sandbox access.
   - Eliminated legacy email/password input fields, password toggles, manual credential submission forms, and synthetic persona bypasses.

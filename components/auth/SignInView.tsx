@@ -125,7 +125,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
             name: user.displayName || match.name
           };
           await saveUserProfile(profile);
-          await apiService.loginWithFirebaseIdToken(idToken).catch(() => {});
+          await apiService.loginWithFirebaseIdToken(idToken, profile).catch(() => {});
           onSignIn(profile);
           if (onShowToast) {
             onShowToast('Google Authentication', `Welcome, ${profile.name}. Facility cloud database synced.`, 'success');
@@ -136,7 +136,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
 
       if (profile) {
         // Authenticate with server backend using verified Firebase ID Token
-        await apiService.loginWithFirebaseIdToken(idToken).catch(() => {});
+        await apiService.loginWithFirebaseIdToken(idToken, profile).catch(() => {});
         onSignIn(profile);
         if (onShowToast) {
           onShowToast('Welcome Back', `Authenticated as ${profile.name} (${profile.facilityName}).`, 'success');
@@ -344,16 +344,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
           {/* TAB 1: GOOGLE SIGN IN & SIGN UP                              */}
           {/* ============================================================ */}
           {activeTab === 'google' && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-base font-bold text-ink dark:text-zinc-100 font-head">
-                  Single Sign-On with Google
-                </h2>
-                <p className="text-xs text-ink2 dark:text-zinc-400 mt-1 leading-relaxed">
-                  Sign in or register your healthcare facility using your verified Google Workspace or personal Google account. Passwordless authentication backed by cryptographic Firebase tokens.
-                </p>
-              </div>
-
+            <div className="space-y-5">
               {/* Primary Google Action Button */}
               <button
                 type="button"
@@ -403,16 +394,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
           {/* TAB 2: GUEST SANDBOX ACCESS                                  */}
           {/* ============================================================ */}
           {activeTab === 'guest' && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-base font-bold text-amber-950 dark:text-amber-200 font-head">
-                  Evaluator Sandbox Mode
-                </h2>
-                <p className="text-xs text-ink2 dark:text-zinc-400 mt-1 leading-relaxed">
-                  Instant clinical and financial evaluation sandbox. Explore revenue recovery workflows, unbilled procedure gap detection, and deterministic AI audit simulations with zero onboarding.
-                </p>
-              </div>
-
+            <div className="space-y-5">
               {/* Guest Launch Card */}
               <div className="p-5 rounded-xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/40 space-y-4">
                 <div className="space-y-2">

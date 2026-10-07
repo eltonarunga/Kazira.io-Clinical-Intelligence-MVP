@@ -96,6 +96,24 @@ Kazira runs as a full-stack Express + Vite application with strict separation be
 
 ---
 
+## Authentication & Access Gateway
+
+In accordance with KDPA 2019 statutory data sovereignty principles, Kazira enforces a modern passwordless authentication gateway:
+
+1. **Google Sign In / Sign Up (SSO):**
+   - Direct Firebase Authentication integration (`signInWithGooglePopup`).
+   - Returning facility administrators and clinicians are recognized by their Google email and mapped to their existing Cloud Firestore facility partition.
+   - First-time clinic registrations are routed into a streamlined setup flow to input their Kenya Master Health Facility List (KMHFL) code, hospital name, facility tier, and county.
+   - Eliminates vulnerable plaintext password management, brute-force vectors, and credential reuse.
+
+2. **Guest Sandbox Mode:**
+   - Instant zero-friction evaluation path for clinic directors, health accountants, and regulatory evaluators.
+   - Automatically issues a signed, cryptographically verified session token bound to the synthetic demo partition (`MFL #DEMO-01`).
+   - Pre-populated with 142 simulated Kenyan FHIR encounters, KES 3.42M in detected unbilled procedural debts, and real-time SHA pre-submission adjudication.
+   - Completely isolated from production hospital partitions.
+
+---
+
 ## Deterministic Procedural Reconciliation & AI Audit Pipeline
 
 Kazira decouples financial arithmetic from generative language models. The core metric—missed billing and unbilled revenue leakage—is computed by a deterministic algorithmic reconciliation engine that directly compares clinical encounters against billing invoices. Generative models are reserved strictly for narrative synthesis and contextual reporting, audited by a second model pass:

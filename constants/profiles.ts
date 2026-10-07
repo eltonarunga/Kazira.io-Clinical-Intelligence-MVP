@@ -2,6 +2,28 @@ import { UserProfile } from '../types';
 
 export const PROFILES: UserProfile[] = [
   {
+    id: 'user-elton-arunga',
+    name: 'Elton Arunga',
+    title: 'Chief Technology Officer & Lead Administrator',
+    email: 'eltonarunga@gmail.com',
+    role: 'facility_admin',
+    facilityName: 'Nairobi West Memorial Hospital',
+    facilityCode: 'MFL #14920',
+    facilityType: 'private',
+    avatarMonogram: 'EA',
+    avatarColor: 'bg-[#005235] text-white',
+    isGuest: false,
+    department: 'Hospital Informatics & Revenue Operations',
+    phone: '+254 700 000 000',
+    permissions: [
+      'Full Revenue Cycle Management',
+      'Unbilled Gap Debt Resolution',
+      'SHA Claim Verification & Submission',
+      'Deterministic AI Dual-Loop Execution',
+      'Cloud Database Synchronization'
+    ]
+  },
+  {
     id: 'user-amina-mutua',
     name: 'Dr. Amina Mutua, MBChB',
     title: 'Chief Medical Officer & Facility Admin',

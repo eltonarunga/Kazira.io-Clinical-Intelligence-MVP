@@ -48,12 +48,12 @@ export class ApiService {
   }
 
   // Authentication via Verified Firebase ID Token
-  public async loginWithFirebaseIdToken(idToken: string): Promise<{ success: boolean; token?: string; user?: any; error?: string }> {
+  public async loginWithFirebaseIdToken(idToken: string, profile?: UserProfile): Promise<{ success: boolean; token?: string; user?: any; error?: string }> {
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken })
+        body: JSON.stringify({ idToken, profile })
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.success && data.token) {

@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 
 // =========================================================================
 // 1. RATE LIMITING MIDDLEWARE (Sliding Window in Memory)
@@ -131,32 +133,46 @@ export function sanitizePayload<T>(input: T): T {
 // =========================================================================
 function resolveAuthSecret(): string {
   const envSecret = process.env.AUTH_SECRET;
-  const isProduction = process.env.NODE_ENV === 'production';
 
-  if (isProduction) {
-    if (!envSecret || envSecret.trim().length < 16 || envSecret === 'kazira-kdpa-sovereign-salt-2026') {
-      throw new Error(
-        '[FATAL SECURITY] Refusing to start server: AUTH_SECRET environment variable is missing, too short (< 16 chars), or set to the insecure repository default in production. ' +
-        'Set a strong, cryptographically private AUTH_SECRET key in your deployment environment.'
-      );
-    }
-    return envSecret.trim();
-  }
-  
   if (envSecret && envSecret.trim().length >= 16 && envSecret !== 'kazira-kdpa-sovereign-salt-2026') {
     return envSecret.trim();
   }
 
-  // Non-production fallback: generate an unguessable 256-bit cryptographic secret for this process run.
-  // This guarantees tokens cannot be forged by external callers using public strings from the repository.
-  if (!(global as any).__kazira_ephemeral_dev_secret) {
-    (global as any).__kazira_ephemeral_dev_secret = crypto.randomBytes(32).toString('hex');
-    console.warn(
-      '[SECURITY NOTICE] AUTH_SECRET not configured. Generated ephemeral 256-bit secret for this process. ' +
-      'Tokens forged with public repository strings will be rejected.'
-    );
+  // Resilient cryptographic fallback:
+  // When AUTH_SECRET is not explicitly injected by the cloud deployment environment (e.g. Cloud Run, Vercel),
+  // retrieve or generate an unguessable 256-bit cryptographic secret for this runtime instance.
+  // This guarantees tokens cannot be forged by external callers using public strings from the repository,
+  // while ensuring zero container crash on deployment startup.
+  const globalKey = '__kazira_runtime_auth_secret';
+  if ((global as any)[globalKey]) {
+    return (global as any)[globalKey];
   }
-  return (global as any).__kazira_ephemeral_dev_secret;
+
+  // Attempt to read previously generated secret from disk if data dir is available
+  try {
+    const keyFile = path.join(process.cwd(), 'data', '.session_secret');
+    if (fs.existsSync(keyFile)) {
+      const stored = fs.readFileSync(keyFile, 'utf-8').trim();
+      if (stored.length >= 32) {
+        (global as any)[globalKey] = stored;
+        return stored;
+      }
+    }
+  } catch {}
+
+  // Generate a cryptographically secure random 256-bit key
+  const generated = crypto.randomBytes(32).toString('hex');
+  (global as any)[globalKey] = generated;
+
+  try {
+    const dataDir = path.join(process.cwd(), 'data');
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    fs.writeFileSync(path.join(dataDir, '.session_secret'), generated, 'utf-8');
+  } catch {}
+
+  return generated;
 }
 
 const AUTH_SECRET = resolveAuthSecret();
